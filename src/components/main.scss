@@ -1,0 +1,17 @@
+// src/components/main.scss
+
+// 1. Variables y Base
+@use 'css/variables' as v;
+@use 'css/reset';
+
+// 2. Animaciones (Según tu foto, la carpeta está en la raíz de components)
+@use 'animations/animaciones'; // <--- QUITA el "css/" del principio
+
+// 3. Layouts
+@use 'css/layout/cuadricula';
+@use 'css/layout/filas';
+
+// 4. Otros
+@use 'Navbar/navbar';
+@use 'resources/personajes';
+@use 'resources/pictures';

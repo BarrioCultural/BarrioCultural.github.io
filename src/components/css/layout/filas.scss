@@ -1,0 +1,33 @@
+@use '../variables' as v;
+
+.galeria-filas { 
+    display: flex; flex-direction: column; width: 95%; 
+    font-style: italic;
+    .targeta { 
+        display: flex; align-items: center; gap: 1.3rem; width: 100%; 
+        padding: 0 0; 
+        border-radius: 750px;
+        margin: 1rem;
+    } 
+    
+    .imagen { 
+        border-radius: 50%; 
+        width: 150px; 
+        height: 150px; 
+        min-width: 150px; 
+        object-fit: cover;
+        background-color: white;
+        cursor: zoom-in;
+        transition: transform 0.3s ease;
+
+        &:hover {
+            transform: scale(1.05);
+        }
+    }
+}
+
+
+
+
+.texto-derecha { flex-direction: row !important; text-align: left; }
+.texto-izquierda { flex-direction: row-reverse !important; text-align: right; }

@@ -1,0 +1,38 @@
+// Colores
+$primary: #67556d;    // Tu color principal
+$accent: #be97d1;     // Tu color de realce (rosa, morado, etc)
+$text-light: #ffffff;
+$bg-main: #e4d7e6;
+$bg-menu: #67556d;  
+
+// Tipografía y Tamaños
+$font-bold: 700;
+$font-medium: 500;
+$size-lg: 1.5rem;
+
+$white: #e4d7e6;
+
+
+// Layout y Espaciado
+$container-max: 1100px;
+$pad-sm: 0.5rem;
+$pad-md: 1rem;
+$pad-lg: 1.25rem;
+$gap-md: 1.5rem;
+
+// Efectos
+$shadow-sm: 0 4px 6px rgba(0,0,0,0.1);
+$trans: 0.3s ease; // O el tiempo que prefieras
+$trans-fast: 0.1s ease; // O el tiempo que prefieras
+
+$text-main: #ffffff; // <--- ASEGÚRATE DE QUE ESTA LÍNEA ESTÉ AQUÍ
+
+$personajes: (
+  "frani": #fff9c4,
+  "faker": #e9d841,
+  "pinkkiller": #a65a92,
+  "dorian": #684b6d,
+  "florgelida": #bbdefb,
+  "abel": #7c363d,
+  "yoa": #c8e6c9
+);
