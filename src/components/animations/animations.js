@@ -1,6 +1,7 @@
-// src/js/animations.js
 export function initAnimations() {
-    
+    // 🛡️ PROTECCIÓN INICIAL: Evita que el servidor explote
+    if (typeof window === "undefined" || typeof document === "undefined") return;
+
     // 1. ANIMACIÓN DE APARICIÓN (Scroll)
     const elementosAnimados = document.querySelectorAll(".animate-on-scroll");
     const observador = new IntersectionObserver(entradas => {
@@ -13,56 +14,31 @@ export function initAnimations() {
     }, { threshold: 0.1 });
     elementosAnimados.forEach(el => observador.observe(el));
 
-    // 2. LIGHTBOX CON DELEGACIÓN
-    const lightbox = document.getElementById("lightbox");
-    const lightboxImg = document.getElementById("lightbox-img");
+    // 2. REPRODUCTOR GLOBAL
+    // Lo asignamos a window dentro de la función para que solo exista en el navegador
+    window.togglePlay = function(id, btn) {
+        const audio = document.getElementById(id);
+        if (!audio) return;
 
-    document.addEventListener("click", (e) => {
-        // Detectar clic en cualquier imagen
-        if (e.target.classList.contains("imagen")) {
-            if (lightbox && lightboxImg) {
-                lightboxImg.src = e.target.src;
-                lightbox.classList.add("active");
-                document.body.style.overflow = "hidden"; 
+        const icon = btn.querySelector('.icon');
+        const progressBar = btn.parentElement.querySelector('.progress-bar');
 
-                lightboxImg.classList.remove("efecto-abrir");
-                void lightboxImg.offsetWidth; 
-                lightboxImg.classList.add("efecto-abrir");
-            }
+        if (audio.paused) {
+            audio.play();
+            icon.textContent = '⏸';
+        } else {
+            audio.pause();
+            icon.textContent = '▶';
         }
 
-        // Cerrar al hacer clic en el fondo del lightbox
-        if (e.target.id === "lightbox") {
-            lightbox.classList.remove("active");
-            document.body.style.overflow = ""; 
-        }
-    });
+        audio.ontimeupdate = () => {
+            const percentage = (audio.currentTime / audio.duration) * 100;
+            if (progressBar) progressBar.style.width = percentage + '%';
+        };
+        
+        audio.onended = () => {
+            icon.textContent = '▶';
+            if (progressBar) progressBar.style.width = '0%';
+        };
+    };
 }
-
-// Mantener el reproductor global
-window.togglePlay = function(id, btn) {
-    const audio = document.getElementById(id);
-    if (!audio) return;
-
-    const icon = btn.querySelector('.icon');
-    const progressBar = btn.parentElement.querySelector('.progress-bar');
-
-    if (audio.paused) {
-        audio.play();
-        icon.textContent = '⏸';
-    } else {
-        audio.pause();
-        icon.textContent = '▶';
-    }
-
-    audio.ontimeupdate = () => {
-        const percentage = (audio.currentTime / audio.duration) * 100;
-        if (progressBar) progressBar.style.width = percentage + '%';
-    };
-    
-    audio.onended = () => {
-        icon.textContent = '▶';
-        if (progressBar) progressBar.style.width = '0%';
-    };
-}; 
-

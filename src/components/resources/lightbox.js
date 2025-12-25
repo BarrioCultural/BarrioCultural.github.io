@@ -1,4 +1,4 @@
-"use client"; // <--- ESTA ES LA LÍNEA QUE DEBES AGREGAR
+"use client";
 
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 
@@ -26,16 +26,25 @@ const Lightbox = () => {
   useEffect(() => {
     if (selectedImg) {
       const timer = setTimeout(() => setIsAnimating(true), 10);
-      return () => clearTimeout(timer);
+      document.body.style.overflow = "hidden"; // Bloquea scroll
+      return () => {
+        clearTimeout(timer);
+        document.body.style.overflow = ""; // Libera scroll
+      };
     } else {
       setIsAnimating(false);
+      document.body.style.overflow = "";
     }
   }, [selectedImg]);
 
   useEffect(() => {
+    // 🛡️ PROTECCIÓN DE WINDOW: Solo se ejecuta en el cliente
+    if (typeof window === "undefined") return;
+
     const handleEsc = (e) => {
       if (e.key === 'Escape') closeLightbox();
     };
+
     if (selectedImg) {
       window.addEventListener('keydown', handleEsc);
     }
@@ -46,6 +55,7 @@ const Lightbox = () => {
 
   return (
     <div 
+      id="lightbox" // Mantener el ID por si el CSS lo usa
       className={`lightbox ${isAnimating ? 'active' : ''}`} 
       onClick={(e) => {
         if (e.target === e.currentTarget) {
@@ -53,15 +63,12 @@ const Lightbox = () => {
         }
       }}
     >
-      {/* 1. Quitamos el div 'lightbox-content' para que el flexbox centre la imagen directo */}
       <img 
         id="lightbox-img" 
         src={selectedImg.src} 
         alt={selectedImg.alt} 
         onClick={(e) => e.stopPropagation()} 
       />
-      
-      {/* 2. La X ahora es hija directa del fondo para que no mueva la foto */}
       <span className="close-btn" onClick={closeLightbox}>&times;</span>
     </div>
   );

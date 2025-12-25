@@ -3,15 +3,10 @@
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
-// 1. Lightbox está en components/resources/
+// Importaciones (Rutas corregidas)
 import { useLightbox } from "../components/resources/lightbox"; 
 import Lightbox from "../components/resources/lightbox"; 
-
-// 2. Navbar está en components/Navbar/ (ojo a las mayúsculas/minúsculas)
 import Navbar from "../components/Navbar/navbar"; 
-
-// 3. Tus animaciones están dentro de la carpeta js que está en components
-// Según tu estructura: src/components/js/animations.js
 import { initAnimations } from "../components/animations/animations";
 
 export default function AppLogic({ children }) {
@@ -19,12 +14,25 @@ export default function AppLogic({ children }) {
   const { closeLightbox } = useLightbox(); 
 
   useEffect(() => {
-    // Verificamos que initAnimations exista antes de llamarla
-    if (typeof initAnimations === 'function') {
-      initAnimations(); 
+    // 🛡️ ESTA ES LA CLAVE:
+    // Solo entramos aquí si 'window' existe (o sea, estamos en el navegador)
+    if (typeof window !== "undefined") {
+      
+      // 1. Ejecutamos el scroll de forma segura
+      window.scrollTo(0, 0); 
+      
+      // 2. Ejecutamos animaciones solo si la función existe
+      if (typeof initAnimations === 'function') {
+        try {
+          initAnimations(); 
+        } catch (error) {
+          console.error("Error en animaciones:", error);
+        }
+      }
+      
+      // 3. Cerramos el lightbox
+      if (closeLightbox) closeLightbox();
     }
-    window.scrollTo(0, 0); 
-    if (closeLightbox) closeLightbox();
   }, [pathname, closeLightbox]); 
 
   return (
