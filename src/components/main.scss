@@ -3,6 +3,8 @@
 // 1. Variables y Base
 @use 'css/variables' as v;
 @use 'css/reset';
+@use 'paginas/contacto';
+
 
 // 2. Animaciones (Según tu foto, la carpeta está en la raíz de components)
 @use 'animations/animaciones'; // <--- QUITA el "css/" del principio
