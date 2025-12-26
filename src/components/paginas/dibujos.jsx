@@ -41,9 +41,6 @@ const Drawings = () => {
         <h1 className="text-4xl font-bold text-primary tracking-tight">Dibujos</h1>
         <p className="mt-2 text-primary/60 italic">Fanarts y Personajes :D</p>
       </header>
-
-      {/* Usamos el componente reutilizable que creamos antes */}
-// En tu mapeo de dibujos:
 <GalleryGrid>
   {dibujos.map((dibujo, index) => (
     <GalleryItem 
