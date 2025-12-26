@@ -1,13 +1,13 @@
 "use client";
 
 import React from 'react';
-// Usamos el alias @ para evitar errores de rutas movidas
 import { useLightbox } from "@/components/lightbox"; 
 import { GalleryGrid, GalleryItem } from "@/components/gallery";
 
 const Diario = () => {
   const { openLightbox } = useLightbox();
 
+  // 1. Definimos los datos
   const entradas = [
     { fecha: "20 de Enero 2025", img: "/fotos/2025-01-20_1.jpg" },
     { fecha: "19 de Nov. 2024", img: "/fotos/2024-11-19_1.jpg" },
@@ -21,31 +21,26 @@ const Diario = () => {
     { fecha: "27 de Jul. 2024", img: "/fotos/2024-07-27_1.jpg"},
   ];
 
+  // 2. Preparamos la lista para el Lightbox (mapeando a src/alt)
+  const fotosParaLightbox = entradas.map(e => ({ src: e.img, alt: e.fecha }));
+
   return (
     <main className="min-h-screen bg-bg-main pt-10">
       <header className="mb-10 px-4 text-center">
         <h1 className="text-4xl font-bold text-primary tracking-tight">Diario de Fotos</h1>
       </header>
 
-      {/* Usamos GalleryGrid que ya tiene definida la cuadrícula responsive */}
       <GalleryGrid>
         {entradas.map((entrada, index) => (
           <div key={index} className="flex flex-col group">
             <GalleryItem 
               src={entrada.img} 
               alt={entrada.fecha} 
-              onClick={() => openLightbox({ src: entrada.img, alt: entrada.fecha })}
+              onClick={() => openLightbox(index, fotosParaLightbox)} 
             />
-            {/* Texto de la fecha adaptado a Tailwind */}
-            <h3 className="mt-2 text-center text-[10px] md:text-xs font-bold text-primary uppercase tracking-tighter opacity-80 group-hover:opacity-100 transition-opacity">
+            <h3 className="mt-2 text-center text-[10px] md:text-xs font-bold text-primary uppercase opacity-70 group-hover:opacity-100 transition-opacity">
               {entrada.fecha}
             </h3>
-            {/* Si tienes descripción opcional */}
-            {entrada.desc && (
-              <p className="mt-1 text-center text-[9px] text-primary/60">
-                {entrada.desc}
-              </p>
-            )}
           </div>
         ))}
       </GalleryGrid>
