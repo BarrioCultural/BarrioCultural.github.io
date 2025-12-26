@@ -27,7 +27,7 @@ const TerminalSimple = () => {
     <div className="scanlines bg-terminal-dark border-2 border-terminal-green shadow-terminal p-6 rounded-lg font-mono w-full max-w-2xl mx-auto">
       <header className="mb-6 border-b border-terminal-green/30 pb-4">
         <h2 className="text-terminal-green uppercase tracking-[0.2em] text-sm md:text-base">
-          Explorador de Archivos Clasificados
+          Archivos del Partido por el Progreso
         </h2>
         <p className="text-terminal-gray text-[10px] mt-1 italic">Haga clic en un archivo para visualizar</p>
       </header>
