@@ -2,14 +2,14 @@
 @plugin "tailwindcss-animate";
 
 @theme inline {
-  /* Colores Personalizados */
+  /* Colores de tu sistema original */
   --color-primary: var(--primary);
   --color-accent: var(--accent);
   --color-bg-main: var(--bg-main);
   --color-bg-menu: var(--bg-menu);
   --color-white-custom: var(--white-custom);
 
-  /* Colores de Personajes (Mapeo de tu Sass) */
+  /* Colores de Personajes */
   --color-frani: #fff9c4;
   --color-faker: #e9d841;
   --color-pinkkiller: #a65a92;
@@ -18,26 +18,42 @@
   --color-abel: #7c363d;
   --color-yoa: #c8e6c9;
 
-  /* Espaciados y Layout */
+  /* --- NUEVO: COLORES DE TERMINAL --- */
+  --color-terminal-green: #00ff00;
+  --color-terminal-dark: #0a0a0a;
+  --color-terminal-gray: #004400;
+  --color-terminal-red: #ff0000;
+
+  /* --- NUEVO: ANIMACIONES Y KEYFRAMES --- */
+  --animate-terminal-flicker: flicker 0.15s infinite;
+  --animate-cursor-blink: blink 1s step-end infinite;
+
+  @keyframes flicker {
+    0% { opacity: 0.97; }
+    50% { opacity: 1; }
+    100% { opacity: 0.98; }
+  }
+  @keyframes blink {
+    from, to { color: transparent; }
+    50% { color: #00ff00; }
+  }
+
+  /* Efectos y Layout */
   --spacing-container: 1100px;
   --spacing-pad-sm: 0.5rem;
   --spacing-pad-md: 1rem;
   --spacing-pad-lg: 1.25rem;
-
-  /* Efectos */
+  --shadow-terminal: 0 0 15px rgba(0, 255, 0, 0.3);
   --shadow-custom-sm: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 :root {
-  /* Variables de Color */
   --primary: #67556d;
   --accent: #be97d1;
   --bg-main: #e4d7e6;
   --bg-menu: #67556d;
   --white-custom: #e4d7e6;
-  --foreground: #ffffff; /* Tu $text-main */
-
-  /* Radios de borde generales */
+  --foreground: #ffffff;
   --radius: 0.625rem;
 }
 
@@ -46,5 +62,25 @@
     background-color: var(--bg-main);
     color: var(--foreground);
     font-family: ui-sans-serif, system-ui, sans-serif;
+  }
+}
+
+/* Efecto visual de monitor CRT (Scanlines) */
+@layer components {
+  .scanlines {
+    position: relative;
+    overflow: hidden;
+  }
+  .scanlines::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      rgba(18, 16, 16, 0) 50%, 
+      rgba(0, 0, 0, 0.1) 50%
+    );
+    background-size: 100% 4px;
+    z-index: 20;
+    pointer-events: none;
   }
 }

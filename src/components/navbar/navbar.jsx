@@ -87,6 +87,11 @@ const Navbar = () => {
                 </Link>
               </li>
               <li>
+              <Link href="/archivos" onClick={closeMenu} className={cn(linkStyles('/archivos'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md text-terminal-green")}>
+                Archivos <span className="text-[8px] animate-pulse">●</span>
+              </Link>
+              </li>
+              <li>
                 <a href="https://youtube.com" target="_blank" className="block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm text-white rounded-md">
                   Animaciones
                 </a>
