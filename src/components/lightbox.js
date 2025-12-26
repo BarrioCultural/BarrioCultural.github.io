@@ -1,5 +1,4 @@
 "use client";
-
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 
 const LightboxContext = createContext();
@@ -13,23 +12,26 @@ export const LightboxProvider = ({ children }) => {
   return (
     <LightboxContext.Provider value={{ selectedImg, openLightbox, closeLightbox }}>
       {children}
+      {/* 🟢 IMPORTANTE: El componente visual DEBE estar aquí para que aparezca en toda la web */}
+      <LightboxVisual />
     </LightboxContext.Provider>
   );
 };
 
 export const useLightbox = () => useContext(LightboxContext);
 
-const Lightbox = () => {
+// Cambiamos el nombre a LightboxVisual para no confundir
+const LightboxVisual = () => {
   const { selectedImg, closeLightbox } = useLightbox();
   const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
     if (selectedImg) {
       const timer = setTimeout(() => setIsAnimating(true), 10);
-      document.body.style.overflow = "hidden"; // Bloquea scroll
+      document.body.style.overflow = "hidden";
       return () => {
         clearTimeout(timer);
-        document.body.style.overflow = ""; // Libera scroll
+        document.body.style.overflow = "";
       };
     } else {
       setIsAnimating(false);
@@ -37,41 +39,43 @@ const Lightbox = () => {
     }
   }, [selectedImg]);
 
-  useEffect(() => {
-    // 🛡️ PROTECCIÓN DE WINDOW: Solo se ejecuta en el cliente
-    if (typeof window === "undefined") return;
-
-    const handleEsc = (e) => {
-      if (e.key === 'Escape') closeLightbox();
-    };
-
-    if (selectedImg) {
-      window.addEventListener('keydown', handleEsc);
-    }
-    return () => window.removeEventListener('keydown', handleEsc);
-  }, [selectedImg, closeLightbox]);
-
   if (!selectedImg) return null;
 
   return (
     <div 
-      id="lightbox" // Mantener el ID por si el CSS lo usa
       className={`lightbox ${isAnimating ? 'active' : ''}`} 
-      onClick={(e) => {
-        if (e.target === e.currentTarget) {
-          closeLightbox();
-        }
+      onClick={closeLightbox}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        backgroundColor: 'rgba(0,0,0,0.9)',
+        zIndex: 9999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        cursor: 'zoom-out',
+        opacity: isAnimating ? 1 : 0,
+        transition: 'opacity 0.3s ease'
       }}
     >
       <img 
-        id="lightbox-img" 
         src={selectedImg.src} 
         alt={selectedImg.alt} 
+        style={{ 
+          maxHeight: '90vh', 
+          maxWidth: '90vw', 
+          objectFit: 'contain',
+          transform: isAnimating ? 'scale(1)' : 'scale(0.9)',
+          transition: 'transform 0.3s ease'
+        }}
         onClick={(e) => e.stopPropagation()} 
       />
-      <span className="close-btn" onClick={closeLightbox}>&times;</span>
+      <span 
+        style={{ position: 'absolute', top: '20px', right: '30px', color: 'white', fontSize: '40px', cursor: 'pointer' }}
+        onClick={closeLightbox}
+      >
+        &times;
+      </span>
     </div>
   );
 };
-
-export default Lightbox;

@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { useLightbox } from "@/components/lightbox";
-// Asegúrate de crear este archivo en src/components/FilaPersonaje.jsx
 import { FilaPersonaje } from "@/components/FilaPersonaje";
 
 const Lore = () => {
