@@ -1,16 +1,10 @@
-export default function TestPage() {
+export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-900 p-4">
-      <div className="rounded-2xl bg-slate-800 p-8 shadow-2xl border border-slate-700">
-        <h1 className="text-3xl font-bold text-sky-400">
-          Tailwind funcionando
-        </h1>
-        <p className="mt-2 text-slate-400">
-          Este es un proyecto de Next.js usando <b>JavaScript</b> y Sass.
-        </p>
-        <button className="mt-6 px-6 py-2 bg-sky-500 hover:bg-sky-600 text-white font-semibold rounded-lg transition-colors">
-          ¡Genial!
-        </button>
+    <div className="py-10 flex flex-col items-center justify-center">
+      {/* Tu código de prueba de Tailwind o tu diseño de Nexus */}
+      <div className="rounded-2xl bg-stone-900 p-8 shadow-2xl border border-stone-800">
+        <h1 className="text-3xl font-bold text-stone-100">Tailwind en Page.js</h1>
+        <p className="mt-2 text-stone-400">Este contenido vive dentro de AppLogic.</p>
       </div>
     </div>
   );
