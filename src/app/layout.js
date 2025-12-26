@@ -2,6 +2,7 @@
 // src/components/resources/lightbox.js
 import { LightboxProvider } from "../components/lightbox/lightbox"; 
 import AppLogic from "./AppLogic";
+import "../components/tailwind.css";
 
 // Importa tu CSS principal aquí para que se aplique a toda la web
 import "../components/main.scss"; 
