@@ -2,7 +2,7 @@
 import React from 'react';
 // 1. Importamos el hook del contexto
 
-import { useLightbox } from "../lightbox/lightbox";
+import { useLightbox } from "../lightbox";
 
 const Lore = () => {
   // 2. Extraemos la función openLightbox

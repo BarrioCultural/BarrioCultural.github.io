@@ -1,33 +1,32 @@
-"use client"; // <--- ESTA LÍNEA ES LA CLAVE
+"use client";
 
 import React from 'react';
-
-// Importas el hook del archivo de componentes
-import { useLightbox } from "../lightbox/lightbox";
-
+import { useLightbox } from "@/components/lightbox"; 
+import { GalleryGrid, GalleryItem } from "@/components/gallery";
 const Drawings = () => {
-  // 2. Extraemos la función openLightbox del contexto
   const { openLightbox } = useLightbox();
   
   const dibujos = [
-    { src: "/dibujos/fanart/01.jpg", alt: "Frani" },
-    { src: "/dibujos/fanart/02.png", alt: "Frani" },
-    { src: "/dibujos/fanart/03.jpg", alt: "Frani" },
-    { src: "/dibujos/fanart/04.jpg", alt: "Frani" },
-    { src: "/dibujos/fanart/05.jpg", alt: "Frani" },
-    { src: "/dibujos/fanart/06.jpg", alt: "Frani" },
-    { src: "/dibujos/fanart/07.jpg", alt: "Frani" },
-    { src: "/dibujos/fanart/08.jpg", alt: "Frani" },
-    { src: "/dibujos/fanart/09.jpg", alt: "Frani" },
-    { src: "/dibujos/fanart/10.png", alt: "Frani" },
-    { src: "/dibujos/fanart/11.jpg", alt: "Frani" },
-    { src: "/dibujos/fanart/12.jpg", alt: "Frani" },
-    { src: "/dibujos/fanart/13.png", alt: "Frani" },
-    { src: "/dibujos/fanart/14.jpg", alt: "Frani" },
-    { src: "/dibujos/fanart/15.jpg", alt: "Frani" },
-    { src: "/dibujos/fanart/16.jpg", alt: "Frani" },
-    { src: "/dibujos/fanart/17.jpg", alt: "Frani" },
+    // --- FANARTS ---
+    { src: "/dibujos/fanart/01.jpg", alt: "Fanart 01" },
+    { src: "/dibujos/fanart/02.png", alt: "Fanart 02" },
+    { src: "/dibujos/fanart/03.jpg", alt: "Fanart 03" },
+    { src: "/dibujos/fanart/04.jpg", alt: "Fanart 04" },
+    { src: "/dibujos/fanart/05.jpg", alt: "Fanart 05" },
+    { src: "/dibujos/fanart/06.jpg", alt: "Fanart 06" },
+    { src: "/dibujos/fanart/07.jpg", alt: "Fanart 07" },
+    { src: "/dibujos/fanart/08.jpg", alt: "Fanart 08" },
+    { src: "/dibujos/fanart/09.jpg", alt: "Fanart 09" },
+    { src: "/dibujos/fanart/10.png", alt: "Fanart 10" },
+    { src: "/dibujos/fanart/11.jpg", alt: "Fanart 11" },
+    { src: "/dibujos/fanart/12.jpg", alt: "Fanart 12" },
+    { src: "/dibujos/fanart/13.png", alt: "Fanart 13" },
+    { src: "/dibujos/fanart/14.jpg", alt: "Fanart 14" },
+    { src: "/dibujos/fanart/15.jpg", alt: "Fanart 15" },
+    { src: "/dibujos/fanart/16.jpg", alt: "Fanart 16" },
+    { src: "/dibujos/fanart/17.jpg", alt: "Fanart 17" },
 
+    // --- PERSONAJES (CUERPO COMPLETO) ---
     { src: "/dibujos/personajes/cuerpo-completo/frani-postsuicideparede.png", alt: "Frani" },
     { src: "/dibujos/personajes/cuerpo-completo/faker.png", alt: "Faker" },
     { src: "/dibujos/personajes/cuerpo-completo/pinkkiller.png", alt: "Pink Killer" },
@@ -37,19 +36,28 @@ const Drawings = () => {
   ];
 
   return (
-    <section className="galeria-cuadricula">
-      {dibujos.map((dibujo, index) => (
-        <article key={index} className="targeta animate-on-scroll">
-          <img 
-            src={dibujo.src} 
-            className="imagen" 
-            alt={dibujo.alt} 
-            // 3. Usamos la función del contexto aquí
+    <main className="min-h-screen bg-bg-main pt-10">
+      <header className="mb-10 px-4 text-center">
+        <h1 className="text-4xl font-bold text-primary tracking-tight">Galería de Arte</h1>
+        <p className="mt-2 text-primary/60 italic">Fanarts y Personajes Originales</p>
+      </header>
+
+      {/* Usamos el componente reutilizable que creamos antes */}
+      <GalleryGrid>
+        {dibujos.map((dibujo, index) => (
+          <GalleryItem 
+            key={index}
+            src={dibujo.src}
+            alt={dibujo.alt}
+            // Al hacer clic, se abre el Lightbox con la info del dibujo
             onClick={() => openLightbox(dibujo)} 
           />
-        </article>
-      ))}
-    </section>
+        ))}
+      </GalleryGrid>
+
+      {/* Espaciador final */}
+      <div className="h-20"></div>
+    </main>
   );
 };
 

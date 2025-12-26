@@ -4,10 +4,10 @@ import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
 // Importaciones (Rutas corregidas)
-import { useLightbox } from "../components/lightbox/lightbox"; 
-import Lightbox from "../components/lightbox/lightbox"; 
-import Navbar from "../components/navbar/navbar"; 
-import { initAnimations } from "../components/animations/animations";
+import { useLightbox } from "../components/lightbox"; 
+import Lightbox from "../components/lightbox"; 
+import Navbar from "../components/navbar/navbar"; // CORRECTO: carpeta en minúscula
+import { initAnimations } from "../components/animations";
 
 export default function AppLogic({ children }) {
   const pathname = usePathname();
