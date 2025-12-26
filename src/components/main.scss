@@ -1,22 +1,11 @@
-// src/components/main.scss
-
-// 1. Variables y Base (Correctos si están en la carpeta css)
+// 1. PRIMERO todos los @use de Sass (Sin nada arriba)
 @use 'css/variables' as v;
 @use 'css/reset';
 @use 'css/targeta';
-
-// 2. Animaciones
 @use 'animations/animaciones'; 
-
-// 3. Layouts
 @use 'layout/cuadricula';
 @use 'layout/filas';
-
-// 4. Navbar y Lightbox
 @use './navbar/navbar.scss';
 @use 'lightbox/lightbox';
-
-// 5. Páginas y Recursos
 @use 'css/personajes';
-
 @use 'paginas/contacto/contacto';
