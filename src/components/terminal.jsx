@@ -1,114 +1,63 @@
 "use client";
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import ArchivoDisplay from '@/components/ArchivoDisplay';
 
-const ARCHIVOS_PROHIBIDOS = [
-  { nombre: "PROYECTO_PK.log", tipo: "LOG", contenido: "Sujeto: Pink Killer. Estado: Evolución inestable. Objetivo: Localizar el núcleo de la corporación.", color: 'terminal-green' },
-  { nombre: "FAKER_ACCESS.key", tipo: "KEY", contenido: "Acceso total denegado. Se ha detectado un intento de intrusión por el protocolo 404.", color: 'terminal-red' },
-  { nombre: "DIARIO_DORIAN.txt", tipo: "TXT", contenido: "Día 45: Las sombras en el Reino Torres están creciendo. No confíes en las luces del norte.", color: 'terminal-green' },
+const ARCHIVOS = [
+  { id: 1, nombre: "PROYECTO_PK.log", desc: "Registro de la asesina principal", color: 'text-terminal-green' },
+  { id: 2, nombre: "ACCESO_DORIAN.key", desc: "Notas del líder del PF", color: 'text-terminal-green' },
+  { id: 3, nombre: "DATABASE_FAKER.dat", desc: "Registros de hackeo", color: 'text-terminal-red' },
+  { id: 4, nombre: "ANALISIS_FRANI.txt", desc: "Informe del investigador", color: 'text-terminal-green' }
 ];
 
-const Terminal = () => {
-  const [output, setOutput] = useState([]);
-  const [command, setCommand] = useState('');
+const TerminalSimple = () => {
   const [currentFile, setCurrentFile] = useState(null);
-  const [isTyping, setIsTyping] = useState(false);
-  const terminalRef = useRef(null);
 
-  const prefix = 'SYSTEM@NEXUS:> ';
-
-  useEffect(() => {
-    if (terminalRef.current) {
-      terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
-    }
-  }, [output]);
-
-  // Mensaje de inicio con efecto de carga
-  useEffect(() => {
-    const bienvenida = [
-      "ESTABLECIENDO PROTOCOLO DE CONEXIÓN...",
-      "BYPASSING FIREWALL... [OK]",
-      "ACCEDIENDO A ARCHIVOS PROHIBIDOS...",
-      "BIENVENIDO AGENTE. ESCRIBE 'LS' PARA LISTAR.",
-    ];
-    
-    let currentLine = 0;
-    const interval = setInterval(() => {
-      if (currentLine < bienvenida.length) {
-        setOutput(prev => [...prev, bienvenida[currentLine]]);
-        currentLine++;
-      } else {
-        clearInterval(interval);
-      }
-    }, 400); // Velocidad inicial de carga
-    
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleCommand = (e) => {
-    if (e.key === 'Enter' && !isTyping) {
-      const cleanCmd = command.trim().toLowerCase();
-      const newLines = [`${prefix}${command}`];
-
-      if (cleanCmd === 'ls') {
-        newLines.push("LISTANDO DIRECTORIO...");
-        ARCHIVOS_PROHIBIDOS.forEach(f => newLines.push(`- ${f.nombre} [${f.tipo}]`));
-      } 
-      else if (cleanCmd.startsWith('cat ')) {
-        const fileName = cleanCmd.replace('cat ', '');
-        const file = ARCHIVOS_PROHIBIDOS.find(f => f.nombre.toLowerCase() === fileName);
-        if (file) {
-          setCurrentFile(file);
-          newLines.push(`ABRIENDO ${file.nombre.toUpperCase()}...`);
-        } else {
-          newLines.push(`ERROR: ARCHIVO '${fileName}' NO ENCONTRADO.`);
-        }
-      }
-      else if (cleanCmd === 'clear') {
-        setOutput([]);
-        setCommand('');
-        return;
-      }
-      else {
-        newLines.push(`COMANDO NO RECONOCIDO: ${cleanCmd}`);
-      }
-
-      setOutput(prev => [...prev, ...newLines]);
-      setCommand('');
-    }
+  // Contenido simulado para cada archivo
+  const obtenerContenido = (nombre) => {
+    const contenidos = {
+      "PROYECTO_PK.log": "Sujeto: Pink Killer. Nivel de amenaza: Máximo. Se recomienda no establecer contacto visual.",
+      "ACCESO_DORIAN.key": "Dorian ha tomado el control del sector 7. Las sombras avanzan según el plan.",
+      "DATABASE_FAKER.dat": "ACCESO DENEGADO. Intento de rastreo detectado. IP del usuario enviada a seguridad.",
+      "ANALISIS_FRANI.txt": "Frani está demasiado cerca de la verdad. Hay que silenciar las alarmas antes de que el Reino Torres se entere."
+    };
+    return contenidos[nombre] || "Archivo vacío.";
   };
 
   return (
-    <div className="scanlines relative bg-terminal-dark border-2 border-terminal-green shadow-terminal animate-terminal-flicker w-full max-w-4xl h-[600px] flex flex-col font-mono rounded-lg overflow-hidden">
-      
-      {/* Capa de brillo CRT */}
-      <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-white/5 to-transparent opacity-10 z-10"></div>
+    <div className="scanlines bg-terminal-dark border-2 border-terminal-green shadow-terminal p-6 rounded-lg font-mono w-full max-w-2xl mx-auto">
+      <header className="mb-6 border-b border-terminal-green/30 pb-4">
+        <h2 className="text-terminal-green uppercase tracking-[0.2em] text-sm md:text-base">
+          Explorador de Archivos Clasificados
+        </h2>
+        <p className="text-terminal-gray text-[10px] mt-1 italic">Haga clic en un archivo para visualizar</p>
+      </header>
 
-      <div ref={terminalRef} className="flex-grow p-6 overflow-y-auto z-20 space-y-1">
-        {output.map((line, i) => (
-          <p key={i} className="text-terminal-green uppercase tracking-widest text-sm md:text-base">
-            {line.startsWith('ERROR') ? (
-              <span className="text-terminal-red">{line}</span>
-            ) : line}
-          </p>
+      <ul className="space-y-4">
+        {ARCHIVOS.map((archivo) => (
+          <li 
+            key={archivo.id}
+            onClick={() => setCurrentFile({ nombre: archivo.nombre, contenido: obtenerContenido(archivo.nombre) })}
+            className="group flex items-center justify-between cursor-pointer border border-transparent hover:border-terminal-green/40 p-3 transition-all rounded"
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-terminal-green opacity-50">{'>'}</span>
+              <div>
+                <p className={`${archivo.color} font-bold text-sm md:text-base`}>
+                  {archivo.nombre}
+                </p>
+                <p className="text-terminal-gray text-[10px] uppercase">
+                  {archivo.desc}
+                </p>
+              </div>
+            </div>
+            <span className="text-terminal-green text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+              [ABRIR]
+            </span>
+          </li>
         ))}
-        
-        {!currentFile && (
-          <div className="flex text-terminal-green uppercase tracking-widest">
-            <span className="mr-2">{prefix}</span>
-            <input
-              autoFocus
-              className="bg-transparent border-none outline-none flex-grow text-terminal-green"
-              value={command}
-              onChange={(e) => setCommand(e.target.value)}
-              onKeyDown={handleCommand}
-              disabled={isTyping}
-            />
-            <span className="animate-cursor-blink">|</span>
-          </div>
-        )}
-      </div>
+      </ul>
 
+      {/* Visor de archivos */}
       {currentFile && (
         <ArchivoDisplay 
           file={currentFile} 
@@ -119,4 +68,4 @@ const Terminal = () => {
   );
 };
 
-export default Terminal;
+export default TerminalSimple;
