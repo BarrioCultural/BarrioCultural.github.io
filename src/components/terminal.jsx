@@ -6,7 +6,7 @@ const ARCHIVOS = [
   { id: 1, nombre: "PROYECTO_PK.log", desc: "Registro de la asesina principal", color: 'text-terminal-green' },
   { id: 2, nombre: "ACCESO_DORIAN.key", desc: "Notas del líder del PF", color: 'text-terminal-green' },
   { id: 3, nombre: "DATABASE_FAKER.dat", desc: "Registros de hackeo", color: 'text-terminal-red' },
-  { id: 4, nombre: "ANALISIS_FRANI.txt", desc: "Informe del investigador", color: 'text-terminal-green' }
+  { id: 4, nombre: "ANALISIS_FRANI.txt", desc: "Informe del posible rebelde", color: 'text-terminal-green' }
 ];
 
 const TerminalSimple = () => {
@@ -15,10 +15,10 @@ const TerminalSimple = () => {
   // Contenido simulado para cada archivo
   const obtenerContenido = (nombre) => {
     const contenidos = {
-      "PROYECTO_PK.log": "Sujeto: Pink Killer. Nivel de amenaza: Máximo. Se recomienda no establecer contacto visual.",
-      "ACCESO_DORIAN.key": "Dorian ha tomado el control del sector 7. Las sombras avanzan según el plan.",
-      "DATABASE_FAKER.dat": "ACCESO DENEGADO. Intento de rastreo detectado. IP del usuario enviada a seguridad.",
-      "ANALISIS_FRANI.txt": "Frani está demasiado cerca de la verdad. Hay que silenciar las alarmas antes de que el Reino Torres se entere."
+      "PROYECTO_PK.log": "ERROR 404: Datos no encontrados.",
+      "ACCESO_DORIAN.key": "Ultimo registro: Dorian ha tomado el control del trafico en la zona norte",
+      "DATABASE_FAKER.dat": "ACCESO DENEGADO. Intento de rastreo detectado. IP del usuario enviada al cuartel de  seguridad.",
+      "ANALISIS_FRANI.txt": "Frani podria sernos util... Hay que vigilarlo mas de cerca"
     };
     return contenidos[nombre] || "Archivo vacío.";
   };
