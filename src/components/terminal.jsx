@@ -16,9 +16,9 @@ const TerminalSimple = () => {
   const obtenerContenido = (nombre) => {
     const contenidos = {
       "PROYECTO_PK.log": "ERROR 404: Datos corruptos. El rastro de la asesina ha sido borrado por un protocolo externo.",
-      "ACCESO_DORIAN.key": "Último registro: Dorian ha tomado el control del tráfico en la zona norte. Los suministros están asegurados.",
+      "ACCESO_DORIAN.key": "Último registro: Dorian ha tomado el control del tráfico en la zona norte. Priorizar recuperacion de la droga del abismo lo antes posible.",
       "DATABASE_FAKER.dat": "ACCESO DENEGADO. Intento de rastreo detectado. Su dirección IP ha sido enviada al cuartel de seguridad central.",
-      "ANALISIS_FRANI.txt": "Sujeto: Frani. Observación: Podría sernos útil... o un estorbo peligroso. Hay que vigilarlo más de cerca.",
+      "ANALISIS_FRANI.txt": "Sujeto: Frani. Observación: Podría sernos útil... Hay que vigilarlo más de cerca.",
       "EXPERIMENTO_QUIMERA.cfg": "PROYECTO QUIMERA: Experimento exitoso. Capacidad de adaptación biológica confirmada. El espécimen escapó de las instalaciones durante el apagón. Proceder con protocolo de eliminación o reinicio inmediato."
     };
     return contenidos[nombre] || "Archivo vacío.";
