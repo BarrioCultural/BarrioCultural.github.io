@@ -71,7 +71,6 @@ const Lore = () => {
             img={p.img}
             descripcion={p.desc}
             colorId={p.id} // Para aplicar el color del personaje
-            onClick={() => openLightbox({ src: p.img, alt: p.nombre })}
           />
         ))}
       </section>

@@ -68,7 +68,6 @@ const LightboxVisual = () => {
         </button>
       </div>
 
-      {/* 🖼️ LA BARRA DE MINIATURAS (Lo que buscabas) */}
       <div className="mt-8 flex gap-2 overflow-x-auto p-2 max-w-full no-scrollbar">
         {gallery.map((img, idx) => (
           <img
