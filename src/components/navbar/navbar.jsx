@@ -3,86 +3,91 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { cn } from "@/lib/utils"; 
 
 const Navbar = () => {
   const currentPath = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
-  // Función para cerrar el menú al hacer clic en un enlace
   const closeMenu = () => setIsOpen(false);
 
+  const linkStyles = (path) => cn(
+    "transition-all duration-300 font-bold cursor-pointer",
+    currentPath === path ? "text-accent" : "text-white hover:text-accent"
+  );
+
   return (
-    <header className="header">
-      <nav className="nav">
-        <div className="nav__logo">Franilover</div>
-
-        {/* El checkbox ahora está controlado por el estado de React */}
-        <input 
-          type="checkbox" 
-          id="menu-toggle" 
-          checked={isOpen} 
-          onChange={() => setIsOpen(!isOpen)} 
-        />
+    <header className="sticky top-0 z-1000 bg-bg-menu w-full">
+      <nav className="mx-auto max-w-container flex items-center justify-between p-4 md:p-5">
         
-        <label htmlFor="menu-toggle" className="nav__toggle" aria-label="Abrir menú">
-          <span></span>
-          <span></span>
-          <span></span>
-        </label>
+        {/* LOGO */}
+        <div className="text-xl font-bold text-white tracking-tight">
+          Franilover
+        </div>
 
-        <ul className="nav__menu">
-          {/* INICIO */}
-          <li className="item-inicio">
+        {/* BOTÓN HAMBURGUESA */}
+        <button 
+          className="flex md:hidden flex-col gap-1.5 cursor-pointer"
+          onClick={() => setIsOpen(!isOpen)}
+          aria-label="Abrir menú"
+        >
+          <span className="w-6 h-0.75 bg-white transition-all"></span>
+          <span className="w-6 h-0.75 bg-white transition-all"></span>
+          <span className="w-6 h-0.75 bg-white transition-all"></span>
+        </button>
+
+        {/* MENÚ DE NAVEGACIÓN */}
+        <ul className={cn(
+          "hidden md:flex items-center gap-6 list-none",
+          isOpen ? "absolute top-full left-0 w-full bg-bg-menu p-3 grid grid-cols-1 gap-3 animate-in fade-in slide-in-from-top-2" : "hidden"
+        )}>
+          
+          <li className="md:contents bg-white/5 md:bg-transparent border border-white/10 md:border-none rounded-xl p-3">
             <Link 
               href="/" 
               onClick={closeMenu} 
-              className={currentPath === '/' ? 'active' : ''}
+              className={cn(linkStyles('/'), "block text-center text-lg md:p-0 bg-white/10 md:bg-transparent rounded-lg p-3")}
             >
               Inicio
             </Link>
           </li>
           
-          {/* PERSONAL */}
-          <li className="dropdown item-personal">
-            <span className="dropdown-btn">Personal ▾</span>
-            <ul className="dropdown-content">
+          <li className="group relative bg-white/5 md:bg-transparent border border-white/10 md:border-none rounded-xl p-3 md:p-0">
+            <span className="block text-center md:text-left text-sm md:text-lg font-bold text-accent md:text-white uppercase md:normal-case tracking-widest md:tracking-normal mb-2 md:mb-0 cursor-default">
+              Personal <span className="hidden md:inline">▾</span>
+            </span>
+            
+            <ul className="grid grid-cols-2 md:grid-cols-1 gap-2 md:hidden group-hover:md:block md:absolute md:top-full md:left-0 md:min-w-45 md:bg-bg-menu md:rounded-b-lg md:py-2 md:shadow-xl">
               <li>
-                {/* Ajustado a /dibujos según tu carpeta */}
-                <Link href="/dibujos" onClick={closeMenu} className={currentPath === '/dibujos' ? 'active' : ''}>
+                <Link href="/dibujos" onClick={closeMenu} className={cn(linkStyles('/dibujos'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md")}>
                   Dibujos
                 </Link>
               </li>
               <li>
-                {/* Ajustado a /fotos según tu carpeta */}
-                <Link href="/fotos" onClick={closeMenu} className={currentPath === '/fotos' ? 'active' : ''}>
+                <Link href="/fotos" onClick={closeMenu} className={cn(linkStyles('/fotos'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md")}>
                   Fotos
                 </Link>
               </li>
               <li>
-                <Link href="/contacto" onClick={closeMenu} className={currentPath === '/contacto' ? 'active' : ''}>
+                <Link href="/contacto" onClick={closeMenu} className={cn(linkStyles('/contacto'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md")}>
                   Contacto
                 </Link>
-              </li>
-              <li>
-                <a href="https://www.youtube.com/@franilover" target="_blank" rel="noreferrer" onClick={closeMenu}>
-                  Ensayos
-                </a>
               </li>
             </ul>
           </li>
 
-          {/* GARDEN OF SINS */}
-          <li className="dropdown item-garden">
-            <span className="dropdown-btn">Garden of Sins ▾</span>
-            <ul className="dropdown-content">
+          <li className="group relative bg-white/5 md:bg-transparent border border-white/10 md:border-none rounded-xl p-3 md:p-0">
+            <span className="block text-center md:text-left text-sm md:text-lg font-bold text-accent md:text-white uppercase md:normal-case tracking-widest md:tracking-normal mb-2 md:mb-0 cursor-default">
+              Garden of Sins <span className="hidden md:inline">▾</span>
+            </span>
+            <ul className="grid grid-cols-2 md:grid-cols-1 gap-2 md:hidden group-hover:md:block md:absolute md:top-full md:left-0 md:min-w-45 md:bg-bg-menu md:rounded-b-lg md:py-2 md:shadow-xl">
               <li>
-                {/* Ajustado a /personajes según tu carpeta */}
-                <Link href="/personajes" onClick={closeMenu} className={currentPath === '/personajes' ? 'active' : ''}>
+                <Link href="/personajes" onClick={closeMenu} className={cn(linkStyles('/personajes'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md")}>
                   Personajes
                 </Link>
               </li>
               <li>
-                <a href="https://www.youtube.com/@franilover" target="_blank" rel="noreferrer" onClick={closeMenu}>
+                <a href="https://youtube.com" target="_blank" className="block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm text-white rounded-md">
                   Animaciones
                 </a>
               </li>
