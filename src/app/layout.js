@@ -1,9 +1,8 @@
 // Cambiamos la ruta para que coincida con tu imagen:
 // src/components/resources/lightbox.js
-import { LightboxProvider } from "../components/lightbox"; 
+import { LightboxProvider } from "@/components/lightbox"; 
 import AppLogic from "./AppLogic";
-import "../components/tailwind.css";
-
+import "@/components/tailwind.css"; // Usa @/ para ir directo a src/components
 
 export const metadata = {
   title: 'Franilover',

@@ -1,11 +1,11 @@
-"use client"; // <--- ESTA LÍNEA ES LA CLAVE
-import React from 'react';
-// 1. Importamos el hook del contexto
+"use client";
 
-import { useLightbox } from "../lightbox";
+import React from 'react';
+import { useLightbox } from "@/components/lightbox";
+// Asegúrate de crear este archivo en src/components/FilaPersonaje.jsx
+import { FilaPersonaje } from "@/components/FilaPersonaje";
 
 const Lore = () => {
-  // 2. Extraemos la función openLightbox
   const { openLightbox } = useLightbox();
 
   const personajes = [
@@ -13,75 +13,72 @@ const Lore = () => {
       nombre: "Pink Killer",
       img: "/dibujos/personajes/cuerpo-completo/pinkkiller.png",
       desc: "Asesina principal del PF",
-      personaje: "pink-killer",
-      posicion: "texto-derecha"
+      id: "pinkkiller", // Clave para el color
     },
     {
       nombre: "Dorian",
       img: "/dibujos/personajes/rostros/dorian-cara.png",
       desc: "El lider del PF",
-      personaje: "dorian",
-      posicion: "texto-izquierda"
+      id: "dorian",
     },
     {
       nombre: "Faker",
       img: "/dibujos/personajes/rostros/faker-cara.png",
       desc: "El mejor hacker del PF",
-      personaje: "faker",
-      posicion: "texto-derecha"
+      id: "faker",
     },
     {
       nombre: "Frani",
       img: "/dibujos/personajes/rostros/frani-postsuicideparede-cara.png",
       desc: "El mejor investigador del PP",
-      personaje: "frani",
-      posicion: "texto-izquierda"
+      id: "frani",
     },
     {
       nombre: "Abel",
       img: "/dibujos/personajes/rostros/abel-cara.png",
       desc: "Heredero al trono del Reino Torres",
-      personaje: "abel",
-      posicion: "texto-derecha"
+      id: "abel",
     },
     {
       nombre: "Quimera",
       img: "/dibujos/personajes/rostros/crazygirl-cara.png",
       desc: "Una joven rebelde que busca venganza",
-      personaje: "quimera",
-      posicion: "texto-izquierda"
+      id: "yoa", // Usando el color de 'yoa' para Quimera si no tienes uno específico
     },
     {
       nombre: "Icarus",
       img: "/dibujos/personajes/rostros/icarus-cara.png",
       desc: "Inventor del Reino Torres",
-      personaje: "icarus",
-      posicion: "texto-derecha"
+      id: "florgelida", // Usando un color celeste para el inventor
     }
   ];
 
   return (
-    <section className="galeria-filas">
-      {personajes.map((p, index) => (
-        <article 
-          key={index} 
-          className={`targeta ${p.posicion} animate-on-scroll ${p.personaje}`}
-        >
-          {/* 3. Usamos openLightbox con el objeto correcto */}
-          <img 
-            src={p.img} 
-            className="imagen" 
-            alt={p.nombre} 
-            onClick={() => openLightbox({ src: p.img, alt: p.nombre })} 
-            style={{ cursor: 'zoom-in' }} 
+    <main className="min-h-screen bg-bg-main py-12 px-4">
+      <header className="mb-16 text-center">
+        <h1 className="text-4xl font-bold text-primary uppercase tracking-[0.2em]">
+          Lore de Personajes
+        </h1>
+        <div className="h-1 w-24 bg-accent mx-auto mt-4 rounded-full"></div>
+      </header>
+
+      {/* Contenedor principal que reemplaza a .galeria-filas */}
+      <section className="mx-auto flex w-full max-w-container flex-col gap-8">
+        {personajes.map((p, index) => (
+          <FilaPersonaje 
+            key={index}
+            indice={index} // Esto controla si el texto va a la derecha o izquierda
+            nombre={p.nombre}
+            img={p.img}
+            descripcion={p.desc}
+            colorId={p.id} // Para aplicar el color del personaje
+            onClick={() => openLightbox({ src: p.img, alt: p.nombre })}
           />
-          <div className="targeta-info">
-            <h2 className="targeta-nombre">{p.nombre}</h2>
-            <p className="targeta-desc">{p.desc}</p>
-          </div>
-        </article>
-      ))}
-    </section>
+        ))}
+      </section>
+
+      <div className="h-20"></div>
+    </main>
   );
 };
 

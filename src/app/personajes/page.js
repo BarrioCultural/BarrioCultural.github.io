@@ -1,4 +1,4 @@
-import Personajes from "../../components/paginas/personajes.jsx";
+import Personajes from "@/components/paginas/personajes";
 
 export default function Page() {
   return <Personajes />;
