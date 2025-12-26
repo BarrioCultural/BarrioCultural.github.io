@@ -38,8 +38,8 @@ const Drawings = () => {
   return (
     <main className="min-h-screen bg-bg-main pt-10">
       <header className="mb-10 px-4 text-center">
-        <h1 className="text-4xl font-bold text-primary tracking-tight">Galería de Arte</h1>
-        <p className="mt-2 text-primary/60 italic">Fanarts y Personajes Originales</p>
+        <h1 className="text-4xl font-bold text-primary tracking-tight">Dibujos</h1>
+        <p className="mt-2 text-primary/60 italic">Fanarts y Personajes :D</p>
       </header>
 
       {/* Usamos el componente reutilizable que creamos antes */}
