@@ -3,11 +3,11 @@ import React, { useState } from 'react';
 import ArchivoDisplay from '@/components/ArchivoDisplay';
 
 const ARCHIVOS = [
-  { id: 1, nombre: "PROYECTO_PK.log", desc: "Registro de la asesina principal", color: 'text-terminal-green' },
-  { id: 2, nombre: "ACCESO_DORIAN.key", desc: "Notas del líder del PF", color: 'text-terminal-green' },
-  { id: 3, nombre: "DATABASE_FAKER.dat", desc: "Registros de hackeo", color: 'text-terminal-red' },
-  { id: 4, nombre: "ANALISIS_FRANI.txt", desc: "Informe del posible rebelde", color: 'text-terminal-green' }, // Se añadió coma aquí
-  { id: 5, nombre: "EXPERIMENTO_QUIMERA.cfg", desc: "Resultados", color: 'text-terminal-red' }
+  { id: 1, nombre: "PROYECTO_PK.log", desc: "Registro de la asesina principal", color: 'text-terminal-green', isError: true },
+  { id: 2, nombre: "ACCESO_DORIAN.key", desc: "Notas del líder del PF", color: 'text-terminal-green', isError: false },
+  { id: 3, nombre: "DATABASE_FAKER.dat", desc: "Registros de hackeo", color: 'text-terminal-red', isError: true },
+  { id: 4, nombre: "ANALISIS_FRANI.txt", desc: "Informe del posible rebelde", color: 'text-terminal-green', isError: false },
+  { id: 5, nombre: "EXPERIMENTO_QUIMERA.cfg", desc: "Resultados", color: 'text-terminal-red', isError: true }
 ];
 
 const TerminalSimple = () => {
@@ -16,7 +16,7 @@ const TerminalSimple = () => {
   const obtenerContenido = (nombre) => {
     const contenidos = {
       "PROYECTO_PK.log": "ERROR 404: Datos corruptos. El rastro de la asesina ha sido borrado por un protocolo externo.",
-      "ACCESO_DORIAN.key": "Último registro: Dorian ha tomado el control del tráfico en la zona norte. Priorizar recuperacion de la droga del abismo lo antes posible.",
+      "ACCESO_DORIAN.key": "Último registro: Dorian ha tomado el control del tráfico en la zona norte. Priorizar recuperación de la droga del abismo lo antes posible.",
       "DATABASE_FAKER.dat": "ACCESO DENEGADO. Intento de rastreo detectado. Su dirección IP ha sido enviada al cuartel de seguridad central.",
       "ANALISIS_FRANI.txt": "Sujeto: Frani. Observación: Podría sernos útil... Hay que vigilarlo más de cerca.",
       "EXPERIMENTO_QUIMERA.cfg": "PROYECTO QUIMERA: Experimento exitoso. Capacidad de adaptación biológica confirmada. El espécimen escapó de las instalaciones durante el apagón. Proceder con protocolo de eliminación o reinicio inmediato."
@@ -27,7 +27,6 @@ const TerminalSimple = () => {
   return (
     <div className="scanlines bg-terminal-dark border-2 border-terminal-green shadow-terminal p-6 rounded-lg font-mono w-full max-w-2xl mx-auto overflow-hidden relative">
       
-      {/* Resplandor decorativo de esquina */}
       <div className="absolute -top-10 -right-10 w-32 h-32 bg-terminal-green/5 blur-3xl pointer-events-none"></div>
 
       <header className="mb-6 border-b border-terminal-green/30 pb-4 relative z-10">
@@ -44,7 +43,11 @@ const TerminalSimple = () => {
         {ARCHIVOS.map((archivo) => (
           <li 
             key={archivo.id}
-            onClick={() => setCurrentFile({ nombre: archivo.nombre, contenido: obtenerContenido(archivo.nombre) })}
+            onClick={() => setCurrentFile({ 
+              nombre: archivo.nombre, 
+              contenido: obtenerContenido(archivo.nombre),
+              isError: archivo.isError 
+            })}
             className="group flex items-center justify-between cursor-pointer border border-transparent hover:border-terminal-green/20 hover:bg-terminal-green/5 p-3 transition-all duration-200 rounded"
           >
             <div className="flex items-center gap-3">
@@ -62,8 +65,8 @@ const TerminalSimple = () => {
             </div>
             
             <div className="flex items-center gap-2">
-              <span className="text-[10px] text-terminal-green/40 font-bold hidden md:inline group-hover:inline">
-                STATUS: OK
+              <span className="text-[10px] text-terminal-green/40 font-bold hidden md:inline group-hover:inline uppercase">
+                {archivo.isError ? "Locked" : "Ready"}
               </span>
               <span className="text-terminal-green text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity">
                 [ABRIR]
@@ -73,7 +76,6 @@ const TerminalSimple = () => {
         ))}
       </ul>
 
-      {/* Footer de la terminal */}
       <div className="mt-8 pt-4 border-t border-terminal-green/10 flex justify-between items-center text-terminal-gray text-[9px] uppercase tracking-widest">
         <span>Conexión Segura</span>
         <span className="animate-pulse">● Recibiendo datos...</span>
