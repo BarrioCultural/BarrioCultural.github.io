@@ -43,17 +43,18 @@ const Drawings = () => {
       </header>
 
       {/* Usamos el componente reutilizable que creamos antes */}
-      <GalleryGrid>
-        {dibujos.map((dibujo, index) => (
-          <GalleryItem 
-            key={index}
-            src={dibujo.src}
-            alt={dibujo.alt}
-            // Al hacer clic, se abre el Lightbox con la info del dibujo
-            onClick={() => openLightbox(dibujo)} 
-          />
-        ))}
-      </GalleryGrid>
+// En tu mapeo de dibujos:
+<GalleryGrid>
+  {dibujos.map((dibujo, index) => (
+    <GalleryItem 
+      key={index}
+      src={dibujo.src}
+      alt={dibujo.alt}
+      // 🟢 Ahora enviamos el INDEX y la lista completa de DIBUJOS
+      onClick={() => openLightbox(index, dibujos)} 
+    />
+  ))}
+</GalleryGrid>
 
       {/* Espaciador final */}
       <div className="h-20"></div>

@@ -1,18 +1,33 @@
 "use client";
-import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useContext, useCallback } from 'react';
 
 const LightboxContext = createContext();
 
 export const LightboxProvider = ({ children }) => {
-  const [selectedImg, setSelectedImg] = useState(null);
-  
-  const openLightbox = useCallback((img) => setSelectedImg(img), []);
-  const closeLightbox = useCallback(() => setSelectedImg(null), []);
+  const [gallery, setGallery] = useState([]); // Guardamos todas las fotos
+  const [currentIndex, setCurrentIndex] = useState(-1); // Índice de la foto abierta
+
+  // Función para abrir una foto específica dentro de una lista
+  const openLightbox = useCallback((index, images) => {
+    setGallery(images);
+    setCurrentIndex(index);
+  }, []);
+
+  const closeLightbox = useCallback(() => {
+    setCurrentIndex(-1);
+    setGallery([]);
+  }, []);
 
   return (
-    <LightboxContext.Provider value={{ selectedImg, openLightbox, closeLightbox }}>
+    <LightboxContext.Provider value={{ 
+      selectedImg: gallery[currentIndex], 
+      gallery, 
+      currentIndex,
+      setCurrentIndex, 
+      openLightbox, 
+      closeLightbox 
+    }}>
       {children}
-      {/* 🟢 IMPORTANTE: El componente visual DEBE estar aquí para que aparezca en toda la web */}
       <LightboxVisual />
     </LightboxContext.Provider>
   );
@@ -20,62 +35,52 @@ export const LightboxProvider = ({ children }) => {
 
 export const useLightbox = () => useContext(LightboxContext);
 
-// Cambiamos el nombre a LightboxVisual para no confundir
 const LightboxVisual = () => {
-  const { selectedImg, closeLightbox } = useLightbox();
-  const [isAnimating, setIsAnimating] = useState(false);
-
-  useEffect(() => {
-    if (selectedImg) {
-      const timer = setTimeout(() => setIsAnimating(true), 10);
-      document.body.style.overflow = "hidden";
-      return () => {
-        clearTimeout(timer);
-        document.body.style.overflow = "";
-      };
-    } else {
-      setIsAnimating(false);
-      document.body.style.overflow = "";
-    }
-  }, [selectedImg]);
+  const { selectedImg, gallery, currentIndex, setCurrentIndex, closeLightbox } = useLightbox();
 
   if (!selectedImg) return null;
 
   return (
-    <div 
-      className={`lightbox ${isAnimating ? 'active' : ''}`} 
-      onClick={closeLightbox}
-      style={{
-        position: 'fixed',
-        inset: 0,
-        backgroundColor: 'rgba(0,0,0,0.9)',
-        zIndex: 9999,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        cursor: 'zoom-out',
-        opacity: isAnimating ? 1 : 0,
-        transition: 'opacity 0.3s ease'
-      }}
-    >
-      <img 
-        src={selectedImg.src} 
-        alt={selectedImg.alt} 
-        style={{ 
-          maxHeight: '90vh', 
-          maxWidth: '90vw', 
-          objectFit: 'contain',
-          transform: isAnimating ? 'scale(1)' : 'scale(0.9)',
-          transition: 'transform 0.3s ease'
-        }}
-        onClick={(e) => e.stopPropagation()} 
-      />
-      <span 
-        style={{ position: 'absolute', top: '20px', right: '30px', color: 'white', fontSize: '40px', cursor: 'pointer' }}
-        onClick={closeLightbox}
-      >
-        &times;
-      </span>
+    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/95 p-4">
+      {/* Botón Cerrar */}
+      <button onClick={closeLightbox} className="absolute top-5 right-5 text-white text-4xl">&times;</button>
+
+      {/* Imagen Principal */}
+      <div className="relative flex items-center justify-center w-full max-h-[70vh]">
+        <button 
+          className="absolute left-4 text-white text-5xl p-4 hover:bg-white/10 rounded-full"
+          onClick={() => setCurrentIndex((currentIndex - 1 + gallery.length) % gallery.length)}
+        >
+          ‹
+        </button>
+        
+        <img 
+          src={selectedImg.src} 
+          alt={selectedImg.alt} 
+          className="max-h-[70vh] max-w-[85vw] object-contain shadow-2xl"
+        />
+
+        <button 
+          className="absolute right-4 text-white text-5xl p-4 hover:bg-white/10 rounded-full"
+          onClick={() => setCurrentIndex((currentIndex + 1) % gallery.length)}
+        >
+          ›
+        </button>
+      </div>
+
+      {/* 🖼️ LA BARRA DE MINIATURAS (Lo que buscabas) */}
+      <div className="mt-8 flex gap-2 overflow-x-auto p-2 max-w-full no-scrollbar">
+        {gallery.map((img, idx) => (
+          <img
+            key={idx}
+            src={img.src}
+            className={`h-16 w-16 min-w-[64px] object-cover cursor-pointer rounded transition-all ${
+              idx === currentIndex ? 'border-2 border-accent scale-110 opacity-100' : 'opacity-40 grayscale hover:grayscale-0'
+            }`}
+            onClick={() => setCurrentIndex(idx)}
+          />
+        ))}
+      </div>
     </div>
   );
 };
