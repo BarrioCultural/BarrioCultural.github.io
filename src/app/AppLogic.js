@@ -4,9 +4,9 @@ import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
 // Importaciones (Rutas corregidas)
-import { useLightbox } from "../components/resources/lightbox"; 
-import Lightbox from "../components/resources/lightbox"; 
-import Navbar from "../components/Navbar/navbar"; 
+import { useLightbox } from "../components/lightbox/lightbox"; 
+import Lightbox from "../components/lightbox/lightbox"; 
+import Navbar from "../components/navbar/navbar"; 
 import { initAnimations } from "../components/animations/animations";
 
 export default function AppLogic({ children }) {

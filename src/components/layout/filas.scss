@@ -1,5 +1,4 @@
-@use '../variables' as v;
-
+@use '../css/variables' as v;
 .galeria-filas { 
     display: flex; flex-direction: column; width: 95%; 
     font-style: italic;

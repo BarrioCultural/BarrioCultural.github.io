@@ -1,6 +1,6 @@
 // Cambiamos la ruta para que coincida con tu imagen:
 // src/components/resources/lightbox.js
-import { LightboxProvider } from "../components/resources/lightbox"; 
+import { LightboxProvider } from "../components/lightbox/lightbox"; 
 import AppLogic from "./AppLogic";
 
 // Importa tu CSS principal aquí para que se aplique a toda la web

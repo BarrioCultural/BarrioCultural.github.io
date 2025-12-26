@@ -2,7 +2,7 @@
 import React from 'react';
 // 1. Importamos el hook del contexto
 
-import { useLightbox } from "../resources/lightbox";
+import { useLightbox } from "../lightbox/lightbox";
 
 const Diario = () => {
   // 2. Extraemos la función para abrir el lightbox

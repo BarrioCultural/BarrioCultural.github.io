@@ -3,7 +3,7 @@
 import React from 'react';
 
 // Importas el hook del archivo de componentes
-import { useLightbox } from "../resources/lightbox";
+import { useLightbox } from "../lightbox/lightbox";
 
 const Drawings = () => {
   // 2. Extraemos la función openLightbox del contexto
