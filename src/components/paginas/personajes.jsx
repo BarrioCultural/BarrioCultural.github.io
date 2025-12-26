@@ -57,7 +57,7 @@ const Lore = () => {
     <main className="min-h-screen bg-bg-main py-12 px-4">
       <header className="mb-16 text-center">
         <h1 className="text-4xl font-bold text-primary uppercase tracking-[0.2em]">
-          Lore de Personajes
+          Personajes
         </h1>
         <div className="h-1 w-24 bg-accent mx-auto mt-4 rounded-full"></div>
       </header>
