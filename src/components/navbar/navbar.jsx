@@ -77,17 +77,6 @@ const Navbar = () => {
               Contacto
             </Link>
           </li>
-
-          <li>
-            <a 
-              href="https://youtube.com" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="block text-center text-lg text-white hover:text-accent font-bold"
-            >
-              Proyectos
-            </a>
-          </li> 
         </ul>
       </nav>
     </header>
