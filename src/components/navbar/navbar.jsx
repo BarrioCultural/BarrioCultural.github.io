@@ -17,12 +17,12 @@ const Navbar = () => {
   );
 
   return (
-    <header className="sticky top-0 z-1000 bg-bg-menu w-full">
+    <header className="sticky top-0 z-[1000] bg-bg-menu w-full">
       <nav className="mx-auto max-w-container flex items-center justify-between p-4 md:p-5">
         
-        {/* LOGO */}
-        <div className="text-xl font-bold text-white tracking-tight">
-          Franilover
+        {/* LOGO ACTUALIZADO */}
+        <div className="text-xl font-bold text-white tracking-tighter uppercase">
+          Barrio <span className="text-accent">Cultural</span>
         </div>
 
         {/* BOTÓN HAMBURGUESA */}
@@ -31,67 +31,62 @@ const Navbar = () => {
           onClick={() => setIsOpen(!isOpen)}
           aria-label="Abrir menú"
         >
-          <span className="w-6 h-0.75 bg-white transition-all"></span>
-          <span className="w-6 h-0.75 bg-white transition-all"></span>
-          <span className="w-6 h-0.75 bg-white transition-all"></span>
+          <span className={cn("w-6 h-0.5 bg-white transition-all", isOpen && "rotate-45 translate-y-2")}></span>
+          <span className={cn("w-6 h-0.5 bg-white transition-all", isOpen && "opacity-0")}></span>
+          <span className={cn("w-6 h-0.5 bg-white transition-all", isOpen && "-rotate-45 -translate-y-2")}></span>
         </button>
 
-        {/* MENÚ DE NAVEGACIÓN */}
+        {/* MENÚ DE NAVEGACIÓN ACTUALIZADO */}
         <ul className={cn(
-          "hidden md:flex items-center gap-6 list-none",
-          isOpen ? "absolute top-full left-0 w-full bg-bg-menu p-3 grid grid-cols-1 gap-3 animate-in fade-in slide-in-from-top-2" : "hidden"
+          "md:flex items-center gap-6 list-none",
+          isOpen ? "absolute top-full left-0 w-full bg-bg-menu p-3 flex flex-col animate-in fade-in slide-in-from-top-2" : "hidden md:flex"
         )}>
           
-          <li className="md:contents bg-white/5 md:bg-transparent border border-white/10 md:border-none rounded-xl p-3">
+          <li>
             <Link 
               href="/" 
               onClick={closeMenu} 
-              className={cn(linkStyles('/'), "block text-center text-lg md:p-0 bg-white/10 md:bg-transparent rounded-lg p-3")}
+              className={cn(linkStyles('/'), "block text-center text-lg")}
             >
               Inicio
             </Link>
           </li>
           
-          <li className="group relative bg-white/5 md:bg-transparent border border-white/10 md:border-none rounded-xl p-3 md:p-0">
-            <span className="block text-center md:text-left text-sm md:text-lg font-bold text-accent md:text-white uppercase md:normal-case tracking-widest md:tracking-normal mb-2 md:mb-0 cursor-default">
-              Personal <span className="hidden md:inline">▾</span>
+          {/* SECCIÓN ORGANIZACIÓN */}
+          <li className="group relative">
+            <span className="block text-center md:text-left text-lg font-bold text-white cursor-default">
+              Explorar <span className="hidden md:inline">▾</span>
             </span>
             
-            <ul className="grid grid-cols-2 md:grid-cols-1 gap-2 md:hidden group-hover:md:block md:absolute md:top-full md:left-0 md:min-w-45 md:bg-bg-menu md:rounded-b-lg md:py-2 md:shadow-xl">
+            <ul className="md:hidden group-hover:md:block md:absolute md:top-full md:left-0 md:min-w-[180px] md:bg-bg-menu md:rounded-b-lg md:py-2 md:shadow-xl">
               <li>
-                <Link href="/dibujos" onClick={closeMenu} className={cn(linkStyles('/dibujos'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md")}>
-                  Dibujos
+                <Link href="/artistas" onClick={closeMenu} className={cn(linkStyles('/artistas'), "block p-3 md:px-5 md:py-3 text-sm")}>
+                  Artistas
                 </Link>
               </li>
               <li>
-                <Link href="/fotos" onClick={closeMenu} className={cn(linkStyles('/fotos'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md")}>
-                  Fotos
-                </Link>
-              </li>
-              <li>
-                <Link href="/contacto" onClick={closeMenu} className={cn(linkStyles('/contacto'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md")}>
-                  Contacto
+                <Link href="/lugares" onClick={closeMenu} className={cn(linkStyles('/lugares'), "block p-3 md:px-5 md:py-3 text-sm")}>
+                  Lugares
                 </Link>
               </li>
             </ul>
           </li>
 
-          <li className="group relative bg-white/5 md:bg-transparent border border-white/10 md:border-none rounded-xl p-3 md:p-0">
-            <span className="block text-center md:text-left text-sm md:text-lg font-bold text-accent md:text-white uppercase md:normal-case tracking-widest md:tracking-normal mb-2 md:mb-0 cursor-default">
-              Garden of Sins <span className="hidden md:inline">▾</span>
-            </span>
-            <ul className="grid grid-cols-2 md:grid-cols-1 gap-2 md:hidden group-hover:md:block md:absolute md:top-full md:left-0 md:min-w-45 md:bg-bg-menu md:rounded-b-lg md:py-2 md:shadow-xl">
-              <li>
-                <Link href="/personajes" onClick={closeMenu} className={cn(linkStyles('/personajes'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md")}>
-                  Personajes
-                </Link>
-              </li>
-              <li>
-                <a href="https://youtube.com" target="_blank" className="block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm text-white rounded-md">
-                  Animaciones
-                </a>
-              </li>
-            </ul>
+          <li>
+            <Link href="/contacto" onClick={closeMenu} className={cn(linkStyles('/contacto'), "block text-center text-lg")}>
+              Contacto
+            </Link>
+          </li>
+
+          <li>
+            <a 
+              href="https://youtube.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="block text-center text-lg text-white hover:text-accent font-bold"
+            >
+              Proyectos
+            </a>
           </li> 
         </ul>
       </nav>
