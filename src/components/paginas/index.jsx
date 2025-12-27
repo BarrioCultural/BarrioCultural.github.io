@@ -5,7 +5,7 @@ import React from 'react';
 const Home = () => {
   return (
     <section className="hero animate-on-scroll">
-      <h1>AYuda</h1>
+      <h1>Barrio Cultural</h1>
     </section>
   );
 };
