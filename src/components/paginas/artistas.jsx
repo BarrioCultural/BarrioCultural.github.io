@@ -21,7 +21,7 @@ const Artistas = () => {
     <main className="min-h-screen bg-bg-main pt-10">
       <header className="mb-10 px-4 text-center">
         <h1 className="text-4xl font-bold text-primary tracking-tight">Artistas</h1>
-        <p className="mt-2 text-primary/60 italic">Galería colectiva de Barrio Cultural</p>
+        <p className="mt-2 text-primary/60 italic">Artistas Chilenos</p>
       </header>
 
       <GalleryGrid>
