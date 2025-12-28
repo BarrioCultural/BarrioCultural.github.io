@@ -33,6 +33,7 @@ const Drawings = () => {
     { src: "/dibujos/personajes/cuerpo-completo/dorian.png", alt: "Dorian" },
     { src: "/dibujos/personajes/cuerpo-completo/florgelida.png", alt: "Flor Gélida" },
     { src: "/dibujos/personajes/cuerpo-completo/abel.jpg", alt: "Abel" },
+    { src: "/dibujos/personajes/cuerpo-completo/starGirl.png", alt: "Star Girl" },
   ];
 
   return (
