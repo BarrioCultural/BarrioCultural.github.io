@@ -24,7 +24,6 @@ const UploadPage = () => {
 
     setLoading(true);
     try {
-      // 1. Nombre de tabla correcto según tus capturas
       const tablaDestino = categoria === 'dibujos' ? 'dibujos' : 'diario_fotos';
 
       // 2. Subir imagen a Storage (Asegúrate que el bucket se llame 'galeria')
