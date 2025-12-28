@@ -4,13 +4,13 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from "@/lib/utils"; 
-import { useAuth } from '@/components/authContext';
+import { useAuth } from '@/components/authContext'; // Importamos el contexto
 import { supabase } from '@/lib/supabase';
 
 const Navbar = () => {
   const currentPath = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  const { user, perfil } = useAuth(); 
+  const { user, perfil } = useAuth(); // Obtenemos el usuario y perfil
 
   const closeMenu = () => setIsOpen(false);
 
@@ -24,92 +24,99 @@ const Navbar = () => {
     currentPath === path ? "text-accent" : "text-white hover:text-accent"
   );
 
+  // Permisos para subir
   const puedeSubir = perfil?.rol === 'admin' || perfil?.rol === 'autor';
 
   return (
-    <header className="sticky top-0 z-[1000] bg-bg-menu/80 backdrop-blur-md w-full border-b border-white/5">
+    <header className="sticky top-0 z-1000 bg-bg-menu w-full">
       <nav className="mx-auto max-w-container flex items-center justify-between p-4 md:p-5">
         
         {/* LOGO */}
-        <Link href="/" className="text-xl font-bold text-white tracking-tight z-[1001]">
+        <div className="text-xl font-bold text-white tracking-tight">
           Franilover
-        </Link>
+        </div>
 
-        {/* BOTÓN HAMBURGUESA (Mejorado) */}
+        {/* BOTÓN HAMBURGUESA */}
         <button 
-          className="flex md:hidden flex-col gap-1.5 cursor-pointer z-[1001] p-2"
+          className="flex md:hidden flex-col gap-1.5 cursor-pointer"
           onClick={() => setIsOpen(!isOpen)}
+          aria-label="Abrir menú"
         >
-          <span className={cn("w-6 h-0.5 bg-white transition-all duration-300", isOpen && "rotate-45 translate-y-2")}></span>
-          <span className={cn("w-6 h-0.5 bg-white transition-all duration-300", isOpen && "opacity-0")}></span>
-          <span className={cn("w-6 h-0.5 bg-white transition-all duration-300", isOpen && "-rotate-45 -translate-y-2")}></span>
+          <span className="w-6 h-0.75 bg-white transition-all"></span>
+          <span className="w-6 h-0.75 bg-white transition-all"></span>
+          <span className="w-6 h-0.75 bg-white transition-all"></span>
         </button>
 
-        {/* MENÚ DE NAVEGACIÓN */}
+        {/* MENÚ DE NAVEGACIÓN (Estructura original recuperada) */}
         <ul className={cn(
-          "md:flex items-center gap-8 list-none",
-          // Estilos para móvil cuando está abierto
-          isOpen 
-            ? "fixed inset-0 bg-black/95 flex flex-col justify-center items-center gap-6 text-xl z-[1000] animate-in fade-in zoom-in-95 duration-300" 
-            : "hidden md:flex"
+          "hidden md:flex items-center gap-6 list-none",
+          isOpen ? "absolute top-full left-0 w-full bg-bg-menu p-3 grid grid-cols-1 gap-3 animate-in fade-in slide-in-from-top-2 flex" : "hidden"
         )}>
           
-          <li>
-            <Link href="/" onClick={closeMenu} className={linkStyles('/')}>Inicio</Link>
+          <li className="md:contents bg-white/5 md:bg-transparent border border-white/10 md:border-none rounded-xl p-3">
+            <Link 
+              href="/" 
+              onClick={closeMenu} 
+              className={cn(linkStyles('/'), "block text-center text-lg md:p-0 bg-white/10 md:bg-transparent rounded-lg p-3")}
+            >
+              Inicio
+            </Link>
           </li>
           
-          {/* Menú Personal */}
-          <li className="flex flex-col items-center md:block group relative">
-            <span className="text-white/50 md:text-white text-xs md:text-base uppercase md:normal-case tracking-widest md:tracking-normal mb-2 md:mb-0">Personal</span>
-            <div className="flex flex-row md:flex-col gap-4 md:gap-0 md:absolute md:hidden md:group-hover:block md:bg-bg-menu md:top-full md:left-0 md:min-w-[150px] md:rounded-b-lg md:pt-2">
-              <Link href="/dibujos" onClick={closeMenu} className={cn(linkStyles('/dibujos'), "text-sm")}>Dibujos</Link>
-              <Link href="/fotos" onClick={closeMenu} className={cn(linkStyles('/fotos'), "text-sm")}>Fotos</Link>
-            </div>
+          <li className="group relative bg-white/5 md:bg-transparent border border-white/10 md:border-none rounded-xl p-3 md:p-0">
+            <span className="block text-center md:text-left text-sm md:text-lg font-bold text-accent md:text-white uppercase md:normal-case tracking-widest md:tracking-normal mb-2 md:mb-0 cursor-default">
+              Personal <span className="hidden md:inline">▾</span>
+            </span>
+            <ul className="grid grid-cols-2 md:grid-cols-1 gap-2 md:hidden group-hover:md:block md:absolute md:top-full md:left-0 md:min-w-45 md:bg-bg-menu md:rounded-b-lg md:py-2 md:shadow-xl">
+              <li><Link href="/dibujos" onClick={closeMenu} className={cn(linkStyles('/dibujos'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md")}>Dibujos</Link></li>
+              <li><Link href="/fotos" onClick={closeMenu} className={cn(linkStyles('/fotos'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md")}>Fotos</Link></li>
+              <li><Link href="/contacto" onClick={closeMenu} className={cn(linkStyles('/contacto'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md")}>Contacto</Link></li>
+            </ul>
           </li>
 
-          {/* Menú Garden */}
-          <li className="flex flex-col items-center md:block group relative">
-            <span className="text-white/50 md:text-white text-xs md:text-base uppercase md:normal-case tracking-widest md:tracking-normal mb-2 md:mb-0">Garden</span>
-            <div className="flex flex-row md:flex-col gap-4 md:gap-0 md:absolute md:hidden md:group-hover:block md:bg-bg-menu md:top-full md:left-0 md:min-w-[150px] md:rounded-b-lg md:pt-2">
-              <Link href="/personajes" onClick={closeMenu} className={cn(linkStyles('/personajes'), "text-sm")}>Personajes</Link>
-              <Link href="/archivos" onClick={closeMenu} className="text-terminal-green text-sm font-bold">Archivos</Link>
-            </div>
+          <li className="group relative bg-white/5 md:bg-transparent border border-white/10 md:border-none rounded-xl p-3 md:p-0">
+            <span className="block text-center md:text-left text-sm md:text-lg font-bold text-accent md:text-white uppercase md:normal-case tracking-widest md:tracking-normal mb-2 md:mb-0 cursor-default">
+              Garden of Sins <span className="hidden md:inline">▾</span>
+            </span>
+            <ul className="grid grid-cols-2 md:grid-cols-1 gap-2 md:hidden group-hover:md:block md:absolute md:top-full md:left-0 md:min-w-45 md:bg-bg-menu md:rounded-b-lg md:py-2 md:shadow-xl">
+              <li><Link href="/personajes" onClick={closeMenu} className={cn(linkStyles('/personajes'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md")}>Personajes</Link></li>
+              <li><Link href="/archivos" onClick={closeMenu} className={cn(linkStyles('/archivos'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md text-terminal-green")}>Archivos <span className="text-[8px] animate-pulse">●</span></Link></li>
+              <li><a href="https://youtube.com" target="_blank" className="block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm text-white rounded-md">Animaciones</a></li>
+            </ul>
+          </li> 
+
+          {/* SECCIÓN DE CUENTA (Respetando el estilo de los otros botones) */}
+          <li className="bg-white/5 md:bg-transparent border border-white/10 md:border-none rounded-xl p-3 md:p-0">
+             {user ? (
+               <div className="flex flex-col md:flex-row items-center gap-3">
+                 <div className="text-center md:text-right">
+                   <p className="text-[10px] text-accent font-bold uppercase tracking-tighter leading-none">
+                     {perfil?.rol || 'Usuario'}
+                   </p>
+                   <p className="text-xs text-white font-bold">
+                     {perfil?.username || user.email.split('@')[0]}
+                   </p>
+                 </div>
+                 {puedeSubir && (
+                   <Link href="/upload" onClick={closeMenu} className="text-[10px] bg-accent/20 text-accent border border-accent/40 px-2 py-1 rounded hover:bg-accent hover:text-black transition-all">
+                     + SUBIR
+                   </Link>
+                 )}
+                 <button onClick={handleLogout} className="text-[10px] text-white/40 hover:text-white uppercase font-bold tracking-widest">
+                   Salir
+                 </button>
+               </div>
+             ) : (
+               <Link 
+                 href="/login" 
+                 onClick={closeMenu}
+                 className="block text-center text-sm md:text-lg font-bold text-white hover:text-accent bg-white/10 md:bg-transparent rounded-lg p-3 md:p-0"
+               >
+                 Entrar
+               </Link>
+             )}
           </li>
 
-          {/* 🟢 SECCIÓN DE CUENTA */}
-          <li className="flex flex-col md:flex-row items-center gap-6 mt-8 md:mt-0 pt-8 md:pt-0 border-t border-white/10 md:border-none w-full md:w-auto">
-            
-            {puedeSubir && (
-              <Link href="/upload" onClick={closeMenu} className="text-accent border border-accent/30 px-4 py-1 rounded-full text-xs font-bold uppercase hover:bg-accent hover:text-black transition-all">
-                + Subir
-              </Link>
-            )}
-
-            {user ? (
-              <div className="flex items-center gap-4">
-                <div className="text-center md:text-right">
-                  {/* AQUÍ USAMOS EL USERNAME DEL PERFIL */}
-                  <p className="text-white font-bold text-sm leading-none">
-                    {perfil?.username || user.email.split('@')[0]}
-                  </p>
-                  <p className="text-accent text-[9px] uppercase tracking-widest mt-1">
-                    {perfil?.rol}
-                  </p>
-                </div>
-                <button onClick={handleLogout} className="text-white/20 hover:text-white transition-colors">
-                  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
-                </button>
-              </div>
-            ) : (
-              <Link 
-                href="/login" 
-                onClick={closeMenu}
-                className="px-8 py-3 md:px-5 md:py-2 bg-white text-black rounded-full text-xs font-bold uppercase tracking-widest hover:bg-accent transition-all"
-              >
-                Entrar
-              </Link>
-            )}
-          </li>
         </ul>
       </nav>
     </header>
