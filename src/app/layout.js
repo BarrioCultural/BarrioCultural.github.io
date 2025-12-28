@@ -1,4 +1,5 @@
 import { LightboxProvider } from "@/components/lightbox"; 
+import { AuthProvider } from "@/components/authContext"; // 1. Importa el nuevo contexto
 import AppLogic from "./AppLogic";
 import "@/components/tailwind.css"; 
 
@@ -11,12 +12,13 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es">
       <body>
-        {/* Todo lo que esté dentro de LightboxProvider tendrá acceso al openLightbox */}
-        <LightboxProvider>
-          <AppLogic>
-            {children}
-          </AppLogic>
-        </LightboxProvider>
+        <AuthProvider>
+          <LightboxProvider>
+            <AppLogic>
+              {children}
+            </AppLogic>
+          </LightboxProvider>
+        </AuthProvider>
       </body>
     </html>
   );

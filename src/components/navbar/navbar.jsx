@@ -4,100 +4,128 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from "@/lib/utils"; 
+import { useAuth } from '@/components/authContext'; // Ruta actualizada
+import { supabase } from '@/lib/supabase';
 
 const Navbar = () => {
   const currentPath = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const { user, perfil } = useAuth(); 
 
   const closeMenu = () => setIsOpen(false);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.reload();
+  };
 
   const linkStyles = (path) => cn(
     "transition-all duration-300 font-bold cursor-pointer",
     currentPath === path ? "text-accent" : "text-white hover:text-accent"
   );
 
+  // Verificamos si tiene permisos para subir contenido
+  const puedeSubir = perfil?.rol === 'admin' || perfil?.rol === 'autor';
+
   return (
-    <header className="sticky top-0 z-1000 bg-bg-menu w-full">
+    <header className="sticky top-0 z-[1000] bg-bg-menu w-full">
       <nav className="mx-auto max-w-container flex items-center justify-between p-4 md:p-5">
         
         {/* LOGO */}
-        <div className="text-xl font-bold text-white tracking-tight">
+        <Link href="/" className="text-xl font-bold text-white tracking-tight">
           Franilover
-        </div>
+        </Link>
 
         {/* BOTÓN HAMBURGUESA */}
         <button 
-          className="flex md:hidden flex-col gap-1.5 cursor-pointer"
+          className="flex md:hidden flex-col gap-1.5 cursor-pointer z-50"
           onClick={() => setIsOpen(!isOpen)}
-          aria-label="Abrir menú"
         >
-          <span className="w-6 h-0.75 bg-white transition-all"></span>
-          <span className="w-6 h-0.75 bg-white transition-all"></span>
-          <span className="w-6 h-0.75 bg-white transition-all"></span>
+          <span className={cn("w-6 h-0.5 bg-white transition-all", isOpen && "rotate-45 translate-y-2")}></span>
+          <span className={cn("w-6 h-0.5 bg-white transition-all", isOpen && "opacity-0")}></span>
+          <span className={cn("w-6 h-0.5 bg-white transition-all", isOpen && "-rotate-45 -translate-y-2")}></span>
         </button>
 
         {/* MENÚ DE NAVEGACIÓN */}
         <ul className={cn(
-          "hidden md:flex items-center gap-6 list-none",
-          isOpen ? "absolute top-full left-0 w-full bg-bg-menu p-3 grid grid-cols-1 gap-3 animate-in fade-in slide-in-from-top-2" : "hidden"
+          "md:flex items-center gap-6 list-none",
+          isOpen 
+            ? "fixed inset-0 bg-bg-menu flex flex-col justify-center items-center gap-8 text-2xl z-40" 
+            : "hidden"
         )}>
           
-          <li className="md:contents bg-white/5 md:bg-transparent border border-white/10 md:border-none rounded-xl p-3">
-            <Link 
-              href="/" 
-              onClick={closeMenu} 
-              className={cn(linkStyles('/'), "block text-center text-lg md:p-0 bg-white/10 md:bg-transparent rounded-lg p-3")}
-            >
-              Inicio
-            </Link>
+          <li>
+            <Link href="/" onClick={closeMenu} className={linkStyles('/')}>Inicio</Link>
           </li>
           
-          <li className="group relative bg-white/5 md:bg-transparent border border-white/10 md:border-none rounded-xl p-3 md:p-0">
-            <span className="block text-center md:text-left text-sm md:text-lg font-bold text-accent md:text-white uppercase md:normal-case tracking-widest md:tracking-normal mb-2 md:mb-0 cursor-default">
-              Personal <span className="hidden md:inline">▾</span>
+          {/* Menú Personal */}
+          <li className="group relative">
+            <span className="text-white hover:text-accent cursor-default flex items-center gap-1 font-bold">
+              Personal <span className="text-[10px] hidden md:inline">▼</span>
             </span>
-            
-            <ul className="grid grid-cols-2 md:grid-cols-1 gap-2 md:hidden group-hover:md:block md:absolute md:top-full md:left-0 md:min-w-45 md:bg-bg-menu md:rounded-b-lg md:py-2 md:shadow-xl">
-              <li>
-                <Link href="/dibujos" onClick={closeMenu} className={cn(linkStyles('/dibujos'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md")}>
-                  Dibujos
-                </Link>
-              </li>
-              <li>
-                <Link href="/fotos" onClick={closeMenu} className={cn(linkStyles('/fotos'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md")}>
-                  Fotos
-                </Link>
-              </li>
-              <li>
-                <Link href="/contacto" onClick={closeMenu} className={cn(linkStyles('/contacto'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md")}>
-                  Contacto
-                </Link>
-              </li>
+            <ul className="md:absolute md:hidden group-hover:block bg-white/5 md:bg-bg-menu p-2 rounded-lg md:shadow-2xl">
+              <li><Link href="/dibujos" onClick={closeMenu} className="block p-3 text-sm text-white hover:text-accent">Dibujos</Link></li>
+              <li><Link href="/fotos" onClick={closeMenu} className="block p-3 text-sm text-white hover:text-accent">Fotos</Link></li>
             </ul>
           </li>
 
-          <li className="group relative bg-white/5 md:bg-transparent border border-white/10 md:border-none rounded-xl p-3 md:p-0">
-            <span className="block text-center md:text-left text-sm md:text-lg font-bold text-accent md:text-white uppercase md:normal-case tracking-widest md:tracking-normal mb-2 md:mb-0 cursor-default">
-              Garden of Sins <span className="hidden md:inline">▾</span>
+          {/* Menú Garden */}
+          <li className="group relative">
+            <span className="text-white hover:text-accent cursor-default flex items-center gap-1 font-bold">
+              Garden <span className="text-[10px] hidden md:inline">▼</span>
             </span>
-            <ul className="grid grid-cols-2 md:grid-cols-1 gap-2 md:hidden group-hover:md:block md:absolute md:top-full md:left-0 md:min-w-45 md:bg-bg-menu md:rounded-b-lg md:py-2 md:shadow-xl">
-              <li>
-                <Link href="/personajes" onClick={closeMenu} className={cn(linkStyles('/personajes'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md")}>
-                  Personajes
-                </Link>
-              </li>
-              <li>
-              <Link href="/archivos" onClick={closeMenu} className={cn(linkStyles('/archivos'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md text-terminal-green")}>
-                Archivos <span className="text-[8px] animate-pulse">●</span>
-              </Link>
-              </li>
-              <li>
-                <a href="https://youtube.com" target="_blank" className="block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm text-white rounded-md">
-                  Animaciones
-                </a>
-              </li>
+            <ul className="md:absolute md:hidden group-hover:block bg-white/5 md:bg-bg-menu p-2 rounded-lg md:shadow-2xl">
+              <li><Link href="/personajes" onClick={closeMenu} className="block p-3 text-sm text-white hover:text-accent">Personajes</Link></li>
+              <li><Link href="/archivos" onClick={closeMenu} className="block p-3 text-sm text-terminal-green hover:brightness-125">Archivos</Link></li>
             </ul>
-          </li> 
+          </li>
+
+          {/* 🟢 SECCIÓN DE CUENTA / ADMIN */}
+          <li className="flex flex-col md:flex-row items-center gap-4 border-t border-white/10 md:border-none pt-6 md:pt-0">
+            
+            {/* Si puede subir, mostramos el botón especial */}
+            {puedeSubir && (
+              <Link 
+                href="/upload" 
+                onClick={closeMenu}
+                className="bg-accent/10 text-accent border border-accent/20 px-4 py-1.5 rounded-md text-xs font-bold uppercase hover:bg-accent hover:text-black transition-all"
+              >
+                + Subir
+              </Link>
+            )}
+
+            {user ? (
+              <div className="flex items-center gap-4">
+                <div className="flex flex-col items-end">
+                  <span className="text-[9px] text-accent font-black uppercase tracking-tighter leading-none">
+                    {perfil?.rol}
+                  </span>
+                  <span className="text-[10px] text-white/40 truncate max-w-[80px]">
+                    {user.email.split('@')[0]}
+                  </span>
+                </div>
+                <button 
+                  onClick={handleLogout}
+                  className="p-2 hover:bg-white/5 rounded-full transition-colors"
+                  title="Cerrar sesión"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-white/40">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
+                </button>
+              </div>
+            ) : (
+              <Link 
+                href="/login" 
+                onClick={closeMenu}
+                className="px-6 py-2 bg-white text-black rounded-full text-xs font-bold uppercase tracking-widest hover:bg-accent transition-colors"
+              >
+                Entrar
+              </Link>
+            )}
+          </li>
         </ul>
       </nav>
     </header>
