@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/components/authContext';
@@ -10,12 +11,11 @@ const UploadPage = () => {
   
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [categoria, setCategoria] = useState('dibujos'); // dibujos o fotos
+  const [categoria, setCategoria] = useState('dibujos'); // dibujos o diario_fotos
   const [titulo, setTitulo] = useState('');
 
-  // Protección: Si no es admin, lo mandamos a casa
   if (!perfil || perfil.rol !== 'admin') {
-    return <div className="p-20 text-center text-white">No tienes permiso para estar aquí.</div>;
+    return <div className="p-20 text-center text-white italic">Acceso restringido.</div>;
   }
 
   const handleUpload = async (e) => {
@@ -24,34 +24,40 @@ const UploadPage = () => {
 
     setLoading(true);
     try {
-      // 1. Subir imagen a Storage
-      const fileName = `${Date.now()}_${file.name}`;
-      const { data: storageData, error: storageError } = await supabase.storage
+      // 1. Nombre de tabla correcto según tus capturas
+      const tablaDestino = categoria === 'dibujos' ? 'dibujos' : 'diario_fotos';
+
+      // 2. Subir imagen a Storage (Asegúrate que el bucket se llame 'galeria')
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${categoria}/${fileName}`;
+
+      const { error: storageError } = await supabase.storage
         .from('galeria')
-        .upload(`${categoria}/${fileName}`, file);
+        .upload(filePath, file);
 
       if (storageError) throw storageError;
 
-      // 2. Obtener la URL pública de la imagen
+      // 3. Obtener URL pública
       const { data: { publicUrl } } = supabase.storage
         .from('galeria')
-        .getPublicUrl(`${categoria}/${fileName}`);
+        .getPublicUrl(filePath);
 
-      // 3. Guardar en la tabla correspondiente (dibujos o fotos)
+      // 4. Insertar en Base de Datos con los nombres de columna EXACTOS de tu captura
       const { error: dbError } = await supabase
-        .from(categoria)
+        .from(tablaDestino)
         .insert([{ 
-          url: publicUrl, 
-          titulo: titulo,
-          usuario_id: user.id 
+          url_imagen: publicUrl, // En tu captura la columna se llama url_imagen, no url
+          titulo: titulo || 'Sin título',
+          categoria: 'original' // O la que prefieras por defecto
         }]);
 
       if (dbError) throw dbError;
 
-      alert("¡Subido con éxito!");
-      router.push(`/${categoria}`); // Te lleva a ver tu nueva obra
+      alert("¡Publicado con éxito!");
+      router.push(categoria === 'dibujos' ? '/dibujos' : '/fotos');
     } catch (error) {
-      alert(error.message);
+      alert("Error: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -60,46 +66,47 @@ const UploadPage = () => {
   return (
     <main className="min-h-screen pt-32 pb-20 px-4 flex justify-center bg-bg-main">
       <div className="w-full max-w-md bg-white/5 backdrop-blur-md border border-white/10 p-8 rounded-2xl">
-        <h1 className="text-2xl font-bold text-white mb-6">SUBIR NUEVA OBRA</h1>
+        <h1 className="text-2xl font-black text-white mb-6 tracking-tighter italic">SUBIR OBRA</h1>
         
         <form onSubmit={handleUpload} className="space-y-6">
-          {/* Selector de categoría */}
-          <div>
-            <label className="text-[10px] text-white/40 uppercase tracking-widest block mb-2">Categoría</label>
-            <div className="flex gap-4">
-              <button 
-                type="button"
-                onClick={() => setCategoria('dibujos')}
-                className={`flex-1 py-2 rounded-lg border font-bold text-xs ${categoria === 'dibujos' ? 'bg-accent text-black border-accent' : 'border-white/10 text-white'}`}
-              >DIBUJOS</button>
-              <button 
-                type="button"
-                onClick={() => setCategoria('fotos')}
-                className={`flex-1 py-2 rounded-lg border font-bold text-xs ${categoria === 'fotos' ? 'bg-accent text-black border-accent' : 'border-white/10 text-white'}`}
-              >FOTOS</button>
-            </div>
+          <div className="flex gap-2 p-1 bg-black/20 rounded-xl border border-white/5">
+            <button 
+              type="button"
+              onClick={() => setCategoria('dibujos')}
+              className={`flex-1 py-3 rounded-lg font-bold text-[10px] tracking-widest transition-all ${categoria === 'dibujos' ? 'bg-accent text-black shadow-[0_0_15px_rgba(var(--accent-rgb),0.3)]' : 'text-white/40 hover:text-white'}`}
+            >DIBUJOS</button>
+            <button 
+              type="button"
+              onClick={() => setCategoria('fotos')}
+              className={`flex-1 py-3 rounded-lg font-bold text-[10px] tracking-widest transition-all ${categoria === 'fotos' ? 'bg-accent text-black shadow-[0_0_15px_rgba(var(--accent-rgb),0.3)]' : 'text-white/40 hover:text-white'}`}
+            >FOTOS</button>
           </div>
 
           <input 
             type="text" 
-            placeholder="Título (opcional)"
-            className="w-full bg-black/20 border border-white/10 p-3 rounded-lg text-white outline-none focus:border-accent"
+            placeholder="Escribe un título..."
+            className="w-full bg-black/20 border border-white/10 p-4 rounded-xl text-white text-sm outline-none focus:border-accent/50 transition-all"
             value={titulo}
             onChange={(e) => setTitulo(e.target.value)}
           />
 
-          <input 
-            type="file" 
-            accept="image/*"
-            onChange={(e) => setFile(e.target.files[0])}
-            className="text-sm text-white/60 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-white file:text-black hover:file:bg-accent"
-          />
+          <div className="relative group">
+            <input 
+              type="file" 
+              accept="image/*"
+              onChange={(e) => setFile(e.target.files[0])}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+            />
+            <div className="w-full py-10 border-2 border-dashed border-white/10 rounded-xl flex flex-col items-center justify-center gap-2 group-hover:border-accent/30 transition-all">
+               <span className="text-white/40 text-xs">{file ? file.name : "Seleccionar Imagen"}</span>
+            </div>
+          </div>
 
           <button 
             disabled={loading}
-            className="w-full bg-white text-black py-4 rounded-xl font-black uppercase tracking-widest hover:bg-accent transition-all disabled:opacity-50"
+            className="w-full bg-white text-black py-4 rounded-xl font-black uppercase tracking-[0.2em] text-xs hover:bg-accent transition-all disabled:opacity-50"
           >
-            {loading ? 'Subiendo...' : 'Publicar'}
+            {loading ? 'Procesando...' : 'Publicar'}
           </button>
         </form>
       </div>

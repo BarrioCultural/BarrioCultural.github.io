@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from "@/lib/utils"; 
-import { useAuth } from '@/components/authContext'; 
+import { useAuth } from '@/components/authContext';
 import { supabase } from '@/lib/supabase';
 
 const Navbar = () => {
@@ -14,9 +14,11 @@ const Navbar = () => {
 
   const closeMenu = () => setIsOpen(false);
 
+  // Función de salida mejorada para evitar que el nombre se quede "pegado"
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    window.location.reload();
+    localStorage.clear(); // Limpia rastros locales
+    window.location.href = "/"; // Forzar recarga total a la home
   };
 
   const linkStyles = (path) => cn(
@@ -24,106 +26,103 @@ const Navbar = () => {
     currentPath === path ? "text-accent" : "text-white hover:text-accent"
   );
 
-  const puedeSubir = perfil?.rol === 'admin' || perfil?.rol === 'autor';
+  // Verificamos permisos
+  const puedeSubir = user && perfil?.rol === 'admin';
 
   return (
-    <header className="sticky top-0 z-1000 bg-bg-menu w-full border-b border-white/5">
+    <header className="sticky top-0 z-[1000] bg-bg-menu/80 backdrop-blur-md w-full border-b border-white/5">
       <nav className="mx-auto max-w-container flex items-center justify-between p-4 md:p-5">
         
         {/* LOGO */}
-        <div className="text-xl font-bold text-white tracking-tight">
+        <Link href="/" className="text-xl font-bold text-white tracking-tight z-[1001]">
           Franilover
-        </div>
+        </Link>
 
-        {/* BOTÓN HAMBURGUESA */}
+        {/* BOTÓN HAMBURGUESA (MÓVIL) */}
         <button 
-          className="flex md:hidden flex-col gap-1.5 cursor-pointer"
+          className="flex md:hidden flex-col gap-1.5 cursor-pointer z-[1001] p-2"
           onClick={() => setIsOpen(!isOpen)}
-          aria-label="Abrir menú"
         >
-          <span className="w-6 h-0.75 bg-white transition-all"></span>
-          <span className="w-6 h-0.75 bg-white transition-all"></span>
-          <span className="w-6 h-0.75 bg-white transition-all"></span>
+          <span className={cn("w-6 h-0.5 bg-white transition-all duration-300", isOpen && "rotate-45 translate-y-2")}></span>
+          <span className={cn("w-6 h-0.5 bg-white transition-all duration-300", isOpen && "opacity-0")}></span>
+          <span className={cn("w-6 h-0.5 bg-white transition-all duration-300", isOpen && "-rotate-45 -translate-y-2")}></span>
         </button>
 
         {/* MENÚ DE NAVEGACIÓN */}
         <ul className={cn(
-          "hidden md:flex items-center gap-6 list-none",
-          isOpen ? "absolute top-full left-0 w-full bg-bg-menu p-3 flex flex-col gap-3 animate-in fade-in slide-in-from-top-2" : "hidden"
+          "md:flex items-center gap-8 list-none",
+          isOpen 
+            ? "fixed inset-0 bg-black/95 flex flex-col justify-center items-center gap-6 text-xl z-[1000] animate-in fade-in zoom-in-95 duration-300" 
+            : "hidden md:flex"
         )}>
           
-          {/* INICIO - Fila completa */}
-          <li className="w-full md:w-auto bg-white/5 md:bg-transparent border border-white/10 md:border-none rounded-xl p-3">
-            <Link 
-              href="/" 
-              onClick={closeMenu} 
-              className={cn(linkStyles('/'), "block text-center text-lg md:p-0 bg-white/10 md:bg-transparent rounded-lg p-3")}
-            >
-              Inicio
-            </Link>
+          <li>
+            <Link href="/" onClick={closeMenu} className={linkStyles('/')}>Inicio</Link>
           </li>
           
-          {/* PERSONAL - Título + Grid 2 columnas */}
-          <li className="w-full md:w-auto group relative bg-white/5 md:bg-transparent border border-white/10 md:border-none rounded-xl p-3 md:p-0">
-            <span className="block text-center md:text-left text-sm md:text-lg font-bold text-accent md:text-white uppercase md:normal-case tracking-widest md:tracking-normal mb-2 md:mb-0 cursor-default">
-              Personal <span className="hidden md:inline">▾</span>
-            </span>
-            <ul className="grid grid-cols-2 md:grid-cols-1 gap-2 md:hidden group-hover:md:block md:absolute md:top-full md:left-0 md:min-w-45 md:bg-bg-menu md:rounded-b-lg md:py-2 md:shadow-xl">
-              <li><Link href="/dibujos" onClick={closeMenu} className={cn(linkStyles('/dibujos'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md")}>Dibujos</Link></li>
-              <li><Link href="/fotos" onClick={closeMenu} className={cn(linkStyles('/fotos'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md")}>Fotos</Link></li>
-              <li className="col-span-2 md:col-span-1"><Link href="/contacto" onClick={closeMenu} className={cn(linkStyles('/contacto'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md")}>Contacto</Link></li>
-            </ul>
+          {/* Menú Personal */}
+          <li className="flex flex-col items-center md:block group relative">
+            <span className="text-white/50 md:text-white text-xs md:text-base uppercase md:normal-case tracking-widest md:tracking-normal mb-2 md:mb-0">Personal</span>
+            <div className="flex flex-row md:flex-col gap-4 md:gap-0 md:absolute md:hidden md:group-hover:block md:bg-bg-menu md:top-full md:left-0 md:min-w-[150px] md:rounded-b-lg md:pt-2 md:shadow-xl">
+              <Link href="/dibujos" onClick={closeMenu} className={cn(linkStyles('/dibujos'), "block p-2 text-sm")}>Dibujos</Link>
+              <Link href="/fotos" onClick={closeMenu} className={cn(linkStyles('/fotos'), "block p-2 text-sm")}>Fotos</Link>
+            </div>
           </li>
 
-          {/* GARDEN - Título + Grid 2 columnas */}
-          <li className="w-full md:w-auto group relative bg-white/5 md:bg-transparent border border-white/10 md:border-none rounded-xl p-3 md:p-0">
-            <span className="block text-center md:text-left text-sm md:text-lg font-bold text-accent md:text-white uppercase md:normal-case tracking-widest md:tracking-normal mb-2 md:mb-0 cursor-default">
-              Garden of Sins <span className="hidden md:inline">▾</span>
-            </span>
-            <ul className="grid grid-cols-2 md:grid-cols-1 gap-2 md:hidden group-hover:md:block md:absolute md:top-full md:left-0 md:min-w-45 md:bg-bg-menu md:rounded-b-lg md:py-2 md:shadow-xl">
-              <li><Link href="/personajes" onClick={closeMenu} className={cn(linkStyles('/personajes'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md")}>Personajes</Link></li>
-              <li><Link href="/archivos" onClick={closeMenu} className={cn(linkStyles('/archivos'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md text-terminal-green")}>Archivos</Link></li>
-              <li className="col-span-2 md:col-span-1"><a href="https://youtube.com" target="_blank" className="block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm text-white rounded-md">Animaciones</a></li>
-            </ul>
-          </li> 
+          {/* Menú Garden */}
+          <li className="flex flex-col items-center md:block group relative">
+            <span className="text-white/50 md:text-white text-xs md:text-base uppercase md:normal-case tracking-widest md:tracking-normal mb-2 md:mb-0">Garden</span>
+            <div className="flex flex-row md:flex-col gap-4 md:gap-0 md:absolute md:hidden md:group-hover:block md:bg-bg-menu md:top-full md:left-0 md:min-w-[150px] md:rounded-b-lg md:pt-2 md:shadow-xl">
+              <Link href="/personajes" onClick={closeMenu} className={cn(linkStyles('/personajes'), "block p-2 text-sm")}>Personajes</Link>
+              <Link href="/archivos" onClick={closeMenu} className="block p-2 text-terminal-green text-sm font-bold">Archivos</Link>
+            </div>
+          </li>
 
-          {/* LOGIN / CUENTA - Fila completa */}
-          <li className="w-full md:w-auto bg-white/5 md:bg-transparent border border-white/10 md:border-none rounded-xl p-3">
-            {user ? (
-              <div className="flex flex-col md:flex-row items-center justify-between gap-3">
-                <div className="flex flex-col items-center md:items-end">
-                  <span className="text-[10px] text-accent font-bold uppercase leading-none mb-1">{perfil?.rol}</span>
-                  <span className="text-white font-bold text-sm">{perfil?.username || user.email.split('@')[0]}</span>
+          {/* 🟢 SECCIÓN DE CUENTA (DINÁMICA) */}
+          <li className="flex flex-col md:flex-row items-center gap-6 mt-8 md:mt-0 pt-8 md:pt-0 border-t border-white/10 md:border-none w-full md:w-auto">
+            
+            {/* Botón de subida solo para admin logueado */}
+            {puedeSubir && (
+              <Link 
+                href="/upload" 
+                onClick={closeMenu} 
+                className="text-accent border border-accent/30 px-4 py-1.5 rounded-full text-xs font-bold uppercase hover:bg-accent hover:text-black transition-all shadow-[0_0_15px_rgba(var(--accent-rgb),0.1)]"
+              >
+                + Subir
+              </Link>
+            )}
+
+            {/* Mostramos Perfil o Botón Entrar */}
+            {user && perfil ? (
+              <div className="flex items-center gap-4">
+                <div className="text-center md:text-right">
+                  <p className="text-white font-bold text-sm leading-none">
+                    {perfil.username || user.email.split('@')[0]}
+                  </p>
+                  <p className="text-accent text-[9px] uppercase tracking-widest mt-1">
+                    {perfil.rol}
+                  </p>
                 </div>
-                <div className="flex items-center gap-3">
-                  {puedeSubir && (
-                    <Link 
-                      href="/upload" 
-                      onClick={closeMenu} 
-                      className="bg-accent text-black text-[10px] font-black px-3 py-1 rounded uppercase hover:bg-white transition-all"
-                    >
-                      + SUBIR
-                    </Link>
-                  )}
-                  <button 
-                    onClick={handleLogout} 
-                    className="text-white/40 hover:text-white text-[10px] font-bold uppercase tracking-widest"
-                  >
-                    Salir
-                  </button>
-                </div>
+                <button 
+                  onClick={handleLogout} 
+                  className="text-white/20 hover:text-white transition-colors p-2"
+                  title="Cerrar Sesión"
+                >
+                  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+                  </svg>
+                </button>
               </div>
             ) : (
               <Link 
                 href="/login" 
-                onClick={closeMenu} 
-                className="block text-center text-lg font-bold text-white hover:text-accent bg-white/10 md:bg-transparent rounded-lg p-3 md:p-0 uppercase"
+                onClick={closeMenu}
+                className="px-8 py-3 md:px-5 md:py-2 bg-white text-black rounded-full text-xs font-bold uppercase tracking-widest hover:bg-accent transition-all"
               >
                 Entrar
               </Link>
             )}
           </li>
-
         </ul>
       </nav>
     </header>
