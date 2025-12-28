@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from "@/lib/utils"; 
-import { useAuth } from '@/components/authContext';
+import { useAuth } from '@/components/authContext'; 
 import { supabase } from '@/lib/supabase';
 
 const Navbar = () => {
@@ -27,7 +27,7 @@ const Navbar = () => {
   const puedeSubir = perfil?.rol === 'admin' || perfil?.rol === 'autor';
 
   return (
-    <header className="sticky top-0 z-1000 bg-bg-menu w-full">
+    <header className="sticky top-0 z-1000 bg-bg-menu w-full border-b border-white/5">
       <nav className="mx-auto max-w-container flex items-center justify-between p-4 md:p-5">
         
         {/* LOGO */}
@@ -39,6 +39,7 @@ const Navbar = () => {
         <button 
           className="flex md:hidden flex-col gap-1.5 cursor-pointer"
           onClick={() => setIsOpen(!isOpen)}
+          aria-label="Abrir menú"
         >
           <span className="w-6 h-0.75 bg-white transition-all"></span>
           <span className="w-6 h-0.75 bg-white transition-all"></span>
@@ -91,21 +92,34 @@ const Navbar = () => {
             {user ? (
               <div className="flex flex-col md:flex-row items-center justify-between gap-3">
                 <div className="flex flex-col items-center md:items-end">
-                  <span className="text-[10px] text-accent font-bold uppercase">{perfil?.rol}</span>
-                  <span className="text-white font-bold">{perfil?.username || user.email.split('@')[0]}</span>
+                  <span className="text-[10px] text-accent font-bold uppercase leading-none mb-1">{perfil?.rol}</span>
+                  <span className="text-white font-bold text-sm">{perfil?.username || user.email.split('@')[0]}</span>
                 </div>
-                <div className="flex gap-2">
-                  {puedeSubir && <Link href="/upload" onClick={closeMenu} className="bg-accent/20 text-accent border border-accent/40 px-3 py-1 rounded text-xs font-bold">+ SUBIR</Link>}
-                  <button onClick={handleLogout} className="text-white/40 hover:text-white text-xs font-bold uppercase">Salir</button>
+                <div className="flex items-center gap-3">
+                  {puedeSubir && (
+                    <Link 
+                      href="/upload" 
+                      onClick={closeMenu} 
+                      className="bg-accent text-black text-[10px] font-black px-3 py-1 rounded uppercase hover:bg-white transition-all"
+                    >
+                      + SUBIR
+                    </Link>
+                  )}
+                  <button 
+                    onClick={handleLogout} 
+                    className="text-white/40 hover:text-white text-[10px] font-bold uppercase tracking-widest"
+                  >
+                    Salir
+                  </button>
                 </div>
               </div>
             ) : (
               <Link 
                 href="/login" 
                 onClick={closeMenu} 
-                className="block text-center text-lg font-bold text-white hover:text-accent bg-white/10 md:bg-transparent rounded-lg p-3 md:p-0"
+                className="block text-center text-lg font-bold text-white hover:text-accent bg-white/10 md:bg-transparent rounded-lg p-3 md:p-0 uppercase"
               >
-                ENTRAR
+                Entrar
               </Link>
             )}
           </li>

@@ -16,15 +16,15 @@ const LoginPage = () => {
     setMensaje('');
 
     if (isRegistering) {
-      // REGISTRO
-      const { data, error } = await supabase.auth.signUp({ 
+            const { data, error } = await supabase.auth.signUp({ 
         email, 
         password,
         options: {
-          // Guardamos el username en los metadatos del usuario de Supabase
-          data: { display_name: username } 
+            data: { display_name: username },
+            // Esta línea le dice a Supabase a dónde regresar después de confirmar el mail
+            emailRedirectTo: window.location.origin, 
         }
-      });
+        });
 
       if (error) {
         setMensaje(error.message);
