@@ -55,10 +55,10 @@ export default function Newsletter() {
         ) : (
           <>
             <h2 className="text-xl font-semibold text-primary text-center mb-2">
-              ¿Quieres ver mis nuevos dibujos antes que nadie? 📩
+              ¿Quieres saber cuando suba nuevos dibujos?
             </h2>
             <p className="text-primary/60 text-sm text-center mb-6">
-              Déjame tu correo y te avisaré cuando suba algo nuevo.
+              Porfavor nadie ve mi arte :C 
             </p>
             
             <form onSubmit={handleSubscribe} className="flex flex-col md:flex-row gap-3">
