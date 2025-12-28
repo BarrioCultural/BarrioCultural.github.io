@@ -5,7 +5,9 @@ import React from 'react';
 const Home = () => {
   return (
     <section className="hero animate-on-scroll">
-      <h1>AYuda</h1>
+      <div>
+        <h1 className="text-5xl font-bold text-center text-primary"> Dibujo navideñooo!</h1>
+      </div>
     </section>
   );
 };
