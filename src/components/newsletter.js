@@ -64,7 +64,7 @@ export default function Newsletter() {
             <form onSubmit={handleSubscribe} className="flex flex-col md:flex-row gap-3">
               <input 
                 type="email" 
-                placeholder="Tu mejor email..." 
+                placeholder="Tu email..." 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
