@@ -3,24 +3,24 @@
 import React, { useEffect, useState } from 'react';
 import { useLightbox } from "@/components/recursos/lightbox"; 
 import { GalleryGrid, GalleryItem } from "@/components/recursos/gallery";
-import { supabase } from '@/lib/supabase'; // Asegúrate de importar tu cliente
+import { supabase } from '@/lib/supabase';
 
 const Diario = () => {
   const { openLightbox } = useLightbox();
   
-  // 1. Estados para los datos y la carga
   const [entradas, setEntradas] = useState([]);
   const [loading, setLoading] = useState(true);
+  // 🟢 Estado para el filtro
+  const [filtro, setFiltro] = useState('todos');
 
   useEffect(() => {
     const fetchFotos = async () => {
       try {
         setLoading(true);
-        // Traemos las fotos de la tabla diario_fotos
         const { data, error } = await supabase
           .from('diario_fotos')
           .select('*')
-          .order('id', { ascending: false }); // Las más nuevas primero
+          .order('id', { ascending: false });
 
         if (error) throw error;
         setEntradas(data || []);
@@ -34,39 +34,73 @@ const Diario = () => {
     fetchFotos();
   }, []);
 
-  // 2. Preparamos la lista para el Lightbox (mapeando a src/alt)
-  const fotosParaLightbox = entradas.map(e => ({ src: e.url_imagen, alt: e.fecha }));
+  // 🟢 Lógica de filtrado
+  const fotosFiltradas = filtro === 'todos' 
+    ? entradas 
+    : entradas.filter(e => e.categoria === filtro);
+
+  // Preparamos el Lightbox basándonos en la lista filtrada
+  const fotosParaLightbox = fotosFiltradas.map(e => ({ 
+    src: e.url_imagen, 
+    alt: e.fecha || e.titulo 
+  }));
+
+  const categorias = ['todos', 'yo', 'amigos', 'animales', 'paisajes'];
 
   return (
-    <main className="min-h-screen bg-bg-main pt-10">
+    <main className="min-h-screen bg-[#E2D8E6] pt-10">
       <header className="mb-10 px-4 text-center">
-        <h1 className="text-4xl font-bold text-primary tracking-tight">Diario de Fotos</h1>
+        <h1 className="text-4xl font-black text-[#6B5E70] tracking-tight italic">Diario de Fotos</h1>
+        <p className="mt-2 text-[#6B5E70]/60 text-xs font-bold uppercase tracking-widest">Recuerdos y momentos</p>
       </header>
 
+      {/* 🔘 Botones de Filtro (Estilo igual a dibujos) */}
+      <div className="flex justify-center gap-2 mb-8 px-4 flex-wrap">
+        {categorias.map(cat => (
+          <button
+            key={cat}
+            onClick={() => setFiltro(cat)}
+            className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border ${
+              filtro === cat 
+              ? 'bg-[#6B5E70] text-white border-[#6B5E70]' 
+              : 'bg-white/20 text-[#6B5E70]/40 border-[#6B5E70]/10 hover:border-[#6B5E70]/40'
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
       {loading ? (
-        <div className="text-center py-20 text-primary animate-pulse">Cargando recuerdos... 🎞️</div>
+        <div className="text-center py-20 text-[#6B5E70] animate-pulse font-bold uppercase text-xs tracking-widest">
+          Cargando recuerdos... 🎞️
+        </div>
       ) : (
-        <GalleryGrid>
-          {entradas.length > 0 ? (
-            entradas.map((entrada, index) => (
-              <div key={entrada.id} className="flex flex-col group">
-                <GalleryItem 
-                  src={entrada.url_imagen} 
-                  alt={entrada.fecha} 
-                  onClick={() => openLightbox(index, fotosParaLightbox)} 
-                />
-                <h3 className="mt-2 text-center text-[10px] md:text-xs font-bold text-primary uppercase opacity-70 group-hover:opacity-100 transition-opacity">
-                  {entrada.fecha}
-                </h3>
-              </div>
-            ))
-          ) : (
-            <p className="text-center col-span-full text-primary/50 italic">Aún no hay fotos en el diario.</p>
-          )}
-        </GalleryGrid>
+        <div className="px-4">
+          <GalleryGrid>
+            {fotosFiltradas.length > 0 ? (
+              fotosFiltradas.map((entrada, index) => (
+                <div key={entrada.id} className="flex flex-col group">
+                  <GalleryItem 
+                    src={entrada.url_imagen} 
+                    alt={entrada.fecha} 
+                    onClick={() => openLightbox(index, fotosParaLightbox)} 
+                  />
+                  <h3 className="mt-3 text-center text-[10px] font-black text-[#6B5E70] uppercase tracking-tighter opacity-50 group-hover:opacity-100 transition-opacity">
+                    {entrada.fecha || entrada.titulo}
+                  </h3>
+                </div>
+              ))
+            ) : (
+              <p className="text-center col-span-full text-[#6B5E70]/40 italic py-10">
+                Aún no hay fotos en la categoría "{filtro}".
+              </p>
+            )}
+          </GalleryGrid>
+        </div>
       )}
 
-      <div className="h-20"></div>
+      <div className="h-24"></div>
     </main>
   );
 };
