@@ -93,13 +93,12 @@ const Diario = () => {
               ))
             ) : (
               <p className="text-center col-span-full text-[#6B5E70]/40 italic py-10">
-                Aún no hay fotos en la categoría "{filtro}".
+                Aún no hay fotos en esta categoría "{filtro}".
               </p>
             )}
           </GalleryGrid>
         </div>
       )}
-
       <div className="h-24"></div>
     </main>
   );
