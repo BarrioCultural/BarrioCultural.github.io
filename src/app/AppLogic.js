@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useLightbox } from "@/components/recursos/lightbox"; 
-import Navbar from "@/components/navbar/navbar";
+import Navbar from "@/components/recursos/navbar/navbar";
 
 export default function AppLogic({ children }) {
   const pathname = usePathname();
