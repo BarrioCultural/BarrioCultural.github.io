@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useLightbox } from "@/components/recursos/lightbox"; 
 import { GalleryGrid, GalleryItem } from "@/components/recursos/gallery";
 import { supabase } from '@/lib/supabase';
@@ -11,20 +11,19 @@ const Drawings = () => {
   
   const [dibujos, setDibujos] = useState([]);
   const [loading, setLoading] = useState(true);
-  // 🟢 Nuevo estado para la categoría seleccionada
   const [filtro, setFiltro] = useState('todos');
 
   useEffect(() => {
     const fetchDibujos = async () => {
       try {
         setLoading(true);
+        // 1. OPTIMIZACIÓN: Solo pedimos las columnas que necesitamos
         const { data, error } = await supabase
           .from('dibujos')
-          .select('*') // Traemos todo (incluyendo la categoría)
+          .select('id, url_imagen, titulo, categoria') 
           .order('id', { ascending: false });
 
         if (error) throw error;
-        
         setDibujos(data || []);
       } catch (err) {
         console.error("Error cargando dibujos:", err.message);
@@ -36,16 +35,25 @@ const Drawings = () => {
     fetchDibujos();
   }, []);
 
-  // 🟢 Lógica de filtrado en tiempo real
-  const dibujosFiltrados = filtro === 'todos' 
-    ? dibujos 
-    : dibujos.filter(d => d.categoria === filtro);
+  // 2. OPTIMIZACIÓN: Memorizamos la lista filtrada para que no se recalcule al hacer scroll
+  const dibujosFiltrados = useMemo(() => (
+    filtro === 'todos' 
+      ? dibujos 
+      : dibujos.filter(d => d.categoria === filtro)
+  ), [dibujos, filtro]);
 
-  // Formateamos los datos filtrados para el Lightbox
-  const imagenesParaLightbox = dibujosFiltrados.map(d => ({
-    src: d.url_imagen,
-    alt: d.titulo
-  }));
+  // 3. OPTIMIZACIÓN: Memorizamos la lista para el Lightbox
+  const imagenesParaLightbox = useMemo(() => (
+    dibujosFiltrados.map(d => ({
+      src: d.url_imagen,
+      alt: d.titulo
+    }))
+  ), [dibujosFiltrados]);
+
+  // Usamos useCallback para que la función de abrir el lightbox sea estable
+  const handleOpenLightbox = useCallback((index) => {
+    openLightbox(index, imagenesParaLightbox);
+  }, [openLightbox, imagenesParaLightbox]);
 
   const categorias = ['todos', 'fanart', 'original', 'bocetos'];
 
@@ -66,8 +74,8 @@ const Drawings = () => {
             onClick={() => setFiltro(cat)}
             className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all border ${
               filtro === cat 
-              ? 'bg-primary text-white border-primary' 
-              : 'bg-transparent text-primary/40 border-primary/10 hover:border-primary/40'
+              ? 'bg-primary text-white border-primary shadow-md' 
+              : 'bg-white/10 text-primary/40 border-primary/10 hover:border-primary/40'
             }`}
           >
             {cat}
@@ -77,7 +85,7 @@ const Drawings = () => {
 
       {loading ? (
         <div className="flex justify-center items-center h-40">
-          <p className="text-primary animate-pulse text-lg">Cargando arte... 🎨</p>
+          <p className="text-primary animate-pulse text-lg font-bold uppercase tracking-widest">Cargando arte... 🎨</p>
         </div>
       ) : (
         <div className="px-4">
@@ -88,8 +96,8 @@ const Drawings = () => {
                   key={dibujo.id}
                   src={dibujo.url_imagen}
                   alt={dibujo.titulo}
-                  // Pasamos la lista filtrada para que el lightbox solo muestre la categoría actual
-                  onClick={() => openLightbox(index, imagenesParaLightbox)} 
+                  // Usamos la función memorizada
+                  onClick={() => handleOpenLightbox(index)} 
                 />
               ))
             ) : (
