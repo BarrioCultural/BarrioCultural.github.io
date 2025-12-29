@@ -1,14 +1,17 @@
-// En tu app/layout.js
-import { AuthProvider } from '@/components/recursos/authContext';
+"use client"; // Añade esto si vas a usar animaciones o interactividad
 
-export default function RootLayout({ children }) {
+import SobreMi from '@/components/paginas/sobre-mi';
+import { motion } from 'framer-motion';
+
+export default function Page() {
   return (
-    <html lang="es">
-      <body>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
-      </body>
-    </html>
+    <motion.main 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="min-h-screen pt-32 pb-20 px-4 flex justify-center bg-bg-main"
+    >
+      <SobreMi />
+    </motion.main>
   );
 }
