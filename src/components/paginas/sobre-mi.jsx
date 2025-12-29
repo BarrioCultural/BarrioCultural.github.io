@@ -43,7 +43,7 @@ export default function SobreMi() {
             <Sparkles size={40} className="text-primary/40" />
           </div>
           <h2 className="text-2xl font-bold text-primary">Sobre Mi</h2>
-          <p className="text-primary/60 italic text-sm">Dibujante y creadora</p>
+          <p className="text-primary/60 italic text-sm">Dibujante y creador</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
