@@ -4,22 +4,20 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from "@/lib/utils"; 
-import { useAuth } from '@/components/authContext'; 
+import { useAuth } from '@/components/recursos/authContext'; 
 import { supabase } from '@/lib/supabase';
 
 const Navbar = () => {
   const currentPath = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  const { user, perfil, loading } = useAuth(); // Añadimos loading para evitar parpadeos
+  const { user, perfil, loading } = useAuth();
 
   const closeMenu = () => setIsOpen(false);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    // Limpiamos todo rastro local
     localStorage.clear();
     sessionStorage.clear();
-    // Redirección forzada: Esto limpia el estado de React por completo
     window.location.href = "/"; 
   };
 
@@ -31,7 +29,7 @@ const Navbar = () => {
   const puedeSubir = perfil?.rol === 'admin' || perfil?.rol === 'autor';
 
   return (
-    <header className="sticky top-0 z-1000 bg-bg-menu w-full border-b border-white/5">
+    <header className="sticky top-0 z-[1000] bg-bg-menu w-full border-b border-white/5">
       <nav className="mx-auto max-w-container flex items-center justify-between p-4 md:p-5">
         
         {/* LOGO */}
@@ -52,7 +50,7 @@ const Navbar = () => {
 
         {/* MENÚ DE NAVEGACIÓN */}
         <ul className={cn(
-          "md:flex items-center gap-6 list-none", // Quitamos el hidden por defecto para que el cn lo controle
+          "md:flex items-center gap-6 list-none",
           isOpen ? "absolute top-full left-0 w-full bg-bg-menu p-3 flex flex-col gap-3 animate-in fade-in slide-in-from-top-2" : "hidden"
         )}>
           
@@ -67,31 +65,39 @@ const Navbar = () => {
             </Link>
           </li>
           
-          {/* PERSONAL */}
+          {/* PERSONAL (Aquí cambiamos Contacto por Sobre Mí) */}
           <li className="w-full md:w-auto group relative bg-white/5 md:bg-transparent border border-white/10 md:border-none rounded-xl p-3 md:p-0">
             <span className="block text-center md:text-left text-sm md:text-lg font-bold text-accent md:text-white uppercase md:normal-case tracking-widest md:tracking-normal mb-2 md:mb-0 cursor-default">
               Personal <span className="hidden md:inline">▾</span>
             </span>
-            <ul className="grid grid-cols-2 md:grid-cols-1 gap-2 md:hidden group-hover:md:block md:absolute md:top-full md:left-0 md:min-w-45 md:bg-bg-menu md:rounded-b-lg md:py-2 md:shadow-xl">
+            <ul className="grid grid-cols-2 md:grid-cols-1 gap-2 md:hidden group-hover:md:block md:absolute md:top-full md:left-0 md:min-w-[180px] md:bg-bg-menu md:rounded-b-lg md:py-2 md:shadow-xl">
               <li><Link href="/dibujos" onClick={closeMenu} className={cn(linkStyles('/dibujos'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md")}>Dibujos</Link></li>
               <li><Link href="/fotos" onClick={closeMenu} className={cn(linkStyles('/fotos'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md")}>Fotos</Link></li>
-              <li className="col-span-2 md:col-span-1"><Link href="/contacto" onClick={closeMenu} className={cn(linkStyles('/contacto'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md")}>Contacto</Link></li>
+              <li className="col-span-2 md:col-span-1">
+                <Link 
+                  href="/sobre-mi" 
+                  onClick={closeMenu} 
+                  className={cn(linkStyles('/sobre-mi'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md")}
+                >
+                  Sobre mí
+                </Link>
+              </li>
             </ul>
           </li>
 
-          {/* GARDEN */}
+          {/* GARDEN OF SINS */}
           <li className="w-full md:w-auto group relative bg-white/5 md:bg-transparent border border-white/10 md:border-none rounded-xl p-3 md:p-0">
             <span className="block text-center md:text-left text-sm md:text-lg font-bold text-accent md:text-white uppercase md:normal-case tracking-widest md:tracking-normal mb-2 md:mb-0 cursor-default">
               Garden of Sins <span className="hidden md:inline">▾</span>
             </span>
-            <ul className="grid grid-cols-2 md:grid-cols-1 gap-2 md:hidden group-hover:md:block md:absolute md:top-full md:left-0 md:min-w-45 md:bg-bg-menu md:rounded-b-lg md:py-2 md:shadow-xl">
+            <ul className="grid grid-cols-2 md:grid-cols-1 gap-2 md:hidden group-hover:md:block md:absolute md:top-full md:left-0 md:min-w-[180px] md:bg-bg-menu md:rounded-b-lg md:py-2 md:shadow-xl">
               <li><Link href="/personajes" onClick={closeMenu} className={cn(linkStyles('/personajes'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md")}>Personajes</Link></li>
               <li><Link href="/archivos" onClick={closeMenu} className={cn(linkStyles('/archivos'), "block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm rounded-md text-terminal-green")}>Archivos</Link></li>
               <li className="col-span-2 md:col-span-1"><a href="https://youtube.com" target="_blank" className="block text-center md:text-left bg-white/10 md:bg-transparent p-2 md:px-5 md:py-3 text-xs md:text-sm text-white rounded-md">Animaciones</a></li>
             </ul>
           </li> 
 
-          {/* LOGIN / CUENTA - Lógica Corregida */}
+          {/* LOGIN / CUENTA */}
           <li className="w-full md:w-auto bg-white/5 md:bg-transparent border border-white/10 md:border-none rounded-xl p-3">
             {!loading && user && perfil ? (
               <div className="flex flex-col md:flex-row items-center justify-between gap-3">

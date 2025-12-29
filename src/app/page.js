@@ -1,5 +1,5 @@
 // En tu app/layout.js
-import { AuthProvider } from '@/components/authContext';
+import { AuthProvider } from '@/components/recursos/authContext';
 
 export default function RootLayout({ children }) {
   return (

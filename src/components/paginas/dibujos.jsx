@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { useLightbox } from "@/components/lightbox"; 
-import { GalleryGrid, GalleryItem } from "@/components/gallery";
+import { useLightbox } from "@/components/recursos/lightbox"; 
+import { GalleryGrid, GalleryItem } from "@/components/recursos/gallery";
 import { supabase } from '@/lib/supabase';
-import Newsletter from "@/components/newsletter";
+import Newsletter from "@/components/recursos/newsletter";
 
 const Drawings = () => {
   const { openLightbox } = useLightbox();

@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { useLightbox } from "@/components/lightbox"; 
-import { GalleryGrid, GalleryItem } from "@/components/gallery";
+import { useLightbox } from "@/components/recursos/lightbox"; 
+import { GalleryGrid, GalleryItem } from "@/components/recursos/gallery";
 import { supabase } from '@/lib/supabase'; // Asegúrate de importar tu cliente
 
 const Diario = () => {

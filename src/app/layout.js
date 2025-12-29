@@ -1,5 +1,5 @@
-import { LightboxProvider } from "@/components/lightbox"; 
-import { AuthProvider } from "@/components/authContext"; // 1. Importa el nuevo contexto
+import { LightboxProvider } from "@/components/recursos/lightbox"; 
+import { AuthProvider } from "@/components/recursos/authContext"; // 1. Importa el nuevo contexto
 import AppLogic from "./AppLogic";
 import "@/components/tailwind.css"; 
 

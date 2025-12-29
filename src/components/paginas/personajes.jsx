@@ -1,83 +1,125 @@
 "use client";
+import React, { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X } from 'lucide-react';
 
-import React from 'react';
-import { useLightbox } from "@/components/lightbox";
-import { FilaPersonaje } from "@/components/FilaPersonaje";
+const PureGridLore = () => {
+  const [personajes, setPersonajes] = useState([]);
+  const [selected, setSelected] = useState(null);
 
-const Lore = () => {
-  const { openLightbox } = useLightbox();
+  useEffect(() => {
+    const fetchLore = async () => {
+      const { data } = await supabase
+        .from('lore_personajes')
+        .select('*')
+        .order('nombre', { ascending: true });
+      if (data) setPersonajes(data);
+    };
+    fetchLore();
+  }, []);
 
-  const personajes = [
-    {
-      nombre: "Pink Killer",
-      img: "/dibujos/personajes/cuerpo-completo/pinkkiller.png",
-      desc: "Asesina principal del PF",
-      id: "pinkkiller", // Clave para el color
-    },
-    {
-      nombre: "Dorian",
-      img: "/dibujos/personajes/rostros/dorian-cara.png",
-      desc: "El lider del PF",
-      id: "dorian",
-    },
-    {
-      nombre: "Faker",
-      img: "/dibujos/personajes/rostros/faker-cara.png",
-      desc: "El mejor hacker del PF",
-      id: "faker",
-    },
-    {
-      nombre: "Frani",
-      img: "/dibujos/personajes/rostros/frani-postsuicideparede-cara.png",
-      desc: "El mejor investigador del PP",
-      id: "frani",
-    },
-    {
-      nombre: "Abel",
-      img: "/dibujos/personajes/rostros/abel-cara.png",
-      desc: "Heredero al trono del Reino Torres",
-      id: "abel",
-    },
-    {
-      nombre: "Quimera",
-      img: "/dibujos/personajes/rostros/crazygirl-cara.png",
-      desc: "Una joven rebelde que busca venganza",
-      id: "yoa", // Usando el color de 'yoa' para Quimera si no tienes uno específico
-    },
-    {
-      nombre: "Icarus",
-      img: "/dibujos/personajes/rostros/icarus-cara.png",
-      desc: "Inventor del Reino Torres",
-      id: "florgelida", // Usando un color celeste para el inventor
+  const handleSelect = (p) => {
+    if (selected?.nombre === p.nombre) {
+      setSelected(null);
+    } else {
+      setSelected(p);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  ];
+  };
 
   return (
-    <main className="min-h-screen bg-bg-main py-12 px-4">
-      <header className="mb-16 text-center">
-        <h1 className="text-4xl font-bold text-primary uppercase tracking-[0.2em]">
-          Personajes
+    <div className="min-h-screen bg-[#EBEBEB] font-sans pb-10">
+      
+      {/* HEADER SIMPLE */}
+      <header className="p-8">
+        <h1 className="text-4xl font-black tracking-tighter italic text-zinc-900">
+          Personajes 
         </h1>
-        <div className="h-1 w-24 bg-accent mx-auto mt-4 rounded-full"></div>
+        <div className="h-1 w-12 bg-zinc-900 mt-2" />
       </header>
 
-      {/* Contenedor principal que reemplaza a .galeria-filas */}
-      <section className="mx-auto flex w-full max-w-container flex-col gap-8">
-        {personajes.map((p, index) => (
-          <FilaPersonaje 
-            key={index}
-            indice={index} // Esto controla si el texto va a la derecha o izquierda
-            nombre={p.nombre}
-            img={p.img}
-            descripcion={p.desc}
-            colorId={p.id} // Para aplicar el color del personaje
-          />
-        ))}
-      </section>
+      {/* PANEL DE INFORMACIÓN (EMPUJA EL GRID) */}
+      <AnimatePresence>
+        {selected && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ type: "spring", duration: 0.5, bounce: 0 }}
+            className="bg-white overflow-hidden shadow-xl border-b border-zinc-300"
+          >
+            <div className="p-6 md:p-12 max-w-6xl mx-auto flex flex-col md:flex-row gap-10 items-center">
+              
+              {/* Imagen Grande en el Info */}
+              <motion.div 
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="w-full md:w-80 aspect-square rounded-[2rem] overflow-hidden shadow-2xl shrink-0"
+              >
+                <img src={selected.img_url} className="w-full h-full object-cover" alt={selected.nombre} />
+              </motion.div>
 
-      <div className="h-20"></div>
-    </main>
+              {/* Texto */}
+              <div className="flex-1 relative">
+                <button 
+                  onClick={() => setSelected(null)}
+                  className="absolute -top-4 -right-4 md:top-0 md:right-0 p-2 text-zinc-400 hover:text-black"
+                >
+                  <X size={28} strokeWidth={1} />
+                </button>
+                
+                <h2 className="text-6xl font-black uppercase italic tracking-tighter text-zinc-900 mb-6">
+                  {selected.nombre}
+                </h2>
+                
+                <p className="text-2xl text-zinc-500 font-light leading-snug italic border-l-4 border-zinc-900 pl-6">
+                  {selected.sobre}
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* GRID DE CUADRADOS */}
+      <main className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2">
+        {personajes.map((p, i) => (
+          <motion.div
+            key={i}
+            layout
+            onClick={() => handleSelect(p)}
+            whileTap={{ scale: 0.96 }}
+            className={`
+              relative aspect-square cursor-pointer overflow-hidden transition-all duration-500 rounded-lg
+              ${selected?.nombre === p.nombre ? 'z-10 scale-[0.98]' : 'hover:rounded-[2rem]'}
+            `}
+          >
+            <img 
+              src={p.img_url} 
+              className={`w-full h-full object-cover transition-all duration-700 
+                ${selected && selected.nombre !== p.nombre ? 'grayscale opacity-30' : 'grayscale-0 opacity-100'}
+              `} 
+              alt={p.nombre}
+            />
+            
+            {/* Overlay sutil para el nombre */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60" />
+            
+            <div className="absolute bottom-3 left-3">
+              <p className="text-white text-[10px] font-bold uppercase tracking-[0.2em]">
+                {p.nombre}
+              </p>
+            </div>
+          </motion.div>
+        ))}
+      </main>
+
+      <style jsx global>{`
+        body { background-color: #EBEBEB; margin: 0; }
+      `}</style>
+    </div>
   );
 };
 
-export default Lore;
+export default PureGridLore;
