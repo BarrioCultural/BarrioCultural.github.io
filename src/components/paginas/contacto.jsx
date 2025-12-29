@@ -1,8 +1,10 @@
 "use client";
 import React, { useState } from 'react';
+import { X } from 'lucide-react';
 
 const Contacto = () => {
   const [enviado, setEnviado] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const FORMSPREE_ID = "xvzpjdgr"; 
 
   const handleSubmit = async (e) => {
@@ -28,64 +30,89 @@ const Contacto = () => {
     }
   };
 
-  if (enviado) {
-    return (
-      <div className="max-w-[600px] mx-auto my-8 p-12 bg-white rounded-[15px] shadow-sm text-center animate-in fade-in zoom-in duration-500">
-        <h3 className="text-[#ff0066] text-xl font-bold mb-4">¡Mensaje enviado con éxito! 💖</h3>
-        <p className="text-gray-600 mb-6">Gracias por escribirme, te responderé pronto.</p>
-        <button 
-          onClick={() => setEnviado(false)}
-          className="px-6 py-2 border-2 border-primary text-primary rounded-md hover:bg-primary hover:text-white transition-all duration-300"
-        >
-          Enviar otro mensaje
-        </button>
-      </div>
-    );
-  }
+  if (!isVisible) return null;
 
   return (
-    // 'seccion-contacto' convertida
-    <section className="max-w-[600px] mx-auto my-8 p-8 md:p-12 bg-stone-100/50 rounded-[15px] shadow-sm backdrop-blur-sm">
-      <h2 className="text-primary text-center font-bold text-2xl mb-6">Envíame un mensajito</h2>
-      
-      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-        {/* Campo Nombre */}
-        <div className="flex flex-col gap-2">
-          <label className="font-medium text-primary text-sm" htmlFor="full-name">Nombre completo</label>
-          <input 
-            className="p-3 border-2 border-transparent rounded-lg outline-none transition-all focus:border-accent focus:ring-2 focus:ring-accent/20"
-            type="text" name="name" id="full-name" placeholder="Ej: Pink Killer" required 
-          />
-        </div>
-
-        {/* Campo Email */}
-        <div className="flex flex-col gap-2">
-          <label className="font-medium text-primary text-sm" htmlFor="email-address">Correo</label>
-          <input 
-            className="p-3 border-2 border-transparent rounded-lg outline-none transition-all focus:border-accent focus:ring-2 focus:ring-accent/20"
-            type="email" name="_replyto" id="email-address" placeholder="tu@correo.com" required 
-          />
-        </div>
-
-        {/* Campo Mensaje */}
-        <div className="flex flex-col gap-2">
-          <label className="font-medium text-primary text-sm" htmlFor="message">Mensaje</label>
-          <textarea 
-            className="p-3 border-2 border-transparent rounded-lg outline-none min-h-[150px] resize-none transition-all focus:border-accent focus:ring-2 focus:ring-accent/20"
-            name="message" id="message" placeholder="Escribe aquí lo que quieras..." required
-          ></textarea>
-        </div>
-
-        <input type="hidden" name="_subject" value="¡Nuevo mensaje desde Franilover!" />
-
-        {/* Botón Enviar */}
+    // mt-24 le da la separación necesaria del menú superior
+    <section className="max-w-2xl mx-auto mt-24 mb-16 px-4 relative group animate-in fade-in duration-700">
+      <div className="bg-primary/5 border border-primary/10 rounded-3xl p-8 backdrop-blur-sm relative">
+        
+        {/* BOTÓN CERRAR */}
         <button 
-          type="submit" 
-          className="bg-primary text-white p-4 rounded-lg font-bold transition-all hover:-translate-y-1 hover:brightness-110 active:translate-y-0"
+          onClick={() => setIsVisible(false)}
+          className="absolute top-4 right-4 text-primary/40 hover:text-primary transition-colors"
+          title="Cerrar"
         >
-          Enviar Mensaje
+          <X size={20} /> 
         </button>
-      </form>
+
+        {enviado ? (
+          <div className="text-center py-8">
+            <p className="text-green-500 font-medium text-lg mb-4">
+              ✨ ¡Mensaje enviado con éxito!
+            </p>
+            <p className="text-primary/60 text-sm mb-6">Gracias por escribirme, te responderé pronto.</p>
+            <button 
+              onClick={() => setEnviado(false)}
+              className="text-sm text-primary underline hover:text-primary/80"
+            >
+              Enviar otro mensaje
+            </button>
+          </div>
+        ) : (
+          <>
+            <h2 className="text-xl font-semibold text-primary text-center mb-2">
+              Envíame un mensajito
+            </h2>
+            <p className="text-primary/60 text-sm text-center mb-8">
+              ¿Tienes alguna duda o solo quieres saludar? (´｡• ᵕ •｡`) ♡
+            </p>
+            
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-medium text-primary/70 ml-1">Nombre</label>
+                <input 
+                  type="text" 
+                  name="name"
+                  placeholder="Ej: Pink Killer" 
+                  required
+                  className="w-full bg-bg-main border border-primary/20 rounded-xl px-4 py-3 text-primary focus:ring-2 focus:ring-primary/40 outline-none transition-all"
+                />
+              </div>
+              
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-medium text-primary/70 ml-1">Correo</label>
+                <input 
+                  type="email" 
+                  name="_replyto"
+                  placeholder="tu@correo.com" 
+                  required
+                  className="w-full bg-bg-main border border-primary/20 rounded-xl px-4 py-3 text-primary focus:ring-2 focus:ring-primary/40 outline-none transition-all"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-medium text-primary/70 ml-1">Mensaje</label>
+                <textarea 
+                  name="message"
+                  placeholder="Escribe aquí lo que quieras..." 
+                  required
+                  className="w-full bg-bg-main border border-primary/20 rounded-xl px-4 py-3 text-primary focus:ring-2 focus:ring-primary/40 outline-none transition-all min-h-[150px] resize-none"
+                ></textarea>
+              </div>
+
+              <input type="hidden" name="_subject" value="¡Nuevo mensaje desde Franilover!" />
+
+              <button 
+                type="submit" 
+                className="bg-primary text-white font-bold px-8 py-4 rounded-xl hover:scale-105 active:scale-95 transition-all mt-2 shadow-lg shadow-primary/10"
+              >
+                Enviar Mensaje
+              </button>
+            </form>
+          </>
+        )}
+      </div>
     </section>
   );
 };
