@@ -62,7 +62,7 @@ export default function SobreMi() {
               <Palette size={18} className="text-primary" /> Herramientas
             </h3>
             <ul className="text-xs text-primary/70 space-y-2 font-medium">
-              <li>✨ Notebook y Krita</li>
+              <li>✨ Linux y Krita</li>
               <li>🎨 Acuarelas y Acrílico</li>
               <li>☕ Mucha música</li>
             </ul>
