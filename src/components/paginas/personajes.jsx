@@ -7,20 +7,23 @@ import { X } from 'lucide-react';
 const PureGridLore = () => {
   const [personajes, setPersonajes] = useState([]);
   const [selected, setSelected] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchLore = async () => {
+      setLoading(true);
       const { data } = await supabase
         .from('lore_personajes')
         .select('*')
         .order('nombre', { ascending: true });
       if (data) setPersonajes(data);
+      setLoading(false);
     };
     fetchLore();
   }, []);
 
   const handleSelect = (p) => {
-    if (selected?.nombre === p.nombre) {
+    if (selected?.id === p.id) {
       setSelected(null);
     } else {
       setSelected(p);
@@ -29,52 +32,51 @@ const PureGridLore = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#EBEBEB] font-sans pb-10">
+    <div className="min-h-screen bg-[#EBEBEB] font-sans pb-20">
       
-      {/* HEADER SIMPLE */}
-      <header className="p-8">
-        <h1 className="text-4xl font-black tracking-tighter italic text-zinc-900">
-          Personajes 
+      {/* HEADER FIJO */}
+      <header className="p-6 md:p-8 sticky top-0 z-40 bg-[#EBEBEB]/90 backdrop-blur-md border-b border-zinc-200">
+        <h1 className="text-3xl md:text-4xl font-black tracking-tighter italic text-zinc-900 uppercase">
+          {selected ? `Explorando / ${selected.nombre}` : "Personajes"}
         </h1>
-        <div className="h-1 w-12 bg-zinc-900 mt-2" />
       </header>
 
-      {/* PANEL DE INFORMACIÓN (EMPUJA EL GRID) */}
-      <AnimatePresence>
+      {/* PANEL DE INFORMACIÓN (MODO HISTORIA) */}
+      <AnimatePresence mode="wait">
         {selected && (
           <motion.div
+            key="info-panel"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ type: "spring", duration: 0.5, bounce: 0 }}
-            className="bg-white overflow-hidden shadow-xl border-b border-zinc-300"
+            className="bg-white overflow-hidden shadow-2xl border-b border-zinc-300 relative"
           >
-            <div className="p-6 md:p-12 max-w-6xl mx-auto flex flex-col md:flex-row gap-10 items-center">
+            <div className="p-6 md:p-12 max-w-7xl mx-auto flex flex-col md:flex-row gap-8 md:gap-16 items-center">
               
-              {/* Imagen Grande en el Info */}
+              {/* IMAGEN GRANDE */}
               <motion.div 
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="w-full md:w-80 aspect-square rounded-[2rem] overflow-hidden shadow-2xl shrink-0"
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
+                className="w-full md:w-[500px] aspect-square rounded-[2rem] overflow-hidden shadow-2xl shrink-0 bg-zinc-100"
               >
                 <img src={selected.img_url} className="w-full h-full object-cover" alt={selected.nombre} />
               </motion.div>
 
-              {/* Texto */}
-              <div className="flex-1 relative">
+              {/* TEXTO DE LA HISTORIA */}
+              <div className="flex-1 relative w-full">
                 <button 
                   onClick={() => setSelected(null)}
-                  className="absolute -top-4 -right-4 md:top-0 md:right-0 p-2 text-zinc-400 hover:text-black"
+                  className="absolute -top-12 right-0 md:top-0 md:right-0 p-3 bg-zinc-100 rounded-full text-zinc-500 hover:text-black transition-colors"
                 >
-                  <X size={28} strokeWidth={1} />
+                  <X size={24} />
                 </button>
                 
-                <h2 className="text-6xl font-black uppercase italic tracking-tighter text-zinc-900 mb-6">
+                <h2 className="text-6xl md:text-8xl font-black uppercase italic tracking-tighter text-zinc-900 mb-6 leading-none">
                   {selected.nombre}
                 </h2>
                 
-                <p className="text-2xl text-zinc-500 font-light leading-snug italic border-l-4 border-zinc-900 pl-6">
-                  {selected.sobre}
+                <p className="text-xl md:text-3xl text-zinc-700 font-medium leading-tight border-l-8 border-zinc-900 pl-8">
+                  {selected.sobre || "Cargando descripción del archivo..."}
                 </p>
               </div>
             </div>
@@ -82,41 +84,42 @@ const PureGridLore = () => {
         )}
       </AnimatePresence>
 
-      {/* GRID DE CUADRADOS */}
-      <main className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2">
-        {personajes.map((p, i) => (
-          <motion.div
-            key={i}
-            layout
-            onClick={() => handleSelect(p)}
-            whileTap={{ scale: 0.96 }}
-            className={`
-              relative aspect-square cursor-pointer overflow-hidden transition-all duration-500 rounded-lg
-              ${selected?.nombre === p.nombre ? 'z-10 scale-[0.98]' : 'hover:rounded-[2rem]'}
-            `}
-          >
-            <img 
-              src={p.img_url} 
-              className={`w-full h-full object-cover transition-all duration-700 
-                ${selected && selected.nombre !== p.nombre ? 'grayscale opacity-30' : 'grayscale-0 opacity-100'}
-              `} 
-              alt={p.nombre}
-            />
-            
-            {/* Overlay sutil para el nombre */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60" />
-            
-            <div className="absolute bottom-3 left-3">
-              <p className="text-white text-[10px] font-bold uppercase tracking-[0.2em]">
-                {p.nombre}
-              </p>
-            </div>
-          </motion.div>
-        ))}
+      {/* GRID DE PERSONAJES */}
+      <main className="p-4 md:p-8 max-w-[1600px] mx-auto">
+        {loading ? (
+          <div className="text-center py-20 font-black italic text-zinc-400 animate-pulse">SINCRONIZANDO...</div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {personajes.map((p) => (
+              <motion.div
+                key={p.id}
+                layout
+                onClick={() => handleSelect(p)}
+                whileTap={{ scale: 0.95 }}
+                className={`
+                  relative aspect-square cursor-pointer overflow-hidden transition-all duration-500
+                  ${selected?.id === p.id 
+                    ? 'rounded-[3rem] ring-8 ring-zinc-900 z-20 scale-95' 
+                    : 'rounded-2xl grayscale hover:grayscale-0 hover:rounded-[2.5rem]'
+                  }
+                `}
+              >
+                <img src={p.img_url} className="w-full h-full object-cover pointer-events-none" alt={p.nombre} />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-60" />
+                <div className="absolute bottom-4 left-4">
+                  <p className="text-white text-[10px] font-black uppercase tracking-widest truncate">
+                    {p.nombre}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </main>
 
       <style jsx global>{`
         body { background-color: #EBEBEB; margin: 0; }
+        ::-webkit-scrollbar { display: none; }
       `}</style>
     </div>
   );
