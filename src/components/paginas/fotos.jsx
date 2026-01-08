@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useLightbox } from "@/components/recursos/lightbox"; 
-import { GalleryGrid, GalleryItem } from "@/components/recursos/gallery";
+import { GalleryGrid, GalleryItem } from "@/components/recursos/display/gallery";
 import { supabase } from '@/lib/supabase';
 
 const Diario = () => {

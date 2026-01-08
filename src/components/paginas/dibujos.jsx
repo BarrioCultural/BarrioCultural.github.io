@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useLightbox } from "@/components/recursos/lightbox"; 
-import { GalleryGrid, GalleryItem } from "@/components/recursos/gallery";
+import { GalleryGrid, GalleryItem } from "@/components/recursos/display/gallery";
 import { supabase } from '@/lib/supabase';
-import Newsletter from "@/components/recursos/newsletter";
+import Newsletter from "@/components/recursos/boxes/newsletter";
 
 const Drawings = () => {
   const { openLightbox } = useLightbox();

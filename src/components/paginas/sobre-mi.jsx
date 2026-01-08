@@ -52,7 +52,7 @@ export default function SobreMi() {
               <Heart size={18} className="text-primary" /> Mi Pasión
             </h3>
             <p className="text-primary/80 leading-relaxed text-sm">
-              Dibujo para transmitir ideas que no logro transmitir con palabras. <br />
+              Bienvenido a mi pequeño jardin digital <br />
               Me encanta compartir mi arte y conectar con personas que disfrutan de este.
             </p>
           </div>
