@@ -17,7 +17,6 @@ const Drawings = () => {
     const fetchDibujos = async () => {
       try {
         setLoading(true);
-        // 1. OPTIMIZACIÓN: Solo pedimos las columnas que necesitamos
         const { data, error } = await supabase
           .from('dibujos')
           .select('id, url_imagen, titulo, categoria') 
@@ -50,7 +49,6 @@ const Drawings = () => {
     }))
   ), [dibujosFiltrados]);
 
-  // Usamos useCallback para que la función de abrir el lightbox sea estable
   const handleOpenLightbox = useCallback((index) => {
     openLightbox(index, imagenesParaLightbox);
   }, [openLightbox, imagenesParaLightbox]);
@@ -63,8 +61,6 @@ const Drawings = () => {
         <h1 className="text-4xl font-bold text-primary tracking-tight">Dibujos</h1>
         <p className="mt-2 text-primary/60 italic">Fanarts y Personajes :D</p>
       </header>
-
-      <Newsletter />
 
       {/* 🔘 Botones de Filtro */}
       <div className="flex justify-center gap-2 mb-8 px-4 flex-wrap">
@@ -108,6 +104,8 @@ const Drawings = () => {
           </GalleryGrid>
         </div>
       )}
+
+            <Newsletter />
 
       <div className="h-24"></div>
     </main>
