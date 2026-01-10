@@ -155,3 +155,4 @@ const LightboxVisual = () => {
     </div>
   );
 };
+
