@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { useAuth } from '@/components/recursos/authContext';
+import { useAuth } from '@/components/recursos/control/authContext';
 import { useRouter } from 'next/navigation';
 import { Upload, Image as ImageIcon, Camera, ChevronDown, Calendar } from 'lucide-react';
 

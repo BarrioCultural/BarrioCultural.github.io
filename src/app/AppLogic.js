@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { useLightbox } from "@/components/recursos/lightbox"; 
+import { useLightbox } from "@/components/recursos/boxes/lightbox"; 
 import Navbar from "@/components/recursos/navbar/navbar";
 
 export default function AppLogic({ children }) {

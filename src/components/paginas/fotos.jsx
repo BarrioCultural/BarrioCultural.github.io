@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { useLightbox } from "@/components/recursos/lightbox"; 
+import { useLightbox } from "@/components/recursos/boxes/lightbox"; 
 import { GalleryGrid, GalleryItem } from "@/components/recursos/display/gallery";
 import { supabase } from '@/lib/supabase';
 

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from "@/lib/utils"; 
-import { useAuth } from '@/components/recursos/authContext'; 
+import { useAuth } from '@/components/recursos/control/authContext'; 
 import { supabase } from '@/lib/supabase';
 import { 
   User, LogOut, Plus, ChevronDown, Smile, 

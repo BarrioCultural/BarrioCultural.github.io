@@ -1,5 +1,5 @@
-import { LightboxProvider } from "@/components/recursos/lightbox"; 
-import { AuthProvider } from "@/components/recursos/authContext"; 
+import { LightboxProvider } from "@/components/recursos/boxes/lightbox"; 
+import { AuthProvider } from "@/components/recursos/control/authContext"; 
 import AppLogic from "./AppLogic";
 import "@/components/tailwind.css"; 
 // 1. Importa la fuente oficial de Next.js para optimizar el CLS (Cumulative Layout Shift)
