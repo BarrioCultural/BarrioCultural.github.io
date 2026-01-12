@@ -9,47 +9,54 @@ export const AuthProvider = ({ children }) => {
   const [perfil, setPerfil] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Función para cargar los datos del perfil desde la tabla 'perfiles'
+  const fetchPerfil = async (userId) => {
+    try {
+      const { data, error } = await supabase
+        .from('perfiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (data) {
+        setPerfil(data);
+        console.log("Perfil cargado:", data.nombre);
+      }
+    } catch (err) {
+      console.error("Error cargando perfil:", err);
+    }
+  };
+
   useEffect(() => {
-    // 1. Obtener sesión activa
-    const setData = async () => {
+    // 1. Verificar sesión inicial
+    const getInitialSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
       if (session?.user) {
-        await cargarPerfil(session.user.id);
+        setUser(session.user);
+        await fetchPerfil(session.user.id);
       }
       setLoading(false);
     };
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+    // 2. Escuchar cambios en la autenticación (Login/Logout)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
-        cargarPerfil(session.user.id);
+        setUser(session.user);
+        await fetchPerfil(session.user.id);
       } else {
+        setUser(null);
         setPerfil(null);
       }
       setLoading(false);
     });
 
-    setData();
-    return () => listener.subscription.unsubscribe();
+    getInitialSession();
+    return () => subscription.unsubscribe();
   }, []);
-
-  // Función para traer el nombre real desde la tabla perfiles
-  const cargarPerfil = async (userId) => {
-    const { data, error } = await supabase
-      .from('perfiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-    
-    if (!error && data) {
-      setPerfil(data);
-    }
-  };
 
   return (
     <AuthContext.Provider value={{ user, perfil, loading }}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };
