@@ -46,7 +46,7 @@ const CommentsSection = ({ imagenId }) => {
 
   useEffect(() => {
     const fetchComentarios = async () => {
-      setComentarios([]); 
+      if (!imagenId) return;
       const { data, error } = await supabase
         .from('comentarios')
         .select(`*, perfiles ( nombre )`)
@@ -55,8 +55,7 @@ const CommentsSection = ({ imagenId }) => {
       
       if (!error && data) setComentarios(data);
     };
-
-    if (imagenId) fetchComentarios();
+    fetchComentarios();
   }, [imagenId]);
 
   const enviarComentario = async (e) => {
@@ -64,69 +63,79 @@ const CommentsSection = ({ imagenId }) => {
     if (!nuevoComentario.trim() || !user || enviando) return;
 
     setEnviando(true);
-    const { data, error } = await supabase
-      .from('comentarios')
-      .insert([{ 
-        texto: nuevoComentario, 
-        user_id: user.id, 
-        perfil_id: user.id, 
-        imagen_id: imagenId 
-      }])
-      .select(`*, perfiles ( nombre )`)
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('comentarios')
+        .insert([{ 
+          texto: nuevoComentario, 
+          user_id: user.id, 
+          perfil_id: user.id, 
+          imagen_id: imagenId 
+        }])
+        .select(`*, perfiles ( nombre )`)
+        .single();
 
-    if (!error && data) {
-      setComentarios([data, ...comentarios]);
-      setNuevoComentario("");
+      if (!error && data) {
+        setComentarios([data, ...comentarios]);
+        setNuevoComentario("");
+      } else {
+        console.error("Error al publicar:", error?.message);
+      }
+    } catch (err) {
+      console.error("Error inesperado:", err);
+    } finally {
+      setEnviando(false);
     }
-    setEnviando(false);
   };
 
   return (
-    <div className="w-full max-w-2xl px-4">
-      <h3 className="text-white/50 text-[10px] font-bold uppercase tracking-[0.3em] mb-6 border-b border-white/10 pb-2">
-        Conversación ({comentarios.length})
+    <div className="w-full max-w-2xl px-4 mt-6">
+      <h3 className="text-white/40 text-[9px] font-black uppercase tracking-[0.4em] mb-8 border-b border-white/5 pb-4">
+        Conversación / {comentarios.length}
       </h3>
 
       {user ? (
-        <form onSubmit={enviarComentario} className="mb-10 flex gap-3">
+        <form onSubmit={enviarComentario} className="mb-12 flex gap-3">
           <input 
             type="text"
             value={nuevoComentario}
             onChange={(e) => setNuevoComentario(e.target.value)}
-            placeholder={`Escribe como ${perfil?.nombre || 'usuario'}...`}
-            className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-white/30 transition-all"
+            placeholder={`Escribir como ${perfil?.nombre || 'usuario'}...`}
+            className="flex-1 bg-white/[0.03] border border-white/10 rounded-xl px-5 py-4 text-sm text-white focus:outline-none focus:border-white/30 transition-all placeholder:text-white/20"
           />
           <button 
             type="submit"
             disabled={enviando}
-            className="bg-white text-black text-[10px] font-black px-6 py-2 rounded-lg hover:bg-gray-200 transition-all"
+            className="bg-white text-black text-[10px] font-black px-8 py-2 rounded-xl hover:bg-gray-200 active:scale-95 transition-all disabled:opacity-50"
           >
-            {enviando ? "..." : "ENVIAR"}
+            {enviando ? "..." : "PUBLICAR"}
           </button>
         </form>
       ) : (
-        <div className="mb-10 p-6 bg-white/5 rounded-xl border border-dashed border-white/10 text-center">
-          <p className="text-white/30 text-[10px] uppercase tracking-[0.2em]">Inicia sesión para comentar</p>
+        <div className="mb-12 p-8 bg-white/[0.02] rounded-2xl border border-dashed border-white/10 text-center">
+          <p className="text-white/20 text-[10px] font-bold uppercase tracking-[0.2em]">Inicia sesión para participar</p>
         </div>
       )}
 
-      <div className="space-y-8 pb-20">
+      <div className="space-y-10 pb-32">
         {comentarios.map((c) => (
-          <div key={c.id} className="group animate-in fade-in slide-in-from-bottom-2">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-white text-[11px] font-bold uppercase tracking-tight">
+          <div key={c.id} className="group animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="flex justify-between items-center mb-3">
+              <span className="text-white text-[11px] font-black uppercase tracking-tight">
                 {c.perfiles?.nombre || "Usuario"}
               </span>
-              <span className="text-white/20 text-[9px] font-mono">
+              <span className="text-white/10 text-[9px] font-mono italic">
                 {new Date(c.created_at).toLocaleDateString()}
               </span>
             </div>
-            <p className="text-white/70 text-sm font-light leading-relaxed border-l border-white/10 pl-4">
+            <p className="text-white/60 text-sm font-light leading-relaxed border-l-2 border-white/5 pl-5 group-hover:border-white/20 transition-colors">
               {c.texto}
             </p>
           </div>
         ))}
+        {comentarios.length === 0 && (
+          <p className="text-white/5 text-center py-20 italic text-sm tracking-widest uppercase">Sin comentarios aún</p>
+        )}
       </div>
     </div>
   );
@@ -140,58 +149,65 @@ const LightboxVisual = () => {
   const imgId = selectedImg.id || selectedImg.src;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col bg-black/98 backdrop-blur-2xl overflow-y-auto selection:bg-white selection:text-black">
+    <div className="fixed inset-0 z-[9999] flex flex-col bg-black selection:bg-white selection:text-black overflow-y-auto no-scrollbar">
       
-      {/* Barra Superior */}
-      <div className="sticky top-0 w-full p-4 md:p-6 flex justify-between items-center z-[110] bg-black/80 backdrop-blur-md border-b border-white/5">
+      {/* Fondo con Blur dinámico */}
+      <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl -z-10" />
+
+      {/* Header */}
+      <div className="sticky top-0 w-full p-5 md:p-8 flex justify-between items-center z-[110] bg-black/60 backdrop-blur-xl border-b border-white/5">
         <div className="flex flex-col">
-          <h2 className="text-white text-[10px] font-bold uppercase tracking-[0.3em] truncate max-w-[150px] md:max-w-[300px]">
-            {selectedImg.alt || "Obra sin título"}
+          <h2 className="text-white text-[10px] font-black uppercase tracking-[0.4em] truncate max-w-[140px] md:max-w-md">
+            {selectedImg.alt || "Sin Título"}
           </h2>
-          <span className="text-white/30 text-[9px] font-mono mt-1">
-            {currentIndex + 1} / {gallery.length}
+          <span className="text-white/20 text-[9px] font-mono mt-1 uppercase tracking-widest">
+            Obra {currentIndex + 1} de {gallery.length}
           </span>
         </div>
-        <div className="flex items-center gap-3 md:gap-6">
+        <div className="flex items-center gap-4 md:gap-8">
           <ShareButton url={selectedImg.src} titulo={selectedImg.alt} />
-          <button onClick={closeLightbox} className="text-white/40 hover:text-white text-4xl font-thin transition-colors">&times;</button>
+          <button onClick={closeLightbox} className="text-white/30 hover:text-white text-5xl font-thin transition-all">&times;</button>
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row w-full max-w-[1900px] mx-auto flex-1">
+      {/* Contenedor Flex Principal */}
+      <div className="flex flex-col lg:flex-row w-full max-w-[2000px] mx-auto flex-1">
         
-        {/* LADO IZQUIERDO: Imagen + Accesorios */}
+        {/* LADO IZQUIERDO: Arte + Miniaturas Móvil + Comentarios */}
         <div className="flex-1 flex flex-col items-center w-full lg:border-r lg:border-white/5">
           
-          {/* VISOR DE IMAGEN (Reducido levemente el padding para acercar elementos) */}
-          <div className="relative flex items-center justify-center w-full min-h-[50vh] md:min-h-[80vh] px-2 md:px-10 py-4 md:py-8">
+          {/* VISOR PRINCIPAL */}
+          <div className="relative flex items-center justify-center w-full min-h-[50vh] md:min-h-[85vh] px-4 md:px-14 py-6 md:py-10">
             <button 
-              className="absolute left-2 md:left-4 z-[105] text-white/20 hover:text-white text-5xl md:text-8xl p-2 transition-all"
+              className="absolute left-2 md:left-6 z-[105] text-white/10 hover:text-white text-6xl md:text-9xl p-2 transition-all active:scale-90"
               onClick={() => setCurrentIndex((currentIndex - 1 + gallery.length) % gallery.length)}
             >‹</button>
 
-            <img 
-              key={selectedImg.src}
-              src={selectedImg.src} 
-              alt={selectedImg.alt} 
-              className="max-h-[70vh] md:max-h-[78vh] max-w-full object-contain shadow-[0_0_50px_rgba(0,0,0,0.8)] rounded-sm animate-in zoom-in-95 duration-500"
-            />
+            <div className="relative group">
+              <div className="absolute -inset-10 bg-white/5 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+              <img 
+                key={selectedImg.src}
+                src={selectedImg.src} 
+                alt={selectedImg.alt} 
+                className="relative max-h-[70vh] md:max-h-[80vh] max-w-full object-contain shadow-[0_0_100px_rgba(0,0,0,1)] rounded-sm animate-in zoom-in-95 duration-700"
+              />
+            </div>
 
             <button 
-              className="absolute right-2 md:right-4 z-[105] text-white/20 hover:text-white text-5xl md:text-8xl p-2 transition-all"
+              className="absolute right-2 md:right-6 z-[105] text-white/10 hover:text-white text-6xl md:text-9xl p-2 transition-all active:scale-90"
               onClick={() => setCurrentIndex((currentIndex + 1) % gallery.length)}
             >›</button>
           </div>
 
-          {/* MINIATURAS EN MÓVIL (Más grandes y pegadas a la imagen) */}
-          <div className="lg:hidden w-full px-4 mb-10">
-            <div className="flex gap-4 overflow-x-auto no-scrollbar py-4 border-y border-white/5 bg-white/[0.02] rounded-xl px-4">
+          {/* MINIATURAS MÓVIL (Encima de comentarios) */}
+          <div className="lg:hidden w-full px-6 mb-12">
+            <div className="flex gap-4 overflow-x-auto no-scrollbar py-6 border-y border-white/5 bg-white/[0.01] rounded-2xl px-5">
               {gallery.map((img, idx) => (
                 <button 
                   key={idx} 
                   onClick={() => setCurrentIndex(idx)}
-                  className={`relative h-20 w-20 min-w-[80px] rounded-lg overflow-hidden transition-all duration-300 ${
-                    idx === currentIndex ? 'ring-2 ring-white scale-105 opacity-100' : 'opacity-30 grayscale'
+                  className={`relative h-24 w-24 min-w-[96px] rounded-xl overflow-hidden transition-all duration-500 ${
+                    idx === currentIndex ? 'ring-2 ring-white scale-105 opacity-100 shadow-2xl' : 'opacity-20 grayscale'
                   }`}
                 >
                   <img src={img.src} className="h-full w-full object-cover" alt="thumb" />
@@ -204,14 +220,14 @@ const LightboxVisual = () => {
           <CommentsSection imagenId={imgId} />
         </div>
 
-        {/* COLUMNA DERECHA (Desktop - Más pegada y con miniaturas grandes) */}
-        <div className="hidden lg:flex flex-col items-center gap-4 p-4 bg-black/10 sticky top-[88px] h-[calc(100vh-88px)] overflow-y-auto no-scrollbar w-[110px]">
+        {/* LADO DERECHO (Desktop) */}
+        <div className="hidden lg:flex flex-col items-center gap-5 p-6 bg-white/[0.01] sticky top-[96px] h-[calc(100vh-96px)] overflow-y-auto no-scrollbar w-[120px]">
           {gallery.map((img, idx) => (
             <button 
               key={idx} 
               onClick={() => setCurrentIndex(idx)}
-              className={`relative h-20 w-20 min-h-[80px] rounded-xl overflow-hidden transition-all duration-300 ${
-                idx === currentIndex ? 'ring-2 ring-white scale-110 opacity-100 shadow-2xl' : 'opacity-20 grayscale hover:opacity-100'
+              className={`relative h-24 w-24 min-h-[96px] rounded-2xl overflow-hidden transition-all duration-500 ${
+                idx === currentIndex ? 'ring-2 ring-white scale-110 opacity-100 shadow-2xl z-10' : 'opacity-10 grayscale hover:opacity-100 hover:grayscale-0'
               }`}
             >
               <img src={img.src} className="h-full w-full object-cover" alt="thumb" />
@@ -223,7 +239,7 @@ const LightboxVisual = () => {
   );
 };
 
-// --- 5. PROVIDER (Sin cambios) ---
+// --- 5. PROVIDER ---
 export const LightboxProvider = ({ children }) => {
   const [gallery, setGallery] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
