@@ -1,22 +1,16 @@
-import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
-import { useAuth } from '@/context/AuthContext'; // Ajusta la ruta a tu AuthContext
-
 const CommentsSection = ({ imagenId }) => {
-  const { user, perfil } = useAuth();
+  // CORRECCIÓN: Usamos la ruta real de tu proyecto
+  const { user, perfil } = useAuth(); 
   const [comentarios, setComentarios] = useState([]);
   const [nuevoComentario, setNuevoComentario] = useState("");
   const [enviando, setEnviando] = useState(false);
 
-  // 1. Cargar comentarios de esta imagen específica
   useEffect(() => {
     const fetchComentarios = async () => {
+      setComentarios([]); // LIMPIEZA: Para no ver comentarios de la foto anterior
       const { data, error } = await supabase
         .from('comentarios')
-        .select(`
-          *,
-          perfiles ( nombre, avatar_url ) 
-        `) // Traemos los datos del autor haciendo un join con tu tabla perfiles
+        .select(`*, perfiles ( nombre, avatar_url )`)
         .eq('imagen_id', imagenId)
         .order('created_at', { ascending: false });
 
@@ -26,26 +20,31 @@ const CommentsSection = ({ imagenId }) => {
     if (imagenId) fetchComentarios();
   }, [imagenId]);
 
-  // 2. Función para guardar en Supabase
   const enviarComentario = async (e) => {
     e.preventDefault();
     if (!nuevoComentario.trim() || !user || enviando) return;
 
     setEnviando(true);
+    
+    // Agregamos un bloque para capturar el error
     const { data, error } = await supabase
       .from('comentarios')
       .insert([
         { 
           texto: nuevoComentario, 
           user_id: user.id, 
-          perfil_id: user.id, // Suponiendo que el ID de perfil es el mismo que el de Auth
-          imagen_id: imagenId 
+          perfil_id: user.id, 
+          imagen_id: String(imagenId) // Aseguramos que sea string
         }
       ])
       .select(`*, perfiles ( nombre )`)
       .single();
 
-    if (!error) {
+    if (error) {
+      // SI NO SE ENVÍA, MIRA LA CONSOLA (F12) Y VERÁS ESTE MENSAJE:
+      console.error("ERROR AL ENVIAR:", error.message);
+      alert("No se pudo enviar: " + error.message);
+    } else {
       setComentarios([data, ...comentarios]);
       setNuevoComentario("");
     }
@@ -69,6 +68,7 @@ const CommentsSection = ({ imagenId }) => {
             disabled={enviando}
           />
           <button 
+            type="submit" // ASEGÚRATE DE QUE TENGA TYPE SUBMIT
             disabled={enviando}
             className="bg-white text-black text-[10px] font-black px-4 py-2 rounded-lg hover:bg-gray-200 disabled:opacity-50"
           >
@@ -81,12 +81,13 @@ const CommentsSection = ({ imagenId }) => {
         </p>
       )}
 
+      {/* Render de comentarios igual... */}
       <div className="space-y-6">
         {comentarios.map((c) => (
           <div key={c.id} className="border-l border-white/5 pl-4">
             <div className="flex justify-between items-baseline mb-1">
               <span className="text-white text-xs font-bold uppercase tracking-tighter">
-                {c.perfiles?.nombre || "Usuario Anónimo"}
+                {c.perfiles?.nombre || "Usuario"}
               </span>
               <span className="text-white/20 text-[9px] font-mono">
                 {new Date(c.created_at).toLocaleDateString()}
