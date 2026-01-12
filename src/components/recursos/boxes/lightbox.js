@@ -96,7 +96,7 @@ const CommentsSection = ({ imagenId }) => {
   return (
     <div className="w-full max-w-2xl px-4 mt-6">
       <h3 className="text-white/40 text-[9px] font-black uppercase tracking-[0.4em] mb-8 border-b border-white/5 pb-4">
-        Conversación / {comentarios.length}
+        Comentarios / {comentarios.length}
       </h3>
 
       {user ? (
