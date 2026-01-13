@@ -1,72 +1,92 @@
 "use client";
+import React from 'react';
+import { Sword, Sparkles, Footprints, ShieldCheck } from 'lucide-react';
+import { cn } from "@/lib/utils";
 
-// Recibimos "datos" como prop desde el server component (page.js)
 export default function Personal({ datos }) {
   
-  // Si por alguna razón no hay datos, mostramos un estado vacío pero limpio
   if (!datos) {
     return (
-      <div className="text-white/50 italic text-center py-20">
+      <div className="text-[#6B5E70]/50 italic text-center py-20 font-bold uppercase tracking-widest text-xs">
         No se encontraron registros de este aventurero...
       </div>
     );
   }
 
-  // Lógica de juego: Sumamos la habilidad solo de los items que están EQUIPADOS
+  // Lógica de juego: Sumamos la habilidad de los items EQUIPADOS
   const habilidadTotal = datos.inventario_usuario
     ?.filter(item => item.equipado)
     .reduce((acc, actual) => acc + (actual.items?.habilidad || 0), 0);
 
   return (
-    <div className="w-full max-w-5xl space-y-12">
+    <div className="flex flex-col gap-10 w-full max-w-5xl animate-in fade-in slide-in-from-bottom-4 duration-1000 px-4">
       
-      {/* --- HEADER DEL PERSONAJE --- */}
-      <section className="flex flex-col items-center border-b border-white/10 pb-10">
-        <div className="relative">
-          {/* Un círculo decorativo detrás del nombre para que parezca un avatar */}
-          <div className="absolute inset-0 bg-blue-500/20 blur-3xl rounded-full"></div>
-          <h1 className="relative text-5xl font-extrabold text-white tracking-tighter">
-            {datos.username.toUpperCase()}
-          </h1>
+      {/* --- HEADER DEL PERSONAJE (Estilo Sobre Mí) --- */}
+      <section className="bg-[#E2D8E6]/40 border border-[#6B5E70]/10 rounded-[2.5rem] p-10 md:p-14 backdrop-blur-md shadow-sm flex flex-col items-center text-center">
+        <div className="relative mb-6">
+          <div className="w-28 h-28 rounded-full bg-white/50 border border-[#6B5E70]/10 flex items-center justify-center shadow-inner">
+            <Sparkles size={45} className="text-[#6B5E70]/40" />
+          </div>
+          {/* Badge de Nivel o Poder */}
+          <div className="absolute -bottom-2 -right-2 bg-[#6B5E70] text-[#E2D8E6] text-[10px] font-black px-3 py-1 rounded-full shadow-lg">
+            LVL 01
+          </div>
         </div>
-        <p className="text-blue-400 font-mono mt-2 tracking-widest uppercase text-sm">
+
+        <h1 className="text-4xl font-black italic tracking-tighter text-[#6B5E70] uppercase">
+          {datos.username}
+        </h1>
+        <p className="text-[#6B5E70]/50 text-[10px] uppercase font-black tracking-[0.3em] mt-2">
           Status: Explorador de Leyendas
         </p>
         
-        {/* Badge de Habilidad Total */}
-        <div className="mt-6 px-6 py-2 bg-white/5 border border-white/10 rounded-full flex items-center gap-3">
-          <span className="text-gray-400 text-sm uppercase tracking-wider">Poder de Habilidad</span>
-          <span className="text-2xl font-bold text-blue-400">{habilidadTotal}</span>
+        {/* Badge de Habilidad Total (Estilo Botón de Enviar) */}
+        <div className="mt-8 px-8 py-4 bg-white/40 border border-[#6B5E70]/10 rounded-2xl flex items-center gap-4 shadow-sm">
+          <div className="flex flex-col items-start">
+            <span className="text-[#6B5E70]/40 text-[9px] font-black uppercase tracking-widest">Poder de Habilidad</span>
+            <span className="text-3xl font-black text-[#6B5E70] leading-none">{habilidadTotal}</span>
+          </div>
+          <Sword className="text-[#6B5E70]/20" size={32} />
         </div>
       </section>
 
-      <div className="grid md:grid-cols-2 gap-12">
+      <div className="grid md:grid-cols-2 gap-8">
         
-        {/* --- SECCIÓN: INVENTARIO (ARMAS/ITEMS) --- */}
-        <section className="space-y-6">
-          <div className="flex items-center gap-4">
-            <h2 className="text-xl font-bold text-white uppercase tracking-tight">Equipamiento</h2>
-            <div className="h-[1px] flex-1 bg-white/10"></div>
+        {/* --- SECCIÓN: EQUIPAMIENTO (Estilo Formulario) --- */}
+        <section className="bg-white/20 border border-[#6B5E70]/10 rounded-[2.5rem] p-8 md:p-10 backdrop-blur-sm shadow-xl shadow-[#6B5E70]/5">
+          <div className="flex items-center gap-4 mb-8">
+            <h2 className="text-sm font-black text-[#6B5E70] uppercase tracking-[0.2em] flex items-center gap-2">
+              <ShieldCheck size={18} /> Equipamiento
+            </h2>
+            <div className="h-[1px] flex-1 bg-[#6B5E70]/10"></div>
           </div>
           
-          <div className="space-y-3">
+          <div className="space-y-4">
             {datos.inventario_usuario?.map((slot, i) => (
               <div 
                 key={i} 
-                className={`flex justify-between items-center p-4 rounded-xl border transition-all ${
+                className={cn(
+                  "flex justify-between items-center p-5 rounded-2xl border transition-all duration-500",
                   slot.equipado 
-                    ? 'bg-blue-500/10 border-blue-500/50 shadow-[0_0_15px_rgba(59,130,246,0.1)]' 
-                    : 'bg-white/5 border-white/5 opacity-60'
-                }`}
+                    ? 'bg-[#E2D8E6]/60 border-[#6B5E70]/30 shadow-md' 
+                    : 'bg-[#E2D8E6]/10 border-[#6B5E70]/5 opacity-50 grayscale'
+                )}
               >
-                <div>
-                  <p className="text-white font-medium">{slot.items.nombre}</p>
-                  <p className="text-xs text-gray-500 uppercase">{slot.items.tipo}</p>
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-black uppercase text-[#6B5E70]/40 tracking-widest mb-1">
+                    {slot.items.tipo}
+                  </span>
+                  <p className="text-[#6B5E70] font-bold text-sm uppercase italic tracking-tighter">
+                    {slot.items.nombre}
+                  </p>
                 </div>
                 <div className="text-right">
-                  <span className="text-blue-400 font-bold">+{slot.items.habilidad}</span>
+                  <span className="text-lg font-black text-[#6B5E70]">+{slot.items.habilidad}</span>
                   {slot.equipado && (
-                    <p className="text-[10px] text-blue-300 font-bold uppercase mt-1">Equipado</p>
+                    <div className="flex items-center gap-1 justify-end mt-1">
+                       <div className="w-1.5 h-1.5 bg-[#6B5E70] rounded-full animate-pulse" />
+                       <span className="text-[8px] text-[#6B5E70] font-black uppercase tracking-tighter">Activo</span>
+                    </div>
                   )}
                 </div>
               </div>
@@ -74,28 +94,28 @@ export default function Personal({ datos }) {
           </div>
         </section>
 
-        {/* --- SECCIÓN: BESTIARIO (CRIATURAS) --- */}
-        <section className="space-y-6">
-          <div className="flex items-center gap-4">
-            <h2 className="text-xl font-bold text-white uppercase tracking-tight">Criaturas</h2>
-            <div className="h-[1px] flex-1 bg-white/10"></div>
+        {/* --- SECCIÓN: BESTIARIO (Estilo Herramientas) --- */}
+        <section className="bg-[#E2D8E6]/40 border border-[#6B5E70]/10 rounded-[2.5rem] p-8 md:p-10 backdrop-blur-md shadow-sm">
+          <div className="flex items-center gap-4 mb-8">
+            <h2 className="text-sm font-black text-[#6B5E70] uppercase tracking-[0.2em] flex items-center gap-2">
+              <Footprints size={18} /> Avistamientos
+            </h2>
+            <div className="h-[1px] flex-1 bg-[#6B5E70]/10"></div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             {datos.descubrimientos?.map((desc, i) => (
               <div 
                 key={i} 
-                className="group relative bg-white/5 border border-white/5 p-6 rounded-2xl text-center hover:bg-white/10 hover:border-white/20 transition-all cursor-default"
+                className="group bg-white/30 border border-[#6B5E70]/5 p-6 rounded-[2rem] text-center hover:bg-white/60 hover:border-[#6B5E70]/20 transition-all duration-500 cursor-help shadow-sm"
               >
-                <div className="text-4xl mb-3 grayscale group-hover:grayscale-0 transition-all duration-500">
+                <div className="text-4xl mb-3 grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-500 drop-shadow-sm">
                   👾
                 </div>
-                <h3 className="text-sm font-bold text-white/80 group-hover:text-white">
+                <h3 className="text-[10px] font-black text-[#6B5E70] uppercase tracking-widest">
                   {desc.criaturas.nombre}
                 </h3>
-                <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-tighter">
-                  Avistado
-                </p>
+                <div className="h-[1px] w-4 bg-[#6B5E70]/20 mx-auto mt-2 group-hover:w-8 transition-all" />
               </div>
             ))}
           </div>
