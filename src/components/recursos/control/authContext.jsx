@@ -9,8 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [perfil, setPerfil] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Función para cargar los datos del perfil desde la tabla 'perfiles'
-  const fetchPerfil = async (userId) => {
+  const fetchPerfil = async (userId, userEmail) => {
     try {
       const { data, error } = await supabase
         .from('perfiles')
@@ -18,31 +17,35 @@ export const AuthProvider = ({ children }) => {
         .eq('id', userId)
         .single();
 
-      if (data) {
+      if (data && data.nombre) {
         setPerfil(data);
-        console.log("Perfil cargado:", data.nombre);
+      } else {
+        // AUTO-CORRECCIÓN: Si el usuario no tiene perfil, le creamos uno básico
+        const nombreAuto = userEmail ? userEmail.split('@')[0] : "Usuario";
+        const nuevoPerfil = { id: userId, nombre: nombreAuto };
+        
+        await supabase.from('perfiles').upsert(nuevoPerfil);
+        setPerfil(nuevoPerfil);
       }
     } catch (err) {
-      console.error("Error cargando perfil:", err);
+      console.error("Error al cargar perfil:", err);
     }
   };
 
   useEffect(() => {
-    // 1. Verificar sesión inicial
     const getInitialSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         setUser(session.user);
-        await fetchPerfil(session.user.id);
+        await fetchPerfil(session.user.id, session.user.email);
       }
       setLoading(false);
     };
 
-    // 2. Escuchar cambios en la autenticación (Login/Logout)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
         setUser(session.user);
-        await fetchPerfil(session.user.id);
+        await fetchPerfil(session.user.id, session.user.email);
       } else {
         setUser(null);
         setPerfil(null);

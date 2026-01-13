@@ -9,7 +9,7 @@ import { supabase } from '@/lib/supabase';
 import { 
   User, LogOut, Plus, ChevronDown, Smile, 
   Image as ImageIcon, Camera, Sparkles, 
-  Users, Terminal, CircleUser, Flower2 
+  Users, Terminal, CircleUser, Flower2, Sword 
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -18,14 +18,12 @@ const Navbar = () => {
   const [openSubmenu, setOpenSubmenu] = useState(null);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   
-  // --- LÓGICA DE SCROLL PARA MÓVIL ---
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      // Colapsar al bajar, expandir al subir
       if (currentScrollY > 80 && currentScrollY > lastScrollY) {
         setIsCollapsed(true);
         setOpenSubmenu(null);
@@ -45,17 +43,15 @@ const Navbar = () => {
     window.location.href = "/"; 
   };
 
-  // Roles autorizados según tus instrucciones
   const puedeSubir = perfil?.rol === 'admin' || perfil?.rol === 'autor';
   const closeAll = () => { setOpenSubmenu(null); setUserMenuOpen(false); };
 
-  // Contenido móvil memorizado para evitar que la animación se trabe
   const navContent = useMemo(() => (
     <div className="flex w-full items-center justify-around px-2 h-full">
       <Link href="/sobre-mi" onClick={closeAll} className="flex-1 flex justify-center">
         <Smile size={22} className={currentPath === "/sobre-mi" ? "text-[#6B5E70]" : "text-[#6B5E70]/30"} />
       </Link>
-      <button onClick={() => setOpenSubmenu(openSubmenu === 'personal' ? null : 'personal')} className="flex-1 flex justify-center">
+      <button onClick={() => setOpenSubmenu(openSubmenu === 'personal_galeria' ? null : 'personal_galeria')} className="flex-1 flex justify-center">
         <Camera size={22} className={['/dibujos', '/fotos'].includes(currentPath) ? "text-[#6B5E70]" : "text-[#6B5E70]/30"} />
       </button>
       <div className="flex-1 flex justify-center">
@@ -93,8 +89,30 @@ const Navbar = () => {
           </nav>
           <div className="flex items-center gap-6">
             {puedeSubir && <Link href="/upload" className={cn("px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all shadow-sm", currentPath === '/upload' ? "bg-white text-[#6B5E70]" : "bg-[#6B5E70] text-white")}>+ SUBIR</Link>}
+            
+            {/* MENÚ DE USUARIO PC */}
             {user ? (
-              <button onClick={() => setUserMenuOpen(!userMenuOpen)}><CircleUser className={cn("transition-colors", userMenuOpen ? "text-[#6B5E70]" : "text-[#6B5E70]/40")} size={28} /></button>
+              <div className="relative">
+                <button onClick={() => setUserMenuOpen(!userMenuOpen)}>
+                  <CircleUser className={cn("transition-colors", userMenuOpen ? "text-[#6B5E70]" : "text-[#6B5E70]/40")} size={28} />
+                </button>
+                <AnimatePresence>
+                  {userMenuOpen && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute top-full right-0 mt-3 w-48 bg-white border border-[#6B5E70]/10 rounded-2xl shadow-xl p-2 z-[1001]"
+                    >
+                      <Link href="/personal" onClick={closeAll} className="flex items-center gap-3 px-4 py-3 text-[10px] font-black uppercase text-[#6B5E70]/60 hover:bg-[#6B5E70]/5 rounded-xl transition-all">
+                        <Sword size={14} /> Mi Personaje
+                      </Link>
+                      <div className="h-[1px] bg-[#6B5E70]/5 my-1" />
+                      <button onClick={handleLogout} className="flex items-center gap-3 w-full px-4 py-3 text-[10px] font-black uppercase text-red-400 hover:bg-red-50 rounded-xl transition-all">
+                        <LogOut size={14} /> Salir
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             ) : (
               <Link href="/login" className="text-[10px] font-black uppercase text-[#6B5E70]/60 hover:text-[#6B5E70]">Entrar</Link>
             )}
@@ -102,7 +120,7 @@ const Navbar = () => {
         </div>
       </header>
 
-      {/* --- MÓVIL (OPTIMIZADO) --- */}
+      {/* --- MÓVIL --- */}
       <div className="md:hidden fixed bottom-6 right-6 left-auto z-[1000]">
         <motion.nav 
           layout
@@ -123,7 +141,7 @@ const Navbar = () => {
               initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 15 }}
               className="absolute bottom-20 right-0 w-[calc(100vw-48px)] bg-white border border-[#6B5E70]/10 rounded-[2rem] p-3 shadow-2xl flex flex-col gap-2 z-[1001]"
             >
-              {openSubmenu === 'personal' && (
+              {openSubmenu === 'personal_galeria' && (
                 <div className="grid grid-cols-2 gap-2">
                   <MobileSubItem href="/dibujos" label="Dibujos" active={currentPath === '/dibujos'} icon={<ImageIcon size={18}/>} onClick={closeAll} />
                   <MobileSubItem href="/fotos" label="Fotos" active={currentPath === '/fotos'} icon={<Camera size={18}/>} onClick={closeAll} />
@@ -135,10 +153,17 @@ const Navbar = () => {
                   <MobileSubItem href="/archivos" label="Archivos" active={currentPath === '/archivos'} icon={<Terminal size={18}/>} onClick={closeAll} />
                 </div>
               )}
+              
+              {/* OPCIONES DE USUARIO MÓVIL (OPCIÓN 2) */}
               {userMenuOpen && user && (
-                <button onClick={handleLogout} className="w-full p-4 bg-red-50 text-red-600 rounded-[1.5rem] font-black uppercase text-[10px] flex items-center justify-center gap-3">
-                  Cerrar Sesión <LogOut size={16}/>
-                </button>
+                <div className="flex flex-col gap-2">
+                  <Link href="/personal" onClick={closeAll} className="w-full p-5 bg-[#6B5E70]/5 text-[#6B5E70] rounded-[1.5rem] font-black uppercase text-[10px] flex items-center justify-center gap-3">
+                    <Sword size={18}/> Ver Mi Héroe
+                  </Link>
+                  <button onClick={handleLogout} className="w-full p-4 bg-red-50 text-red-600 rounded-[1.5rem] font-black uppercase text-[10px] flex items-center justify-center gap-3">
+                    Cerrar Sesión <LogOut size={16}/>
+                  </button>
+                </div>
               )}
             </motion.div>
           )}
@@ -151,8 +176,6 @@ const Navbar = () => {
     </>
   );
 };
-
-// --- COMPONENTES AUXILIARES DEFINITIVOS ---
 
 const PCGroup = ({ label, items, active, currentPath }) => (
   <div className="relative group px-2">

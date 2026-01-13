@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [username, setUsername] = useState(''); // Nuevo estado para el nombre
+  const [username, setUsername] = useState(''); 
   const [isRegistering, setIsRegistering] = useState(false);
   const [mensaje, setMensaje] = useState('');
   const router = useRouter();
@@ -16,32 +16,33 @@ const LoginPage = () => {
     setMensaje('');
 
     if (isRegistering) {
-            const { data, error } = await supabase.auth.signUp({ 
+      const { data, error } = await supabase.auth.signUp({ 
         email, 
         password,
         options: {
-            data: { display_name: username },
-            // Esta línea le dice a Supabase a dónde regresar después de confirmar el mail
-            emailRedirectTo: window.location.origin, 
+          data: { display_name: username },
+          emailRedirectTo: window.location.origin, 
         }
-        });
+      });
 
       if (error) {
         setMensaje(error.message);
-      } else {
-        // OPCIONAL: Insertar manualmente en la tabla perfiles si el trigger SQL no lo hace con el username
-        if (data.user) {
-          await supabase.from('perfiles').update({ username: username }).eq('id', data.user.id);
-        }
+      } else if (data.user) {
+        // CORRECCIÓN CRÍTICA: Usamos upsert para asegurar que se cree la fila en 'perfiles'
+        await supabase.from('perfiles').upsert({ 
+          id: data.user.id, 
+          nombre: username 
+        });
         setMensaje('¡Revisa tu correo para confirmar la cuenta!');
       }
     } else {
-      // LOGIN
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) setMensaje(error.message);
-      else {
+      if (error) {
+        setMensaje(error.message);
+      } else {
         setMensaje('¡Sesión iniciada!');
         router.push('/'); 
+        router.refresh();
       }
     }
   };
@@ -54,7 +55,6 @@ const LoginPage = () => {
         </h1>
 
         <form onSubmit={handleAuth} className="space-y-4">
-          {/* CAMPO NOMBRE DE USUARIO (Solo se muestra en Registro) */}
           {isRegistering && (
             <input
               type="text"
