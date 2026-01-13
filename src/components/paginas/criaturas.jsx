@@ -4,7 +4,6 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useLightbox } from "@/components/recursos/boxes/lightbox"; 
 import { GalleryGrid, GalleryItem } from "@/components/recursos/display/gallery";
 import { supabase } from '@/lib/supabase';
-import Newsletter from "@/components/recursos/boxes/newsletter";
 import { Footprints } from 'lucide-react';
 
 const Criaturas = () => {
@@ -36,7 +35,7 @@ const Criaturas = () => {
     fetchCriaturas();
   }, []);
 
-  // Filtramos por tipo (ej: Terrestre, Volador, Legendario)
+  // Filtramos por tipo
   const criaturasFiltradas = useMemo(() => (
     filtro === 'todos' 
       ? criaturas 
@@ -48,7 +47,7 @@ const Criaturas = () => {
     criaturasFiltradas.map(c => ({
       src: c.imagen_url,
       alt: c.nombre,
-      description: c.descripcion // Si tu lightbox soporta descripción
+      description: c.descripcion 
     }))
   ), [criaturasFiltradas]);
 
@@ -56,8 +55,8 @@ const Criaturas = () => {
     openLightbox(index, imagenesParaLightbox);
   }, [openLightbox, imagenesParaLightbox]);
 
-  // Categorías basadas en los tipos de criaturas que tengas
-  const categorias = ['todos', 'terrestre', 'acuatico', 'volador', 'legendario'];
+  // Categorías actualizadas (sin legendario)
+  const categorias = ['todos', 'terrestre', 'acuatico', 'volador'];
 
   return (
     <main className="min-h-screen bg-bg-main pt-20">
@@ -127,10 +126,6 @@ const Criaturas = () => {
           </GalleryGrid>
         </div>
       )}
-
-      <div className="mt-20">
-        <Newsletter />
-      </div>
 
       <div className="h-24"></div>
     </main>
