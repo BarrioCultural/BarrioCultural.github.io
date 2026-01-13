@@ -8,8 +8,9 @@ import { useAuth } from '@/components/recursos/control/authContext';
 import { supabase } from '@/lib/supabase';
 import { 
   User, LogOut, Plus, ChevronDown, Smile, 
-  Image as ImageIcon, Camera, Sparkles, 
-  Users, Terminal, CircleUser, Flower2, Sword 
+  ImageIcon, Camera, Sparkles, 
+  Users, Terminal, CircleUser, Flower2, Sword,
+  Footprints // Importado para la nueva sección
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -63,7 +64,7 @@ const Navbar = () => {
         </Link>
       </div>
       <button onClick={() => setOpenSubmenu(openSubmenu === 'gos' ? null : 'gos')} className="flex-1 flex justify-center">
-        <Sparkles size={22} className={['/personajes', '/archivos'].includes(currentPath) ? "text-[#6B5E70]" : "text-[#6B5E70]/30"} />
+        <Sparkles size={22} className={['/personajes', '/archivos', '/criaturas'].includes(currentPath) ? "text-[#6B5E70]" : "text-[#6B5E70]/30"} />
       </button>
       <button onClick={() => user ? setUserMenuOpen(!userMenuOpen) : window.location.href="/login"} className="flex-1 flex justify-center">
         <User size={22} className={user || userMenuOpen ? "text-[#6B5E70]" : "text-[#6B5E70]/30"} />
@@ -84,13 +85,31 @@ const Navbar = () => {
               "px-5 py-2 rounded-xl text-[10px] font-black uppercase transition-all",
               currentPath === '/sobre-mi' ? "bg-white text-[#6B5E70] shadow-md" : "text-[#6B5E70]/40 hover:text-[#6B5E70]"
             )}>Bio</Link>
-            <PCGroup label="Personal" active={['/dibujos', '/fotos'].includes(currentPath)} items={[{ href: '/dibujos', label: 'Dibujos', icon: <ImageIcon size={14}/> }, { href: '/fotos', label: 'Fotos', icon: <Camera size={14}/> }]} currentPath={currentPath} />
-            <PCGroup label="GOS" active={['/personajes', '/archivos'].includes(currentPath)} items={[{ href: '/personajes', label: 'Personajes', icon: <Users size={14}/> }, { href: '/archivos', label: 'Archivos', icon: <Terminal size={14}/> }]} currentPath={currentPath} />
+            
+            <PCGroup 
+              label="Personal" 
+              active={['/dibujos', '/fotos'].includes(currentPath)} 
+              items={[
+                { href: '/dibujos', label: 'Dibujos', icon: <ImageIcon size={14}/> }, 
+                { href: '/fotos', label: 'Fotos', icon: <Camera size={14}/> }
+              ]} 
+              currentPath={currentPath} 
+            />
+
+            <PCGroup 
+              label="GOS" 
+              active={['/personajes', '/archivos', '/criaturas'].includes(currentPath)} 
+              items={[
+                { href: '/personajes', label: 'Personajes', icon: <Users size={14}/> }, 
+                { href: '/criaturas', label: 'Criaturas', icon: <Footprints size={14}/> }, 
+                { href: '/archivos', label: 'Archivos', icon: <Terminal size={14}/> }
+              ]} 
+              currentPath={currentPath} 
+            />
           </nav>
           <div className="flex items-center gap-6">
             {puedeSubir && <Link href="/upload" className={cn("px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all shadow-sm", currentPath === '/upload' ? "bg-white text-[#6B5E70]" : "bg-[#6B5E70] text-white")}>+ SUBIR</Link>}
             
-            {/* MENÚ DE USUARIO PC */}
             {user ? (
               <div className="relative">
                 <button onClick={() => setUserMenuOpen(!userMenuOpen)}>
@@ -148,13 +167,13 @@ const Navbar = () => {
                 </div>
               )}
               {openSubmenu === 'gos' && (
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-3 gap-2"> {/* Cambiado a 3 columnas para Criaturas */}
                   <MobileSubItem href="/personajes" label="Personajes" active={currentPath === '/personajes'} icon={<Users size={18}/>} onClick={closeAll} />
+                  <MobileSubItem href="/criaturas" label="Criaturas" active={currentPath === '/criaturas'} icon={<Footprints size={18}/>} onClick={closeAll} />
                   <MobileSubItem href="/archivos" label="Archivos" active={currentPath === '/archivos'} icon={<Terminal size={18}/>} onClick={closeAll} />
                 </div>
               )}
               
-              {/* OPCIONES DE USUARIO MÓVIL (OPCIÓN 2) */}
               {userMenuOpen && user && (
                 <div className="flex flex-col gap-2">
                   <Link href="/personal" onClick={closeAll} className="w-full p-5 bg-[#6B5E70]/5 text-[#6B5E70] rounded-[1.5rem] font-black uppercase text-[10px] flex items-center justify-center gap-3">
@@ -177,6 +196,7 @@ const Navbar = () => {
   );
 };
 
+// ... Subcomponentes PCGroup y MobileSubItem se mantienen igual
 const PCGroup = ({ label, items, active, currentPath }) => (
   <div className="relative group px-2">
     <button className={cn(
@@ -206,7 +226,7 @@ const MobileSubItem = ({ href, label, icon, active, onClick }) => (
     active ? "bg-[#6B5E70] border-[#6B5E70] text-white shadow-lg" : "bg-[#6B5E70]/5 border-transparent text-[#6B5E70]/40"
   )}>
     {icon}
-    <span className="text-[9px] font-black uppercase tracking-widest">{label}</span>
+    <span className="text-[9px] font-black uppercase tracking-widest leading-none text-center">{label}</span>
   </Link>
 );
 
