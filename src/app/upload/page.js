@@ -4,29 +4,59 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/components/recursos/control/authContext';
 import { useRouter } from 'next/navigation';
-import { Upload, Image as ImageIcon, Camera, ChevronDown, Calendar, Link as LinkIcon, X } from 'lucide-react';
+import { Upload, Image as ImageIcon, Camera, ChevronDown, Calendar, Link as LinkIcon, X, Sparkles, UserCircle } from 'lucide-react';
 
-const CATEGORIAS_POR_TABLA = {
-  dibujos: ['original', 'fanart', 'bocetos'],
-  diario_fotos: ['yo', 'amigos', 'animales', 'paisajes']
+// Configuración de la estructura de datos
+const CONFIG_ESTRUCTURA = {
+  personal: {
+    label: 'Personal',
+    tablas: {
+      dibujos: {
+        label: 'Dibujos',
+        icon: <ImageIcon size={14} />,
+        categorias: ['original', 'fanart', 'bocetos']
+      },
+      diario_fotos: {
+        label: 'Fotos',
+        icon: <Camera size={14} />,
+        categorias: ['yo', 'amigos', 'animales', 'paisajes']
+      }
+    }
+  },
+  garden_of_sins: {
+    label: 'Garden of Sins',
+    tablas: {
+      gos_criaturas: {
+        label: 'Criaturas',
+        icon: <Sparkles size={14} />,
+        categorias: ['comunes', 'raras', 'legendarias', 'deidades']
+      },
+      gos_personajes: {
+        label: 'Personajes',
+        icon: <UserCircle size={14} />,
+        categorias: ['protagonistas', 'secundarios', 'antagonistas']
+      }
+    }
+  }
 };
 
 const UploadPage = () => {
   const { perfil } = useAuth();
   const router = useRouter();
   
-  const [file, setFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null); // Para la previsualización
-  const [externalUrl, setExternalUrl] = useState(''); // Para la ruta manual
-  const [uploadMethod, setUploadMethod] = useState('file'); // 'file' o 'url'
-  
-  const [loading, setLoading] = useState(false);
+  // Estados de navegación de categorías
+  const [seccion, setSeccion] = useState('personal'); // 'personal' o 'garden_of_sins'
   const [tabla, setTabla] = useState('dibujos'); 
+  
+  // Estados del formulario
+  const [file, setFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [externalUrl, setExternalUrl] = useState('');
+  const [uploadMethod, setUploadMethod] = useState('file');
+  const [loading, setLoading] = useState(false);
   const [titulo, setTitulo] = useState('');
-  const [categoria, setCategoria] = useState('original');
-  const [fecha, setFecha] = useState('');
+  const [categoria, setCategoria] = useState(CONFIG_ESTRUCTURA.personal.tablas.dibujos.categorias[0]);
 
-  // Efecto para crear/limpiar la URL de previsualización
   useEffect(() => {
     if (!file) {
       setPreviewUrl(null);
@@ -34,7 +64,6 @@ const UploadPage = () => {
     }
     const objectUrl = URL.createObjectURL(file);
     setPreviewUrl(objectUrl);
-
     return () => URL.revokeObjectURL(objectUrl);
   }, [file]);
 
@@ -46,15 +75,22 @@ const UploadPage = () => {
     );
   }
 
+  // Cambiar entre Personal y Garden of Sins
+  const handleCambioSeccion = (nuevaSeccion) => {
+    setSeccion(nuevaSeccion);
+    const primeraTabla = Object.keys(CONFIG_ESTRUCTURA[nuevaSeccion].tablas)[0];
+    setTabla(primeraTabla);
+    setCategoria(CONFIG_ESTRUCTURA[nuevaSeccion].tablas[primeraTabla].categorias[0]);
+  };
+
+  // Cambiar entre Dibujos/Fotos o Criaturas/Personajes
   const handleCambioTabla = (nuevaTabla) => {
     setTabla(nuevaTabla);
-    setCategoria(CATEGORIAS_POR_TABLA[nuevaTabla][0]);
+    setCategoria(CONFIG_ESTRUCTURA[seccion].tablas[nuevaTabla].categorias[0]);
   };
 
   const handleUpload = async (e) => {
     e.preventDefault();
-    
-    // Validación según el método
     if (uploadMethod === 'file' && !file) return alert("Selecciona un archivo");
     if (uploadMethod === 'url' && !externalUrl) return alert("Pega una URL válida");
 
@@ -62,7 +98,6 @@ const UploadPage = () => {
     try {
       let finalImageUrl = externalUrl;
 
-      // Si el método es archivo, subimos a Supabase Storage
       if (uploadMethod === 'file') {
         const fileExt = file.name.split('.').pop();
         const fileName = `${Math.random()}.${fileExt}`;
@@ -81,22 +116,16 @@ const UploadPage = () => {
         finalImageUrl = publicUrl;
       }
 
-      // Insertar en la DB
-      const insertData = { 
+      const { error: dbError } = await supabase.from(tabla).insert([{ 
         url_imagen: finalImageUrl,
         titulo: titulo || 'Sin título',
         categoria: categoria 
-      };
+      }]);
 
-      if (tabla === 'diario_fotos' && fecha) {
-        insertData.fecha = fecha;
-      }
-
-      const { error: dbError } = await supabase.from(tabla).insert([insertData]);
       if (dbError) throw dbError;
 
       alert("¡Publicado con éxito! ✨");
-      router.push(tabla === 'dibujos' ? '/dibujos' : '/diario');
+      router.refresh(); 
       
     } catch (error) {
       alert("Error: " + error.message);
@@ -107,100 +136,104 @@ const UploadPage = () => {
 
   return (
     <main className="min-h-screen pt-32 pb-20 px-4 flex justify-center bg-[#E2D8E6]">
-      <div className="w-full max-w-md bg-white/40 backdrop-blur-md border border-[#6B5E70]/10 p-8 rounded-[2.5rem] shadow-xl animate-in fade-in duration-700">
+      <div className="w-full max-w-md bg-white/40 backdrop-blur-md border border-[#6B5E70]/10 p-8 rounded-[2.5rem] shadow-xl">
         
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-black text-[#6B5E70] tracking-tight italic">Subir nueva obra</h1>
-          <p className="text-[#6B5E70]/60 text-xs font-bold uppercase tracking-widest mt-1">Panel de Control</p>
+          <h1 className="text-2xl font-black text-[#6B5E70] tracking-tight italic">Nueva Publicación</h1>
+          <p className="text-[#6B5E70]/60 text-[10px] font-bold uppercase tracking-[0.2em] mt-1">Gestión de Contenido</p>
+        </div>
+
+        {/* 1. SELECCIÓN DE SECCIÓN PRINCIPAL */}
+        <div className="flex gap-4 mb-6 border-b border-[#6B5E70]/10 pb-4">
+          {Object.keys(CONFIG_ESTRUCTURA).map((key) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => handleCambioSeccion(key)}
+              className={`text-[11px] font-black uppercase tracking-widest transition-all ${seccion === key ? 'text-[#6B5E70] border-b-2 border-[#6B5E70]' : 'text-[#6B5E70]/30 hover:text-[#6B5E70]/50'}`}
+            >
+              {CONFIG_ESTRUCTURA[key].label}
+            </button>
+          ))}
         </div>
         
         <form onSubmit={handleUpload} className="space-y-6">
           
-          {/* Selector de Tabla */}
+          {/* 2. SELECTOR DE TABLA (Depende de la sección) */}
           <div className="flex gap-2 p-1.5 bg-[#6B5E70]/5 rounded-2xl border border-[#6B5E70]/10">
-            <button type="button" onClick={() => handleCambioTabla('dibujos')} className={`flex-1 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${tabla === 'dibujos' ? 'bg-[#6B5E70] text-white shadow-md' : 'text-[#6B5E70]/40'}`}>
-              <ImageIcon size={14} /> DIBUJO
+            {Object.entries(CONFIG_ESTRUCTURA[seccion].tablas).map(([key, value]) => (
+              <button 
+                key={key}
+                type="button" 
+                onClick={() => handleCambioTabla(key)} 
+                className={`flex-1 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${tabla === key ? 'bg-[#6B5E70] text-white shadow-md' : 'text-[#6B5E70]/40'}`}
+              >
+                {value.icon} {value.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Selector de Método */}
+          <div className="flex justify-center gap-6">
+            <button type="button" onClick={() => setUploadMethod('file')} className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-1 ${uploadMethod === 'file' ? 'text-[#6B5E70]' : 'text-[#6B5E70]/30'}`}>
+              <Upload size={12}/> Archivo
             </button>
-            <button type="button" onClick={() => handleCambioTabla('diario_fotos')} className={`flex-1 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${tabla === 'diario_fotos' ? 'bg-[#6B5E70] text-white shadow-md' : 'text-[#6B5E70]/40'}`}>
-              <Camera size={14} /> FOTO
+            <button type="button" onClick={() => setUploadMethod('url')} className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-1 ${uploadMethod === 'url' ? 'text-[#6B5E70]' : 'text-[#6B5E70]/30'}`}>
+              <LinkIcon size={12}/> URL
             </button>
           </div>
 
-          {/* Selector de MÉTODO (Archivo o URL) */}
-          <div className="flex justify-center gap-6 mb-2">
-            <button 
-              type="button" 
-              onClick={() => setUploadMethod('file')}
-              className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-1 ${uploadMethod === 'file' ? 'text-[#6B5E70]' : 'text-[#6B5E70]/30'}`}
-            >
-              <Upload size={12}/> Subir Archivo
-            </button>
-            <button 
-              type="button" 
-              onClick={() => setUploadMethod('url')}
-              className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-1 ${uploadMethod === 'url' ? 'text-[#6B5E70]' : 'text-[#6B5E70]/30'}`}
-            >
-              <LinkIcon size={12}/> URL Externa
-            </button>
-          </div>
-
-          {/* Inputs de Título y Categoría igual que antes... */}
           <div className="space-y-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-black uppercase tracking-widest text-[#6B5E70]/70 ml-1">Título</label>
-              <input type="text" className="w-full bg-white/50 border border-[#6B5E70]/10 rounded-2xl px-4 py-3 text-[#6B5E70] outline-none font-medium" value={titulo} onChange={(e) => setTitulo(e.target.value)} />
+              <label className="text-[10px] font-black uppercase tracking-widest text-[#6B5E70]/70 ml-1">Título de la obra</label>
+              <input type="text" className="w-full bg-white/50 border border-[#6B5E70]/10 rounded-2xl px-4 py-3 text-[#6B5E70] outline-none font-medium" value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ej: Atardecer en el jardín..." />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-black uppercase tracking-widest text-[#6B5E70]/70 ml-1">Categoría</label>
+              <label className="text-[10px] font-black uppercase tracking-widest text-[#6B5E70]/70 ml-1">Categoría de {CONFIG_ESTRUCTURA[seccion].tablas[tabla].label}</label>
               <div className="relative">
-                <select value={categoria} onChange={(e) => setCategoria(e.target.value)} className="w-full appearance-none bg-white/50 border border-[#6B5E70]/10 rounded-2xl px-4 py-3 text-[#6B5E70] font-bold text-xs uppercase tracking-widest">
-                  {CATEGORIAS_POR_TABLA[tabla].map(cat => <option key={cat} value={cat}>{cat.toUpperCase()}</option>)}
+                <select 
+                  value={categoria} 
+                  onChange={(e) => setCategoria(e.target.value)} 
+                  className="w-full appearance-none bg-white/50 border border-[#6B5E70]/10 rounded-2xl px-4 py-3 text-[#6B5E70] font-bold text-xs uppercase tracking-widest outline-none"
+                >
+                  {CONFIG_ESTRUCTURA[seccion].tablas[tabla].categorias.map(cat => (
+                    <option key={cat} value={cat}>{cat.toUpperCase()}</option>
+                  ))}
                 </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6B5E70]/40" size={16} />
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6B5E70]/40 pointer-events-none" size={16} />
               </div>
             </div>
           </div>
 
-          {/* ÁREA DINÁMICA: SUBIDA O URL */}
+          {/* Área de Imagen */}
           {uploadMethod === 'file' ? (
-            <div className="space-y-4">
-              <div className="relative group">
-                <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files[0])} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-                <div className={`w-full py-10 border-2 border-dashed rounded-[2rem] flex flex-col items-center justify-center gap-3 transition-all ${file ? 'border-[#6B5E70]/40 bg-[#6B5E70]/5' : 'border-[#6B5E70]/10 bg-white/20'}`}>
-                  {previewUrl ? (
-                    <div className="relative w-32 h-32 rounded-xl overflow-hidden shadow-inner border border-[#6B5E70]/20">
-                      <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
-                      <button onClick={(e) => { e.preventDefault(); setFile(null); }} className="absolute top-1 right-1 bg-white/80 rounded-full p-1 text-red-500 hover:bg-white"><X size={14}/></button>
-                    </div>
-                  ) : (
-                    <>
-                      <Upload className="text-[#6B5E70]/20" size={28} />
-                      <span className="text-[#6B5E70]/60 text-[10px] font-black uppercase tracking-tighter">Seleccionar Imagen</span>
-                    </>
-                  )}
-                </div>
+            <div className="relative group">
+              <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files[0])} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+              <div className={`w-full py-10 border-2 border-dashed rounded-[2rem] flex flex-col items-center justify-center gap-3 transition-all ${file ? 'border-[#6B5E70]/40 bg-[#6B5E70]/5' : 'border-[#6B5E70]/10 bg-white/20'}`}>
+                {previewUrl ? (
+                  <div className="relative w-32 h-32 rounded-xl overflow-hidden shadow-inner border border-[#6B5E70]/20">
+                    <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
+                    <button onClick={(e) => { e.preventDefault(); setFile(null); }} className="absolute top-1 right-1 bg-white/80 rounded-full p-1 text-red-500 hover:bg-white"><X size={14}/></button>
+                  </div>
+                ) : (
+                  <>
+                    <Upload className="text-[#6B5E70]/20" size={28} />
+                    <span className="text-[#6B5E70]/60 text-[10px] font-black uppercase">Click para subir</span>
+                  </>
+                )}
               </div>
             </div>
           ) : (
-            <div className="flex flex-col gap-1.5 animate-in fade-in slide-in-from-bottom-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-[#6B5E70]/70 ml-1">URL de la imagen</label>
-              <input 
-                type="text" 
-                placeholder="https://ejemplo.com/imagen.jpg"
-                className="w-full bg-white/50 border border-[#6B5E70]/10 rounded-2xl px-4 py-3 text-[#6B5E70] outline-none font-medium"
-                value={externalUrl}
-                onChange={(e) => setExternalUrl(e.target.value)}
-              />
-              {externalUrl && (
-                <div className="mt-2 w-full h-32 rounded-2xl overflow-hidden border border-[#6B5E70]/10">
-                   <img src={externalUrl} alt="Preview URL" className="w-full h-full object-cover" onError={(e) => e.target.style.display = 'none'} />
-                </div>
-              )}
-            </div>
+            <input 
+              type="text" 
+              placeholder="https://ejemplo.com/imagen.jpg"
+              className="w-full bg-white/50 border border-[#6B5E70]/10 rounded-2xl px-4 py-3 text-[#6B5E70] outline-none font-medium"
+              value={externalUrl}
+              onChange={(e) => setExternalUrl(e.target.value)}
+            />
           )}
 
-          {/* Botón Publicar */}
           <button disabled={loading} className="w-full bg-[#6B5E70] text-white py-4 rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:opacity-90 active:scale-95 transition-all disabled:opacity-50">
             {loading ? 'Subiendo...' : 'Publicar Ahora'}
           </button>

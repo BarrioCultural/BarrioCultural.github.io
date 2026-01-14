@@ -10,7 +10,7 @@ import {
   User, LogOut, Plus, ChevronDown, Smile, 
   ImageIcon, Camera, Sparkles, 
   Users, Terminal, CircleUser, Flower2, Sword,
-  Footprints, Upload
+  Footprints 
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -21,9 +21,6 @@ const Navbar = () => {
   
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
-
-  // Determinar permisos
-  const puedeSubir = perfil?.rol === 'admin' || perfil?.rol === 'autor';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -47,69 +44,30 @@ const Navbar = () => {
     window.location.href = "/"; 
   };
 
-  const closeAll = () => { 
-    setOpenSubmenu(null); 
-    setUserMenuOpen(false); 
-  };
+  const puedeSubir = perfil?.rol === 'admin' || perfil?.rol === 'autor';
+  const closeAll = () => { setOpenSubmenu(null); setUserMenuOpen(false); };
 
   const navContent = useMemo(() => (
     <div className="flex w-full items-center justify-around px-2 h-full">
-      {/* Bio */}
-      <Link href="/sobre-mi" onClick={closeAll} className="flex-1 flex justify-center">
-        <Smile size={22} className={currentPath === "/sobre-mi" ? "text-[#6B5E70]" : "text-[#6B5E70]/30"} />
-      </Link>
-
-      {/* Galería Personal */}
-      <button 
-        onClick={() => {
-          setUserMenuOpen(false);
-          setOpenSubmenu(openSubmenu === 'personal_galeria' ? null : 'personal_galeria');
-        }} 
-        className="flex-1 flex justify-center"
-      >
-        <Camera size={22} className={['/dibujos', '/fotos'].includes(currentPath) ? "text-[#6B5E70]" : "text-[#6B5E70]/30"} />
+      {/* Botón Personal que ahora engloba Bio, Dibujos y Fotos */}
+      <button onClick={() => setOpenSubmenu(openSubmenu === 'personal_galeria' ? null : 'personal_galeria')} className="flex-1 flex justify-center">
+        <Camera size={22} className={['/sobre-mi', '/dibujos', '/fotos'].includes(currentPath) ? "text-[#6B5E70]" : "text-[#6B5E70]/30"} />
       </button>
-
-      {/* BOTÓN CENTRAL: DINÁMICO ADMIN/USER */}
+      
       <div className="flex-1 flex justify-center">
-        <Link 
-          href={puedeSubir ? "/upload" : "/"} 
-          onClick={closeAll} 
-          className={cn(
-            "p-3.5 rounded-full transition-all duration-300 shadow-lg border-2",
-            puedeSubir 
-              ? "bg-[#6B5E70] text-white border-white/20 scale-110 -translate-y-1" 
-              : "bg-white text-[#6B5E70] border-[#6B5E70]/10",
-            currentPath === '/upload' && "bg-[#E2D8E6] text-[#6B5E70] border-[#6B5E70]/20"
-          )}
-        >
-          {puedeSubir ? (
-            <Plus size={24} strokeWidth={3} className="animate-pulse" />
-          ) : (
-            <Flower2 size={24} />
-          )}
+        <Link href={puedeSubir ? "/upload" : "/"} onClick={closeAll} className={cn(
+          "p-3 rounded-full transition-all duration-300",
+          currentPath === '/upload' ? "bg-white text-[#6B5E70]" : "bg-[#6B5E70] text-white"
+        )}>
+          {puedeSubir ? <Plus size={20} strokeWidth={3} /> : <Flower2 size={20} />}
         </Link>
       </div>
 
-      {/* GOS */}
-      <button 
-        onClick={() => {
-          setUserMenuOpen(false);
-          setOpenSubmenu(openSubmenu === 'gos' ? null : 'gos');
-        }} 
-        className="flex-1 flex justify-center"
-      >
+      <button onClick={() => setOpenSubmenu(openSubmenu === 'gos' ? null : 'gos')} className="flex-1 flex justify-center">
         <Sparkles size={22} className={['/personajes', '/archivos', '/criaturas'].includes(currentPath) ? "text-[#6B5E70]" : "text-[#6B5E70]/30"} />
       </button>
 
-      {/* Usuario */}
-      <button 
-        onClick={() => {
-          setOpenSubmenu(null);
-          user ? setUserMenuOpen(!userMenuOpen) : window.location.href="/login";
-        }} 
-        className="flex-1 flex justify-center"
-      >
+      <button onClick={() => user ? setUserMenuOpen(!userMenuOpen) : window.location.href="/login"} className="flex-1 flex justify-center">
         <User size={22} className={user || userMenuOpen ? "text-[#6B5E70]" : "text-[#6B5E70]/30"} />
       </button>
     </div>
@@ -124,15 +82,13 @@ const Navbar = () => {
             <Flower2 size={24} /> <span>FRANI<span className="opacity-40">LOVER</span></span>
           </Link>
           <nav className="flex items-center gap-1 bg-[#6B5E70]/5 p-1 rounded-2xl border border-[#6B5E70]/10">
-            <Link href="/sobre-mi" className={cn(
-              "px-5 py-2 rounded-xl text-[10px] font-black uppercase transition-all",
-              currentPath === '/sobre-mi' ? "bg-white text-[#6B5E70] shadow-md" : "text-[#6B5E70]/40 hover:text-[#6B5E70]"
-            )}>Bio</Link>
             
+            {/* GRUPO PERSONAL ACTUALIZADO CON BIO */}
             <PCGroup 
               label="Personal" 
-              active={['/dibujos', '/fotos'].includes(currentPath)} 
+              active={['/sobre-mi', '/dibujos', '/fotos'].includes(currentPath)} 
               items={[
+                { href: '/sobre-mi', label: 'Bio', icon: <Smile size={14}/> }, 
                 { href: '/dibujos', label: 'Dibujos', icon: <ImageIcon size={14}/> }, 
                 { href: '/fotos', label: 'Fotos', icon: <Camera size={14}/> }
               ]} 
@@ -151,14 +107,7 @@ const Navbar = () => {
             />
           </nav>
           <div className="flex items-center gap-6">
-            {puedeSubir && (
-              <Link href="/upload" className={cn(
-                "px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all shadow-sm border border-[#6B5E70]/10", 
-                currentPath === '/upload' ? "bg-white text-[#6B5E70]" : "bg-[#6B5E70] text-white hover:opacity-90"
-              )}>
-                <Upload size={12} className="inline mr-2 mb-0.5" /> SUBIR
-              </Link>
-            )}
+            {puedeSubir && <Link href="/upload" className={cn("px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all shadow-sm", currentPath === '/upload' ? "bg-white text-[#6B5E70]" : "bg-[#6B5E70] text-white")}>+ SUBIR</Link>}
             
             {user ? (
               <div className="relative">
@@ -199,12 +148,11 @@ const Navbar = () => {
         >
           {isCollapsed ? (
             <motion.button initial={{ scale: 0 }} animate={{ scale: 1 }} onClick={() => setIsCollapsed(false)} className="text-[#6B5E70]">
-              {puedeSubir ? <Plus size={26} /> : <Flower2 size={26} />}
+              <Flower2 size={26} />
             </motion.button>
           ) : navContent}
         </motion.nav>
 
-        {/* Submenús Flotantes Móvil */}
         <AnimatePresence>
           {(openSubmenu || (userMenuOpen && user)) && !isCollapsed && (
             <motion.div 
@@ -212,7 +160,8 @@ const Navbar = () => {
               className="absolute bottom-20 right-0 w-[calc(100vw-48px)] bg-white border border-[#6B5E70]/10 rounded-[2rem] p-3 shadow-2xl flex flex-col gap-2 z-[1001]"
             >
               {openSubmenu === 'personal_galeria' && (
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-3 gap-2"> {/* Ajustado a 3 columnas */}
+                  <MobileSubItem href="/sobre-mi" label="Bio" active={currentPath === '/sobre-mi'} icon={<Smile size={18}/>} onClick={closeAll} />
                   <MobileSubItem href="/dibujos" label="Dibujos" active={currentPath === '/dibujos'} icon={<ImageIcon size={18}/>} onClick={closeAll} />
                   <MobileSubItem href="/fotos" label="Fotos" active={currentPath === '/fotos'} icon={<Camera size={18}/>} onClick={closeAll} />
                 </div>
@@ -227,13 +176,8 @@ const Navbar = () => {
               
               {userMenuOpen && user && (
                 <div className="flex flex-col gap-2">
-                  {puedeSubir && (
-                    <Link href="/upload" onClick={closeAll} className="w-full p-5 bg-[#6B5E70] text-white rounded-[1.5rem] font-black uppercase text-[10px] flex items-center justify-center gap-3 shadow-lg">
-                      <Plus size={18} strokeWidth={3}/> Panel de Subida
-                    </Link>
-                  )}
                   <Link href="/personal" onClick={closeAll} className="w-full p-5 bg-[#6B5E70]/5 text-[#6B5E70] rounded-[1.5rem] font-black uppercase text-[10px] flex items-center justify-center gap-3">
-                    <Sword size={18}/> Mi Personaje
+                    <Sword size={18}/> Ver Mi Héroe
                   </Link>
                   <button onClick={handleLogout} className="w-full p-4 bg-red-50 text-red-600 rounded-[1.5rem] font-black uppercase text-[10px] flex items-center justify-center gap-3">
                     Cerrar Sesión <LogOut size={16}/>
@@ -245,7 +189,6 @@ const Navbar = () => {
         </AnimatePresence>
       </div>
 
-      {/* Overlay al abrir menús */}
       {(openSubmenu || userMenuOpen) && !isCollapsed && (
         <div className="fixed inset-0 z-[999] bg-[#6B5E70]/20 backdrop-blur-sm" onClick={closeAll} />
       )}
@@ -253,8 +196,7 @@ const Navbar = () => {
   );
 };
 
-// --- Subcomponentes ---
-
+// ... Subcomponentes PCGroup y MobileSubItem se mantienen igual
 const PCGroup = ({ label, items, active, currentPath }) => (
   <div className="relative group px-2">
     <button className={cn(
