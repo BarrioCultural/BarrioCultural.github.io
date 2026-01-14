@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/components/recursos/control/authContext';
 import { useRouter } from 'next/navigation';
-import { Upload, Image as ImageIcon, Camera, ChevronDown, Calendar } from 'lucide-react';
+import { Upload, Image as ImageIcon, Camera, ChevronDown, Calendar, Link as LinkIcon, X } from 'lucide-react';
 
-// 1. Definimos las categorías por tabla
 const CATEGORIAS_POR_TABLA = {
   dibujos: ['original', 'fanart', 'bocetos'],
   diario_fotos: ['yo', 'amigos', 'animales', 'paisajes']
@@ -17,13 +16,28 @@ const UploadPage = () => {
   const router = useRouter();
   
   const [file, setFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null); // Para la previsualización
+  const [externalUrl, setExternalUrl] = useState(''); // Para la ruta manual
+  const [uploadMethod, setUploadMethod] = useState('file'); // 'file' o 'url'
+  
   const [loading, setLoading] = useState(false);
   const [tabla, setTabla] = useState('dibujos'); 
   const [titulo, setTitulo] = useState('');
   const [categoria, setCategoria] = useState('original');
-  const [fecha, setFecha] = useState(''); // Estado para la fecha (útil para el diario)
+  const [fecha, setFecha] = useState('');
 
-  // Solo admin o autor pueden subir (según tus instrucciones de cuenta autorizada)
+  // Efecto para crear/limpiar la URL de previsualización
+  useEffect(() => {
+    if (!file) {
+      setPreviewUrl(null);
+      return;
+    }
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewUrl(objectUrl);
+
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [file]);
+
   if (!perfil || (perfil.rol !== 'admin' && perfil.rol !== 'autor')) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#E2D8E6] text-[#6B5E70] italic font-medium">
@@ -32,7 +46,6 @@ const UploadPage = () => {
     );
   }
 
-  // Cambiar categorías según la tabla seleccionada
   const handleCambioTabla = (nuevaTabla) => {
     setTabla(nuevaTabla);
     setCategoria(CATEGORIAS_POR_TABLA[nuevaTabla][0]);
@@ -40,47 +53,49 @@ const UploadPage = () => {
 
   const handleUpload = async (e) => {
     e.preventDefault();
-    if (!file) return alert("Por favor, selecciona un archivo");
+    
+    // Validación según el método
+    if (uploadMethod === 'file' && !file) return alert("Selecciona un archivo");
+    if (uploadMethod === 'url' && !externalUrl) return alert("Pega una URL válida");
 
     setLoading(true);
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${tabla}/${fileName}`;
+      let finalImageUrl = externalUrl;
 
-      // 1. Subir imagen al Storage
-      const { error: storageError } = await supabase.storage
-        .from('galeria')
-        .upload(filePath, file);
+      // Si el método es archivo, subimos a Supabase Storage
+      if (uploadMethod === 'file') {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${tabla}/${fileName}`;
 
-      if (storageError) throw storageError;
+        const { error: storageError } = await supabase.storage
+          .from('galeria')
+          .upload(filePath, file);
 
-      // 2. Obtener URL pública
-      const { data: { publicUrl } } = supabase.storage
-        .from('galeria')
-        .getPublicUrl(filePath);
+        if (storageError) throw storageError;
 
-      // 3. Insertar en la DB (Ajustado para diario_fotos y dibujos)
+        const { data: { publicUrl } } = supabase.storage
+          .from('galeria')
+          .getPublicUrl(filePath);
+        
+        finalImageUrl = publicUrl;
+      }
+
+      // Insertar en la DB
       const insertData = { 
-        url_imagen: publicUrl,
+        url_imagen: finalImageUrl,
         titulo: titulo || 'Sin título',
         categoria: categoria 
       };
 
-      // Si es foto del diario, incluimos la fecha si se puso una
       if (tabla === 'diario_fotos' && fecha) {
         insertData.fecha = fecha;
       }
 
-      const { error: dbError } = await supabase
-        .from(tabla)
-        .insert([insertData]);
-
+      const { error: dbError } = await supabase.from(tabla).insert([insertData]);
       if (dbError) throw dbError;
 
       alert("¡Publicado con éxito! ✨");
-      
-      // Redirigir según lo que se subió
       router.push(tabla === 'dibujos' ? '/dibujos' : '/diario');
       
     } catch (error) {
@@ -101,91 +116,92 @@ const UploadPage = () => {
         
         <form onSubmit={handleUpload} className="space-y-6">
           
-          {/* Selector de Tabla (Dibujo o Foto) */}
+          {/* Selector de Tabla */}
           <div className="flex gap-2 p-1.5 bg-[#6B5E70]/5 rounded-2xl border border-[#6B5E70]/10">
-            <button 
-              type="button"
-              onClick={() => handleCambioTabla('dibujos')}
-              className={`flex-1 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${tabla === 'dibujos' ? 'bg-[#6B5E70] text-white shadow-md' : 'text-[#6B5E70]/40'}`}
-            >
+            <button type="button" onClick={() => handleCambioTabla('dibujos')} className={`flex-1 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${tabla === 'dibujos' ? 'bg-[#6B5E70] text-white shadow-md' : 'text-[#6B5E70]/40'}`}>
               <ImageIcon size={14} /> DIBUJO
             </button>
-            <button 
-              type="button"
-              onClick={() => handleCambioTabla('diario_fotos')}
-              className={`flex-1 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${tabla === 'diario_fotos' ? 'bg-[#6B5E70] text-white shadow-md' : 'text-[#6B5E70]/40'}`}
-            >
+            <button type="button" onClick={() => handleCambioTabla('diario_fotos')} className={`flex-1 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${tabla === 'diario_fotos' ? 'bg-[#6B5E70] text-white shadow-md' : 'text-[#6B5E70]/40'}`}>
               <Camera size={14} /> FOTO
             </button>
           </div>
 
-          {/* Campo Título */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-black uppercase tracking-widest text-[#6B5E70]/70 ml-1">Título / Pie de foto</label>
-            <input 
-              type="text" 
-              placeholder={tabla === 'dibujos' ? "Ej: Star Girl..." : "Ej: Un día en el parque..."}
-              className="w-full bg-white/50 border border-[#6B5E70]/10 rounded-2xl px-4 py-3 text-[#6B5E70] placeholder:text-[#6B5E70]/30 outline-none focus:ring-2 focus:ring-[#6B5E70]/20 transition-all font-medium"
-              value={titulo}
-              onChange={(e) => setTitulo(e.target.value)}
-            />
+          {/* Selector de MÉTODO (Archivo o URL) */}
+          <div className="flex justify-center gap-6 mb-2">
+            <button 
+              type="button" 
+              onClick={() => setUploadMethod('file')}
+              className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-1 ${uploadMethod === 'file' ? 'text-[#6B5E70]' : 'text-[#6B5E70]/30'}`}
+            >
+              <Upload size={12}/> Subir Archivo
+            </button>
+            <button 
+              type="button" 
+              onClick={() => setUploadMethod('url')}
+              className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-1 ${uploadMethod === 'url' ? 'text-[#6B5E70]' : 'text-[#6B5E70]/30'}`}
+            >
+              <LinkIcon size={12}/> URL Externa
+            </button>
           </div>
 
-          {/* Selector de Categoría DINÁMICO */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-black uppercase tracking-widest text-[#6B5E70]/70 ml-1">Categoría</label>
-            <div className="relative">
-              <select 
-                value={categoria}
-                onChange={(e) => setCategoria(e.target.value)}
-                className="w-full appearance-none bg-white/50 border border-[#6B5E70]/10 rounded-2xl px-4 py-3 text-[#6B5E70] outline-none focus:ring-2 focus:ring-[#6B5E70]/20 transition-all font-bold text-xs uppercase tracking-widest"
-              >
-                {CATEGORIAS_POR_TABLA[tabla].map(cat => (
-                  <option key={cat} value={cat}>{cat.toUpperCase()}</option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6B5E70]/40 pointer-events-none" size={16} />
+          {/* Inputs de Título y Categoría igual que antes... */}
+          <div className="space-y-4">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[10px] font-black uppercase tracking-widest text-[#6B5E70]/70 ml-1">Título</label>
+              <input type="text" className="w-full bg-white/50 border border-[#6B5E70]/10 rounded-2xl px-4 py-3 text-[#6B5E70] outline-none font-medium" value={titulo} onChange={(e) => setTitulo(e.target.value)} />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[10px] font-black uppercase tracking-widest text-[#6B5E70]/70 ml-1">Categoría</label>
+              <div className="relative">
+                <select value={categoria} onChange={(e) => setCategoria(e.target.value)} className="w-full appearance-none bg-white/50 border border-[#6B5E70]/10 rounded-2xl px-4 py-3 text-[#6B5E70] font-bold text-xs uppercase tracking-widest">
+                  {CATEGORIAS_POR_TABLA[tabla].map(cat => <option key={cat} value={cat}>{cat.toUpperCase()}</option>)}
+                </select>
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6B5E70]/40" size={16} />
+              </div>
             </div>
           </div>
 
-          {/* Campo Fecha (Solo aparece si es Foto) */}
-          {tabla === 'diario_fotos' && (
-            <div className="flex flex-col gap-1.5 animate-in slide-in-from-top-2 duration-300">
-              <label className="text-[10px] font-black uppercase tracking-widest text-[#6B5E70]/70 ml-1">Fecha del recuerdo</label>
-              <div className="relative">
-                <input 
-                  type="text" 
-                  placeholder="Ej: 12 de Octubre, 2024"
-                  className="w-full bg-white/50 border border-[#6B5E70]/10 rounded-2xl px-4 py-3 text-[#6B5E70] placeholder:text-[#6B5E70]/30 outline-none focus:ring-2 focus:ring-[#6B5E70]/20 transition-all font-medium"
-                  value={fecha}
-                  onChange={(e) => setFecha(e.target.value)}
-                />
-                <Calendar className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6B5E70]/20 pointer-events-none" size={16} />
+          {/* ÁREA DINÁMICA: SUBIDA O URL */}
+          {uploadMethod === 'file' ? (
+            <div className="space-y-4">
+              <div className="relative group">
+                <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files[0])} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                <div className={`w-full py-10 border-2 border-dashed rounded-[2rem] flex flex-col items-center justify-center gap-3 transition-all ${file ? 'border-[#6B5E70]/40 bg-[#6B5E70]/5' : 'border-[#6B5E70]/10 bg-white/20'}`}>
+                  {previewUrl ? (
+                    <div className="relative w-32 h-32 rounded-xl overflow-hidden shadow-inner border border-[#6B5E70]/20">
+                      <img src={previewUrl} alt="Preview" className="w-full h-full object-cover" />
+                      <button onClick={(e) => { e.preventDefault(); setFile(null); }} className="absolute top-1 right-1 bg-white/80 rounded-full p-1 text-red-500 hover:bg-white"><X size={14}/></button>
+                    </div>
+                  ) : (
+                    <>
+                      <Upload className="text-[#6B5E70]/20" size={28} />
+                      <span className="text-[#6B5E70]/60 text-[10px] font-black uppercase tracking-tighter">Seleccionar Imagen</span>
+                    </>
+                  )}
+                </div>
               </div>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-1.5 animate-in fade-in slide-in-from-bottom-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-[#6B5E70]/70 ml-1">URL de la imagen</label>
+              <input 
+                type="text" 
+                placeholder="https://ejemplo.com/imagen.jpg"
+                className="w-full bg-white/50 border border-[#6B5E70]/10 rounded-2xl px-4 py-3 text-[#6B5E70] outline-none font-medium"
+                value={externalUrl}
+                onChange={(e) => setExternalUrl(e.target.value)}
+              />
+              {externalUrl && (
+                <div className="mt-2 w-full h-32 rounded-2xl overflow-hidden border border-[#6B5E70]/10">
+                   <img src={externalUrl} alt="Preview URL" className="w-full h-full object-cover" onError={(e) => e.target.style.display = 'none'} />
+                </div>
+              )}
             </div>
           )}
 
-          {/* Área de Archivo */}
-          <div className="relative group">
-            <input 
-              type="file" 
-              accept="image/*"
-              onChange={(e) => setFile(e.target.files[0])}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-            />
-            <div className={`w-full py-10 border-2 border-dashed rounded-[2rem] flex flex-col items-center justify-center gap-3 transition-all ${file ? 'border-[#6B5E70]/40 bg-[#6B5E70]/5' : 'border-[#6B5E70]/10 bg-white/20'}`}>
-               <Upload className={file ? "text-[#6B5E70]" : "text-[#6B5E70]/20"} size={28} />
-               <span className="text-[#6B5E70]/60 text-[10px] font-black uppercase tracking-tighter px-4 text-center">
-                 {file ? file.name : "Seleccionar Imagen"}
-               </span>
-            </div>
-          </div>
-
           {/* Botón Publicar */}
-          <button 
-            disabled={loading}
-            className="w-full bg-[#6B5E70] text-white py-4 rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 shadow-lg shadow-[#6B5E70]/20"
-          >
+          <button disabled={loading} className="w-full bg-[#6B5E70] text-white py-4 rounded-2xl font-black uppercase text-xs tracking-[0.2em] hover:opacity-90 active:scale-95 transition-all disabled:opacity-50">
             {loading ? 'Subiendo...' : 'Publicar Ahora'}
           </button>
         </form>
