@@ -4,9 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/components/recursos/control/authContext';
 import { useRouter } from 'next/navigation';
-import { Upload, Image as ImageIcon, Camera, ChevronDown, Calendar, Link as LinkIcon, X, Sparkles, UserCircle } from 'lucide-react';
+import { Upload, Image as ImageIcon, Camera, ChevronDown, X, Sparkles, UserCircle, Link as LinkIcon } from 'lucide-react';
 
-// Configuración de la estructura de datos
+// Configuración de la estructura de datos actualizada
 const CONFIG_ESTRUCTURA = {
   personal: {
     label: 'Personal',
@@ -26,15 +26,15 @@ const CONFIG_ESTRUCTURA = {
   garden_of_sins: {
     label: 'Garden of Sins',
     tablas: {
-      gos_criaturas: {
+      criaturas: { // Nombre corregido según tu DB
         label: 'Criaturas',
         icon: <Sparkles size={14} />,
-        categorias: ['comunes', 'raras', 'legendarias', 'deidades']
+        categorias: ['terrestres', 'voladoras', 'acuáticas']
       },
-      gos_personajes: {
+      personajes: { // Nombre corregido según tu DB
         label: 'Personajes',
         icon: <UserCircle size={14} />,
-        categorias: ['protagonistas', 'secundarios', 'antagonistas']
+        categorias: ['Caelistan', 'Greendom', 'Omnisia', 'Aelistan', 'Otros']
       }
     }
   }
@@ -44,8 +44,8 @@ const UploadPage = () => {
   const { perfil } = useAuth();
   const router = useRouter();
   
-  // Estados de navegación de categorías
-  const [seccion, setSeccion] = useState('personal'); // 'personal' o 'garden_of_sins'
+  // Estados de navegación
+  const [seccion, setSeccion] = useState('personal');
   const [tabla, setTabla] = useState('dibujos'); 
   
   // Estados del formulario
@@ -57,6 +57,7 @@ const UploadPage = () => {
   const [titulo, setTitulo] = useState('');
   const [categoria, setCategoria] = useState(CONFIG_ESTRUCTURA.personal.tablas.dibujos.categorias[0]);
 
+  // Manejo de preview de imagen
   useEffect(() => {
     if (!file) {
       setPreviewUrl(null);
@@ -67,6 +68,7 @@ const UploadPage = () => {
     return () => URL.revokeObjectURL(objectUrl);
   }, [file]);
 
+  // Protección de ruta
   if (!perfil || (perfil.rol !== 'admin' && perfil.rol !== 'autor')) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#E2D8E6] text-[#6B5E70] italic font-medium">
@@ -75,7 +77,6 @@ const UploadPage = () => {
     );
   }
 
-  // Cambiar entre Personal y Garden of Sins
   const handleCambioSeccion = (nuevaSeccion) => {
     setSeccion(nuevaSeccion);
     const primeraTabla = Object.keys(CONFIG_ESTRUCTURA[nuevaSeccion].tablas)[0];
@@ -83,7 +84,6 @@ const UploadPage = () => {
     setCategoria(CONFIG_ESTRUCTURA[nuevaSeccion].tablas[primeraTabla].categorias[0]);
   };
 
-  // Cambiar entre Dibujos/Fotos o Criaturas/Personajes
   const handleCambioTabla = (nuevaTabla) => {
     setTabla(nuevaTabla);
     setCategoria(CONFIG_ESTRUCTURA[seccion].tablas[nuevaTabla].categorias[0]);
@@ -116,6 +116,7 @@ const UploadPage = () => {
         finalImageUrl = publicUrl;
       }
 
+      // Inserción en DB
       const { error: dbError } = await supabase.from(tabla).insert([{ 
         url_imagen: finalImageUrl,
         titulo: titulo || 'Sin título',
@@ -125,9 +126,15 @@ const UploadPage = () => {
       if (dbError) throw dbError;
 
       alert("¡Publicado con éxito! ✨");
+      
+      // Limpiar formulario
+      setTitulo('');
+      setFile(null);
+      setExternalUrl('');
       router.refresh(); 
       
     } catch (error) {
+      console.error("Error completo:", error);
       alert("Error: " + error.message);
     } finally {
       setLoading(false);
@@ -159,7 +166,7 @@ const UploadPage = () => {
         
         <form onSubmit={handleUpload} className="space-y-6">
           
-          {/* 2. SELECTOR DE TABLA (Depende de la sección) */}
+          {/* 2. SELECTOR DE TABLA */}
           <div className="flex gap-2 p-1.5 bg-[#6B5E70]/5 rounded-2xl border border-[#6B5E70]/10">
             {Object.entries(CONFIG_ESTRUCTURA[seccion].tablas).map(([key, value]) => (
               <button 
@@ -186,11 +193,11 @@ const UploadPage = () => {
           <div className="space-y-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-[10px] font-black uppercase tracking-widest text-[#6B5E70]/70 ml-1">Título de la obra</label>
-              <input type="text" className="w-full bg-white/50 border border-[#6B5E70]/10 rounded-2xl px-4 py-3 text-[#6B5E70] outline-none font-medium" value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ej: Atardecer en el jardín..." />
+              <input type="text" className="w-full bg-white/50 border border-[#6B5E70]/10 rounded-2xl px-4 py-3 text-[#6B5E70] outline-none font-medium" value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ej: Habitante de Caelistan..." />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-black uppercase tracking-widest text-[#6B5E70]/70 ml-1">Categoría de {CONFIG_ESTRUCTURA[seccion].tablas[tabla].label}</label>
+              <label className="text-[10px] font-black uppercase tracking-widest text-[#6B5E70]/70 ml-1">Categoría</label>
               <div className="relative">
                 <select 
                   value={categoria} 
