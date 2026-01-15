@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { ShieldAlert, Fingerprint, Zap, X, Terminal, Monitor, Database } from 'lucide-react';
+import { supabase } from '@/lib/supabase'; // Importación de Supabase
+import { ShieldAlert, Fingerprint, Zap, X, Terminal, Monitor, Database, Hash } from 'lucide-react';
 
 // --- EFECTO MATRIX RAIN ---
 const MatrixRain = () => {
@@ -41,34 +42,39 @@ const TypewriterText = ({ text }) => {
       setDisplayed((prev) => prev + text.charAt(i));
       i++;
       if (i >= text.length) clearInterval(interval);
-    }, 20);
+    }, 15); // Un poco más rápido para descripciones largas
     return () => clearInterval(interval);
   }, [text]);
   return <span>{displayed}<span className="animate-pulse">_</span></span>;
 };
 
 const TerminalLore = () => {
+  const [personajes, setPersonajes] = useState([]);
   const [currentFile, setCurrentFile] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const ARCHIVOS = [
-    { id: 1, nombre: "PINK_KILLER.log", personaje: "Pink Killer", desc: "Registro de la asesina principal", color: '#FFB7CE', status: "CRITICAL" },
-    { id: 2, nombre: "ACCESO_DORIAN.key", personaje: "Dorian", desc: "Notas del líder del PF", color: '#D4B2F2', status: "AUTHORIZED" },
-    { id: 3, nombre: "DATABASE_FAKER.dat", personaje: "Faker", desc: "Registros de hackeo", color: '#FDFD96', status: "LOCKED" },
-    { id: 4, nombre: "ANALISIS_FRANI.txt", personaje: "Frani", desc: "Informe de vigilancia", color: '#FFF9C4', status: "WATCHING" },
-    { id: 5, nombre: "REGISTRO_ABEL.sec", personaje: "Abel", desc: "Análisis de linaje", color: '#B2E2F2', status: "RESTRICTED" },
-    { id: 6, nombre: "EXP_QUIMERA.cfg", personaje: "Quimera", desc: "Resultados de mutación", color: '#B2F2B2', status: "DANGER" }
-  ];
-
-  const obtenerContenido = (p) => {
-    const data = {
-      "Pink Killer": "ERROR 404: Datos corruptos. El rastro de la asesina ha sido borrado por un protocolo externo. Velocidad extrema detectada.",
-      "Dorian": "Último registro: Dorian ha tomado el control del tráfico en la zona norte. Priorizar recuperación de la droga del abismo.",
-      "Faker": "ACCESO DENEGADO. Intento de rastreo detectado. Sujeto capaz de vulnerar cualquier firewall del sistema central.",
-      "Frani": "Sujeto: Frani. Observación: Podría sernos útil... Posee una capacidad de observación post-mortem inusual.",
-      "Abel": "REGISTRO REAL: El heredero ha desertado. Se desplaza por los suburbios. Su sangre es vital para el Proyecto.",
-      "Quimera": "PROYECTO QUIMERA: Experimento exitoso. Capacidad de adaptación biológica confirmada. El espécimen escapó durante el apagón."
+  // --- FETCH DE DATOS DESDE SUPABASE ---
+  useEffect(() => {
+    const fetchLore = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('lore_personajes')
+        .select('*')
+        .order('nombre', { ascending: true });
+      
+      if (data) setPersonajes(data);
+      if (error) console.error("Error cargando terminal_data:", error);
+      setLoading(false);
     };
-    return data[p] || "Archivo vacío.";
+    fetchLore();
+  }, []);
+
+  // Generador de nombre de archivo ficticio basado en el nombre real
+  const formatFileName = (nombre) => {
+    const extensions = ['.log', '.key', '.dat', '.sec', '.cfg', '.exe'];
+    const cleanName = nombre.toUpperCase().replace(/\s+/g, '_');
+    const randomExt = extensions[Math.floor(Math.random() * extensions.length)];
+    return `${cleanName}${randomExt}`;
   };
 
   return (
@@ -81,64 +87,112 @@ const TerminalLore = () => {
         <header className="mb-8 border-b border-[#00ff41]/40 pb-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="text-center md:text-left">
             <h2 className="text-[10px] tracking-[0.4em] opacity-60 flex items-center gap-2 justify-center md:justify-start">
-              <Monitor size={12} /> PARTIDO_POR_EL_PROGRESO_V2
+              <Monitor size={12} /> PROGRESO_CORE_OS_V2.6
             </h2>
             <h1 className="text-2xl md:text-3xl font-black italic uppercase drop-shadow-[0_0_8px_rgba(0,255,65,0.6)]">
-              ARCHIVOS_DE_INTELIGENCIA
+              PERSONAJES_TERMINAL
             </h1>
           </div>
           <div className="text-right">
-              <p className="text-[9px] font-bold opacity-50 uppercase tracking-widest">Account_Mode: OPTIONAL</p>
-              <p className="text-[9px] font-bold text-green-300 uppercase tracking-widest">STATUS: ADMIN_AUTHORIZED</p>
+              <p className="text-[9px] font-bold opacity-50 uppercase tracking-widest">Access_Lvl: ROOT</p>
+              <p className="text-[9px] font-bold text-green-300 uppercase tracking-widest">ENCRYPTION: AES-256</p>
           </div>
         </header>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {ARCHIVOS.map((p) => (
-            <div 
-              key={p.id}
-              onClick={() => setCurrentFile({ nombre: p.nombre, personaje: p.personaje, contenido: obtenerContenido(p.personaje), color: p.color })}
-              className="group border border-[#00ff41]/20 p-5 cursor-pointer hover:bg-[#00ff41]/10 hover:border-[#00ff41]/80 transition-all duration-300"
-            >
-              <div className="flex justify-between items-start mb-3">
-                <span className="text-[8px] font-black tracking-widest opacity-40 uppercase">{p.status}</span>
-                <Fingerprint size={14} className="opacity-20 group-hover:opacity-100" />
+        {loading ? (
+          <div className="py-20 text-center animate-pulse flex flex-col items-center gap-4">
+            <Database className="animate-spin" />
+            <span className="tracking-[0.5em] text-xs">DECRYPTING_DATABASE...</span>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {personajes.map((p) => (
+              <div 
+                key={p.id}
+                onClick={() => setCurrentFile({ 
+                  nombre: formatFileName(p.nombre), 
+                  personaje: p.nombre, 
+                  contenido: p.sobre, 
+                  tags: p.tags,
+                  img: p.img_url 
+                })}
+                className="group border border-[#00ff41]/20 p-5 cursor-pointer hover:bg-[#00ff41]/10 hover:border-[#00ff41]/80 transition-all duration-300 relative overflow-hidden"
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <span className="text-[8px] font-black tracking-widest opacity-40 uppercase">
+                    {p.tags?.[0] || 'UNCLASSIFIED'}
+                  </span>
+                  <Fingerprint size={14} className="opacity-20 group-hover:opacity-100" />
+                </div>
+                
+                <h3 className="font-bold text-sm tracking-tight mb-4 relative z-10">
+                  {'>'} {formatFileName(p.nombre)}
+                </h3>
+
+                <div className="flex flex-col border-t border-[#00ff41]/10 pt-3 relative z-10">
+                    <span className="text-[10px] font-black uppercase italic tracking-widest text-white group-hover:text-[#00ff41] transition-colors">
+                      {p.nombre}
+                    </span>
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {p.tags?.slice(0, 2).map((tag, i) => (
+                        <span key={i} className="text-[7px] border border-[#00ff41]/30 px-1 opacity-50">#{tag}</span>
+                      ))}
+                    </div>
+                </div>
               </div>
-              <h3 className="font-bold text-sm tracking-tight mb-4">{'>'} {p.nombre}</h3>
-              <div className="flex flex-col border-t border-[#00ff41]/10 pt-3">
-                  <span className="text-[10px] font-black uppercase italic tracking-widest" style={{ color: p.color }}>{p.personaje}</span>
-                  <span className="text-[9px] opacity-40 uppercase mt-1 leading-tight">{p.desc}</span>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         <footer className="mt-12 pt-4 border-t border-[#00ff41]/20 flex justify-between items-center text-[9px] opacity-40 tracking-[0.2em]">
-          <span className="animate-pulse">● RECIBIENDO_DATOS...</span>
+          <span className="animate-pulse">● SYSTEM_ONLINE</span>
           <div className="flex items-center gap-2">
              <Terminal size={12} />
-             <span>CONEXIÓN_SEGURA</span>
+             <span>QUERY_COMPLETED: {personajes.length} FILES</span>
           </div>
         </footer>
 
+        {/* MODAL DE DECRIPTACIÓN */}
         {currentFile && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-md">
-            <div className="bg-black border-2 border-[#00ff41] p-8 max-w-2xl w-full relative shadow-[0_0_100px_rgba(0,255,65,0.4)]">
+            <div className="bg-black border-2 border-[#00ff41] p-6 md:p-8 max-w-3xl w-full relative shadow-[0_0_100px_rgba(0,255,65,0.4)] overflow-hidden">
+              
               <div className="flex justify-between items-center mb-6 border-b border-[#00ff41]/40 pb-4">
                  <div className="flex flex-col">
-                   <span className="text-[9px] tracking-[0.5em] opacity-40 uppercase">Decription_In_Progress</span>
+                   <span className="text-[9px] tracking-[0.5em] opacity-40 uppercase">Dossier_Visual_Analysis</span>
                    <span className="text-md font-bold text-[#00ff41] mt-1 uppercase">FILE: {currentFile.nombre}</span>
                  </div>
                  <button onClick={() => setCurrentFile(null)} className="text-[#00ff41] hover:bg-[#00ff41] hover:text-black p-1 border border-[#00ff41]/40 transition-all">
                    <X size={24} />
                  </button>
               </div>
-              <div className="text-lg md:text-xl leading-relaxed mb-10 min-h-[120px] drop-shadow-[0_0_5px_rgba(0,255,65,0.4)]">
-                <TypewriterText text={currentFile.contenido} />
+
+              <div className="flex flex-col md:flex-row gap-6">
+                {/* Imagen del personaje con filtro terminal */}
+                {currentFile.img && (
+                  <div className="w-full md:w-48 h-48 border border-[#00ff41]/40 grayscale contrast-125 brightness-75 relative shrink-0">
+                    <img src={currentFile.img} className="w-full h-full object-cover mix-blend-screen opacity-80" alt="Identity scan" />
+                    <div className="absolute inset-0 border-2 border-[#00ff41]/20 pointer-events-none"></div>
+                  </div>
+                )}
+
+                <div className="flex-1">
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {currentFile.tags?.map((tag, idx) => (
+                      <span key={idx} className="text-[9px] bg-[#00ff41]/10 px-2 py-0.5 border border-[#00ff41]/40 text-[#00ff41]">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="text-sm md:text-base leading-relaxed mb-6 min-h-[100px] text-green-100">
+                    <TypewriterText text={currentFile.contenido || "NO_DATA_AVAILABLE"} />
+                  </div>
+                </div>
               </div>
+
               <div className="flex justify-between items-center text-[10px] font-bold opacity-30 uppercase border-t border-[#00ff41]/30 pt-4">
-                 <span className="flex items-center gap-2"> <Zap size={10} /> ACCESS_GRANTED</span>
-                 <span className="italic">END_OF_TRANSMISSION</span>
+                 <span className="flex items-center gap-2"> <Zap size={10} /> CLEARANCE_LEVEL: ROOT</span>
+                 <span className="italic font-mono">SECURE_LINK_ACTIVE</span>
               </div>
             </div>
           </div>
@@ -149,5 +203,3 @@ const TerminalLore = () => {
 };
 
 export default TerminalLore;
-
-
