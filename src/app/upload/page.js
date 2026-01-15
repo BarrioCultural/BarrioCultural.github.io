@@ -6,7 +6,6 @@ import { useAuth } from '@/components/recursos/control/authContext';
 import { useRouter } from 'next/navigation';
 import { Upload, Image as ImageIcon, Camera, ChevronDown, X, Sparkles, UserCircle, Link as LinkIcon } from 'lucide-react';
 
-// Configuración de la estructura de datos
 const CONFIG_ESTRUCTURA = {
   personal: {
     label: 'Personal',
@@ -52,7 +51,7 @@ const UploadPage = () => {
   const [externalUrl, setExternalUrl] = useState('');
   const [uploadMethod, setUploadMethod] = useState('file');
   const [loading, setLoading] = useState(false);
-  const [nombreObra, setNombreObra] = useState(''); // Estado para el nombre
+  const [nombreObra, setNombreObra] = useState('');
   const [categoria, setCategoria] = useState(CONFIG_ESTRUCTURA.personal.tablas.dibujos.categorias[0]);
 
   useEffect(() => {
@@ -112,16 +111,16 @@ const UploadPage = () => {
         finalImageUrl = publicUrl;
       }
 
-      // Preparamos los datos dinámicamente según la tabla
-      // Si es de Garden of Sins usa 'nombre', si es Personal podrías seguir usando 'titulo' o 'nombre'
-      // Para unificar, aquí usamos 'nombre' en el objeto de inserción:
-      const insertData = { 
-        url_imagen: finalImageUrl,
+      // Mapeo dinámico de columnas para Garden of Sins
+      const isGOS = seccion === 'garden_of_sins';
+      
+      const insertData = {
+        // Si es GOS usa 'imagen_url', si no usa 'url_imagen' (ajusta según tus tablas personales)
+        [isGOS ? 'imagen_url' : 'url_imagen']: finalImageUrl,
+        // Si es GOS usa 'nombre', si no usa 'titulo'
+        [isGOS ? 'nombre' : 'titulo']: nombreObra || 'Sin nombre',
         categoria: categoria 
       };
-
-      // Aquí aplicamos el cambio solicitado: usar la columna 'nombre'
-      insertData.nombre = nombreObra || 'Sin nombre';
 
       const { error: dbError } = await supabase.from(tabla).insert([insertData]);
 
@@ -164,7 +163,6 @@ const UploadPage = () => {
         </div>
         
         <form onSubmit={handleUpload} className="space-y-6">
-          
           <div className="flex gap-2 p-1.5 bg-[#6B5E70]/5 rounded-2xl border border-[#6B5E70]/10">
             {Object.entries(CONFIG_ESTRUCTURA[seccion].tablas).map(([key, value]) => (
               <button 
@@ -189,13 +187,13 @@ const UploadPage = () => {
 
           <div className="space-y-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-black uppercase tracking-widest text-[#6B5E70]/70 ml-1">Nombre</label>
+              <label className="text-[10px] font-black uppercase tracking-widest text-[#6B5E70]/70 ml-1">Nombre / Título</label>
               <input 
                 type="text" 
                 className="w-full bg-white/50 border border-[#6B5E70]/10 rounded-2xl px-4 py-3 text-[#6B5E70] outline-none font-medium" 
                 value={nombreObra} 
                 onChange={(e) => setNombreObra(e.target.value)} 
-                placeholder="Ej: Habitante de Caelistan..." 
+                placeholder="Nombre de la criatura o personaje..." 
               />
             </div>
 
