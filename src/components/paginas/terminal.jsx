@@ -1,15 +1,22 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Fingerprint, Zap, X, Terminal, Monitor, Database, AlertCircle } from 'lucide-center';
+// Corrección de la librería: lucide-react
+import { Fingerprint, Zap, X, Terminal, Monitor, Database, AlertCircle } from 'lucide-react';
 
-// --- EFECTO MATRIX RAIN (SE MANTIENE IGUAL) ---
+// --- EFECTO MATRIX RAIN ---
 const MatrixRain = () => {
   const canvasRef = useRef(null);
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+    const resize = () => { 
+      if (canvas) {
+        canvas.width = window.innerWidth; 
+        canvas.height = window.innerHeight; 
+      }
+    };
     resize();
     window.addEventListener('resize', resize);
     const fontSize = 14;
@@ -37,6 +44,7 @@ const TypewriterText = ({ text }) => {
   const [displayed, setDisplayed] = useState("");
   useEffect(() => {
     setDisplayed("");
+    if (!text) return;
     let i = 0;
     const interval = setInterval(() => {
       setDisplayed((prev) => prev + text.charAt(i));
@@ -56,21 +64,26 @@ const TerminalLore = () => {
   useEffect(() => {
     const fetchLore = async () => {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('personajes_terminal')
-        .select('*')
-        .order('id', { ascending: true }); // Ordenados por ID según tu captura
-      
-      if (data) setPersonajes(data);
-      if (error) console.error("Error:", error);
-      setLoading(false);
+      try {
+        const { data, error } = await supabase
+          .from('personajes_terminal')
+          .select('*')
+          .order('id', { ascending: true });
+        
+        if (data) setPersonajes(data);
+        if (error) console.error("Error cargando datos:", error.message);
+      } catch (err) {
+        console.error("Error de conexión:", err);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchLore();
   }, []);
 
-  // Generador de nombre de archivo dinámico
   const formatFileName = (clase) => {
-    return `${clase.toUpperCase().replace(/\s+/g, '_')}.log`;
+    const name = clase || "UNKNOWN";
+    return `${name.toUpperCase().replace(/\s+/g, '_')}.log`;
   };
 
   return (
@@ -80,23 +93,28 @@ const TerminalLore = () => {
       <div className="bg-black/90 border-2 border-[#00ff41] p-6 w-full max-w-5xl z-10 shadow-[0_0_50px_rgba(0,255,65,0.2)] relative">
         <header className="mb-8 border-b border-[#00ff41]/40 pb-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="text-center md:text-left">
-            <h2 className="text-[10px] tracking-[0.4em] opacity-60 flex items-center gap-2">
+            <h2 className="text-[10px] tracking-[0.4em] opacity-60 flex items-center gap-2 justify-center md:justify-start">
               <Monitor size={12} /> PROGRESO_CORE_OS_V2.6
             </h2>
-            <h1 className="text-2xl md:text-3xl font-black italic uppercase">
+            <h1 className="text-2xl md:text-3xl font-black italic uppercase drop-shadow-[0_0_8px_rgba(0,255,65,0.6)]">
               PERSONAJES_TERMINAL
             </h1>
           </div>
-          <div className="text-right">
-              <p className="text-[9px] font-bold opacity-50 uppercase tracking-widest">Access_Lvl: ROOT</p>
-              <p className="text-[9px] font-bold text-green-300 uppercase tracking-widest">ENCRYPTION: AES-256</p>
+          <div className="text-right hidden md:block">
+              <p className="text-[9px] font-bold opacity-50 uppercase tracking-widest">Access: ROOT_ADMIN</p>
+              <p className="text-[9px] font-bold text-green-300 uppercase tracking-widest">STATUS: ENCRYPTED</p>
           </div>
         </header>
 
         {loading ? (
           <div className="py-20 text-center animate-pulse flex flex-col items-center gap-4">
             <Database className="animate-spin" />
-            <span className="tracking-[0.5em] text-xs">DECRYPTING_DATABASE...</span>
+            <span className="tracking-[0.5em] text-xs">DECRYPTING_SYSTEM_TABLES...</span>
+          </div>
+        ) : personajes.length === 0 ? (
+          <div className="py-20 text-center flex flex-col items-center gap-4">
+            <AlertCircle className="text-red-500" />
+            <span className="text-xs opacity-50 uppercase tracking-widest text-red-500">No data found in 'personajes_terminal'</span>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -108,7 +126,7 @@ const TerminalLore = () => {
               >
                 <div className="flex justify-between items-start mb-3">
                   <span className="text-[8px] font-black tracking-widest opacity-40 uppercase">
-                    {p.status}
+                    {p.status || "UNSTABLE"}
                   </span>
                   <Fingerprint size={14} className="opacity-20 group-hover:opacity-100" />
                 </div>
@@ -119,16 +137,17 @@ const TerminalLore = () => {
 
                 <div className="flex flex-col border-t border-[#00ff41]/10 pt-3 relative z-10">
                     <span className="text-[10px] font-black uppercase italic tracking-widest text-white group-hover:text-[#00ff41] transition-colors">
-                      {p.clase}
+                      {p.clase || "SUBJECT_NULL"}
                     </span>
                     <span className="text-[9px] opacity-40 uppercase mt-1 leading-tight">
-                      {p.descripcion}
+                      {p.descripcion || "No summary available"}
                     </span>
                 </div>
-                {/* Indicador de color dinámico basado en tu columna color_hex */}
+                
+                {/* Indicador lateral usando tu columna color_hex */}
                 <div 
-                  className="absolute top-0 right-0 w-1 h-full opacity-50" 
-                  style={{ backgroundColor: p.color_hex }}
+                  className="absolute top-0 right-0 w-1 h-full opacity-30" 
+                  style={{ backgroundColor: p.color_hex || '#00ff41' }}
                 />
               </div>
             ))}
@@ -136,21 +155,21 @@ const TerminalLore = () => {
         )}
 
         <footer className="mt-12 pt-4 border-t border-[#00ff41]/20 flex justify-between items-center text-[9px] opacity-40 tracking-[0.2em]">
-          <span className="animate-pulse">● SYSTEM_ONLINE</span>
+          <span className="animate-pulse">● SECURE_CONNECTION_ACTIVE</span>
           <div className="flex items-center gap-2">
              <Terminal size={12} />
-             <span>QUERY_COMPLETED: {personajes.length} RECORDS</span>
+             <span>QUERY: {personajes.length} RECORDS RECUPERADOS</span>
           </div>
         </footer>
 
-        {/* MODAL DE DECRIPTACIÓN CON COLUMNAS REALES */}
+        {/* MODAL DE DECRIPTACIÓN */}
         {currentFile && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/95 backdrop-blur-md">
             <div className="bg-black border-2 border-[#00ff41] p-6 md:p-8 max-w-3xl w-full relative shadow-[0_0_100px_rgba(0,255,65,0.4)] overflow-hidden">
               
               <div className="flex justify-between items-center mb-6 border-b border-[#00ff41]/40 pb-4">
                  <div className="flex flex-col">
-                   <span className="text-[9px] tracking-[0.5em] opacity-40 uppercase">Dossier_Decryption_Result</span>
+                   <span className="text-[9px] tracking-[0.5em] opacity-40 uppercase">Intelligence_Report</span>
                    <span className="text-md font-bold text-[#00ff41] mt-1 uppercase">FILE: {formatFileName(currentFile.clase)}</span>
                  </div>
                  <button onClick={() => setCurrentFile(null)} className="text-[#00ff41] hover:bg-[#00ff41] hover:text-black p-1 border border-[#00ff41]/40 transition-all">
@@ -159,32 +178,34 @@ const TerminalLore = () => {
               </div>
 
               <div className="flex flex-col md:flex-row gap-6">
-                {/* Imagen del personaje - Columna imagen_url */}
-                {currentFile.imagen_url && (
-                  <div className="w-full md:w-48 h-48 border border-[#00ff41]/40 grayscale contrast-125 brightness-75 relative shrink-0">
-                    <img src={currentFile.imagen_url} className="w-full h-full object-cover mix-blend-screen opacity-80" alt="Identity scan" />
-                    <div className="absolute inset-0 border-2 border-[#00ff41]/20 pointer-events-none"></div>
-                  </div>
-                )}
+                {/* Visualización de Imagen (Columna imagen_url) */}
+                <div className="w-full md:w-48 h-48 border border-[#00ff41]/40 grayscale contrast-125 brightness-75 relative shrink-0 bg-zinc-900">
+                  {currentFile.imagen_url ? (
+                    <img src={currentFile.imagen_url} className="w-full h-full object-cover mix-blend-screen opacity-80" alt="Identity" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center opacity-20 italic text-[10px]">No_Visual_Data</div>
+                  )}
+                  <div className="absolute inset-0 border-2 border-[#00ff41]/10 pointer-events-none"></div>
+                </div>
 
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-4">
-                    <span className="px-2 py-0.5 border border-[#00ff41] text-[10px] font-bold" style={{ color: currentFile.color_hex }}>
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="px-2 py-0.5 border text-[10px] font-bold uppercase" style={{ borderColor: currentFile.color_hex, color: currentFile.color_hex }}>
                       {currentFile.status}
                     </span>
-                    <span className="text-[10px] opacity-50">CLASE: {currentFile.clase}</span>
+                    <span className="text-[10px] opacity-50 tracking-widest font-bold">TYPE: {currentFile.clase}</span>
                   </div>
                   
-                  {/* Contenido principal - Columna contenido */}
-                  <div className="text-sm md:text-base leading-relaxed mb-6 min-h-[100px] text-green-100">
-                    <TypewriterText text={currentFile.contenido || "NO_DATA_AVAILABLE"} />
+                  {/* Cuerpo del texto (Columna contenido) */}
+                  <div className="text-sm md:text-base leading-relaxed mb-6 min-h-[120px] text-green-100">
+                    <TypewriterText text={currentFile.contenido} />
                   </div>
                 </div>
               </div>
 
               <div className="flex justify-between items-center text-[10px] font-bold opacity-30 uppercase border-t border-[#00ff41]/30 pt-4">
-                 <span className="flex items-center gap-2"> <Zap size={10} /> CLEARANCE_GRANTED</span>
-                 <span className="italic font-mono">END_OF_FILE</span>
+                 <span className="flex items-center gap-2 text-green-400"> <Zap size={10} /> ACCESS_GRANTED</span>
+                 <span className="italic">CORE_TERMINAL_V2</span>
               </div>
             </div>
           </div>
