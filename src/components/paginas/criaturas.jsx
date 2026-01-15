@@ -17,16 +17,16 @@ const Criaturas = () => {
     const fetchCriaturas = async () => {
       try {
         setLoading(true);
-        // Traemos los datos de tu tabla 'criaturas'
+        // Traemos los datos asegurándonos de que los nombres de columnas sean los correctos
         const { data, error } = await supabase
           .from('criaturas')
-          .select('id, imagen_url, nombre, tipo, descripcion') 
+          .select('id, imagen_url, nombre, categoria, descripcion') 
           .order('nombre', { ascending: true });
 
         if (error) throw error;
         setCriaturas(data || []);
       } catch (err) {
-        console.error("Error cargando el bestiario:", err.message);
+        console.error("Error en fetch:", err.message);
       } finally {
         setLoading(false);
       }
@@ -35,28 +35,33 @@ const Criaturas = () => {
     fetchCriaturas();
   }, []);
 
-  // Filtramos por tipo
-  const criaturasFiltradas = useMemo(() => (
-    filtro === 'todos' 
-      ? criaturas 
-      : criaturas.filter(c => c.tipo === filtro)
-  ), [criaturas, filtro]);
+  // FILTRADO ULTRA-SEGURO
+  // Si 'categoria' es null en la DB, el filter fallaba. Aquí lo protegemos.
+  const criaturasFiltradas = useMemo(() => {
+    if (!criaturas) return [];
+    if (filtro === 'todos') return criaturas;
+    return criaturas.filter(c => 
+      c && c.categoria && c.categoria.toLowerCase() === filtro.toLowerCase()
+    );
+  }, [criaturas, filtro]);
 
-  // Formato para el Lightbox
+  // FORMATO PARA LIGHTBOX
   const imagenesParaLightbox = useMemo(() => (
     criaturasFiltradas.map(c => ({
-      src: c.imagen_url,
-      alt: c.nombre,
-      description: c.descripcion 
+      src: c.imagen_url || '',
+      alt: c.nombre || 'Criatura',
+      description: c.descripcion || '' 
     }))
   ), [criaturasFiltradas]);
 
   const handleOpenLightbox = useCallback((index) => {
-    openLightbox(index, imagenesParaLightbox);
+    if (openLightbox) {
+      openLightbox(index, imagenesParaLightbox);
+    }
   }, [openLightbox, imagenesParaLightbox]);
 
-  // Categorías actualizadas (sin legendario)
-  const categorias = ['todos', 'terrestre', 'acuatico', 'volador'];
+  // Categorías exactas a las que usas en el UploadPage
+  const categorias = ['todos', 'terrestres', 'voladoras', 'acuáticas'];
 
   return (
     <main className="min-h-screen bg-bg-main pt-20">
@@ -70,7 +75,7 @@ const Criaturas = () => {
         <p className="mt-2 text-[#6B5E70]/60 font-medium italic">Criaturas y entidades descubiertas</p>
       </header>
 
-      {/* 🔘 Botones de Filtro por Tipo */}
+      {/* Botones de Filtro */}
       <div className="flex justify-center gap-2 mb-12 px-4 flex-wrap">
         {categorias.map(cat => (
           <button
@@ -97,20 +102,20 @@ const Criaturas = () => {
           <GalleryGrid>
             {criaturasFiltradas.length > 0 ? (
               criaturasFiltradas.map((criatura, index) => (
-                <div key={criatura.id} className="group relative">
+                <div key={criatura.id || index} className="group relative">
                     <GalleryItem 
-                      src={criatura.imagen_url}
-                      alt={criatura.nombre}
+                      src={criatura.imagen_url || ''}
+                      alt={criatura.nombre || ''}
                       onClick={() => handleOpenLightbox(index)} 
                     />
-                    {/* Overlay con el nombre de la criatura */}
+                    
                     <div className="absolute bottom-4 left-4 right-4 pointer-events-none transition-all duration-500 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0">
                         <div className="bg-white/90 backdrop-blur-md p-3 rounded-2xl border border-[#6B5E70]/10 shadow-xl">
                             <p className="text-[10px] font-black text-[#6B5E70] uppercase tracking-widest leading-none mb-1">
-                                {criatura.tipo}
+                                {criatura.categoria || 'Sin categoría'}
                             </p>
                             <h3 className="text-sm font-black text-[#6B5E70] uppercase italic tracking-tighter">
-                                {criatura.nombre}
+                                {criatura.nombre || 'Desconocido'}
                             </h3>
                         </div>
                     </div>

@@ -111,16 +111,24 @@ const UploadPage = () => {
         finalImageUrl = publicUrl;
       }
 
-      // Mapeo dinámico de columnas para Garden of Sins
-      const isGOS = seccion === 'garden_of_sins';
-      
-      const insertData = {
-        // Si es GOS usa 'imagen_url', si no usa 'url_imagen' (ajusta según tus tablas personales)
-        [isGOS ? 'imagen_url' : 'url_imagen']: finalImageUrl,
-        // Si es GOS usa 'nombre', si no usa 'titulo'
-        [isGOS ? 'nombre' : 'titulo']: nombreObra || 'Sin nombre',
-        categoria: categoria 
-      };
+      // --- LÓGICA DE COLUMNAS DINÁMICAS ---
+      let insertData = {};
+
+      if (seccion === 'personal') {
+        // Estructura para Dibujos y Fotos (basado en tu captura)
+        insertData = {
+          titulo: nombreObra || 'Sin título',
+          url_imagen: finalImageUrl,
+          categoria: categoria
+        };
+      } else {
+        // Estructura para Garden of Sins (Criaturas y Personajes)
+        insertData = {
+          nombre: nombreObra || 'Sin nombre',
+          imagen_url: finalImageUrl,
+          categoria: categoria
+        };
+      }
 
       const { error: dbError } = await supabase.from(tabla).insert([insertData]);
 
@@ -193,7 +201,7 @@ const UploadPage = () => {
                 className="w-full bg-white/50 border border-[#6B5E70]/10 rounded-2xl px-4 py-3 text-[#6B5E70] outline-none font-medium" 
                 value={nombreObra} 
                 onChange={(e) => setNombreObra(e.target.value)} 
-                placeholder="Nombre de la criatura o personaje..." 
+                placeholder="Ej: Personaje original o Criatura..." 
               />
             </div>
 
