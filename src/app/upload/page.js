@@ -6,7 +6,7 @@ import { useAuth } from '@/components/recursos/control/authContext';
 import { useRouter } from 'next/navigation';
 import { Upload, Image as ImageIcon, Camera, ChevronDown, X, Sparkles, UserCircle, Link as LinkIcon } from 'lucide-react';
 
-// Configuración de la estructura de datos actualizada
+// Configuración de la estructura de datos
 const CONFIG_ESTRUCTURA = {
   personal: {
     label: 'Personal',
@@ -26,12 +26,12 @@ const CONFIG_ESTRUCTURA = {
   garden_of_sins: {
     label: 'Garden of Sins',
     tablas: {
-      criaturas: { // Nombre corregido según tu DB
+      criaturas: {
         label: 'Criaturas',
         icon: <Sparkles size={14} />,
         categorias: ['terrestres', 'voladoras', 'acuáticas']
       },
-      personajes: { // Nombre corregido según tu DB
+      personajes: {
         label: 'Personajes',
         icon: <UserCircle size={14} />,
         categorias: ['Caelistan', 'Greendom', 'Omnisia', 'Aelistan', 'Otros']
@@ -44,20 +44,17 @@ const UploadPage = () => {
   const { perfil } = useAuth();
   const router = useRouter();
   
-  // Estados de navegación
   const [seccion, setSeccion] = useState('personal');
   const [tabla, setTabla] = useState('dibujos'); 
   
-  // Estados del formulario
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [externalUrl, setExternalUrl] = useState('');
   const [uploadMethod, setUploadMethod] = useState('file');
   const [loading, setLoading] = useState(false);
-  const [titulo, setTitulo] = useState('');
+  const [nombreObra, setNombreObra] = useState(''); // Estado para el nombre
   const [categoria, setCategoria] = useState(CONFIG_ESTRUCTURA.personal.tablas.dibujos.categorias[0]);
 
-  // Manejo de preview de imagen
   useEffect(() => {
     if (!file) {
       setPreviewUrl(null);
@@ -68,7 +65,6 @@ const UploadPage = () => {
     return () => URL.revokeObjectURL(objectUrl);
   }, [file]);
 
-  // Protección de ruta
   if (!perfil || (perfil.rol !== 'admin' && perfil.rol !== 'autor')) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#E2D8E6] text-[#6B5E70] italic font-medium">
@@ -116,19 +112,23 @@ const UploadPage = () => {
         finalImageUrl = publicUrl;
       }
 
-      // Inserción en DB
-      const { error: dbError } = await supabase.from(tabla).insert([{ 
+      // Preparamos los datos dinámicamente según la tabla
+      // Si es de Garden of Sins usa 'nombre', si es Personal podrías seguir usando 'titulo' o 'nombre'
+      // Para unificar, aquí usamos 'nombre' en el objeto de inserción:
+      const insertData = { 
         url_imagen: finalImageUrl,
-        titulo: titulo || 'Sin título',
         categoria: categoria 
-      }]);
+      };
+
+      // Aquí aplicamos el cambio solicitado: usar la columna 'nombre'
+      insertData.nombre = nombreObra || 'Sin nombre';
+
+      const { error: dbError } = await supabase.from(tabla).insert([insertData]);
 
       if (dbError) throw dbError;
 
       alert("¡Publicado con éxito! ✨");
-      
-      // Limpiar formulario
-      setTitulo('');
+      setNombreObra('');
       setFile(null);
       setExternalUrl('');
       router.refresh(); 
@@ -150,7 +150,6 @@ const UploadPage = () => {
           <p className="text-[#6B5E70]/60 text-[10px] font-bold uppercase tracking-[0.2em] mt-1">Gestión de Contenido</p>
         </div>
 
-        {/* 1. SELECCIÓN DE SECCIÓN PRINCIPAL */}
         <div className="flex gap-4 mb-6 border-b border-[#6B5E70]/10 pb-4">
           {Object.keys(CONFIG_ESTRUCTURA).map((key) => (
             <button
@@ -166,7 +165,6 @@ const UploadPage = () => {
         
         <form onSubmit={handleUpload} className="space-y-6">
           
-          {/* 2. SELECTOR DE TABLA */}
           <div className="flex gap-2 p-1.5 bg-[#6B5E70]/5 rounded-2xl border border-[#6B5E70]/10">
             {Object.entries(CONFIG_ESTRUCTURA[seccion].tablas).map(([key, value]) => (
               <button 
@@ -180,7 +178,6 @@ const UploadPage = () => {
             ))}
           </div>
 
-          {/* Selector de Método */}
           <div className="flex justify-center gap-6">
             <button type="button" onClick={() => setUploadMethod('file')} className={`text-[10px] font-black uppercase tracking-widest flex items-center gap-1 ${uploadMethod === 'file' ? 'text-[#6B5E70]' : 'text-[#6B5E70]/30'}`}>
               <Upload size={12}/> Archivo
@@ -192,8 +189,14 @@ const UploadPage = () => {
 
           <div className="space-y-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] font-black uppercase tracking-widest text-[#6B5E70]/70 ml-1">Título de la obra</label>
-              <input type="text" className="w-full bg-white/50 border border-[#6B5E70]/10 rounded-2xl px-4 py-3 text-[#6B5E70] outline-none font-medium" value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ej: Habitante de Caelistan..." />
+              <label className="text-[10px] font-black uppercase tracking-widest text-[#6B5E70]/70 ml-1">Nombre</label>
+              <input 
+                type="text" 
+                className="w-full bg-white/50 border border-[#6B5E70]/10 rounded-2xl px-4 py-3 text-[#6B5E70] outline-none font-medium" 
+                value={nombreObra} 
+                onChange={(e) => setNombreObra(e.target.value)} 
+                placeholder="Ej: Habitante de Caelistan..." 
+              />
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -213,7 +216,6 @@ const UploadPage = () => {
             </div>
           </div>
 
-          {/* Área de Imagen */}
           {uploadMethod === 'file' ? (
             <div className="relative group">
               <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files[0])} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
