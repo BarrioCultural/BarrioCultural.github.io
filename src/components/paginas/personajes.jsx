@@ -7,11 +7,10 @@ import { X } from 'lucide-react';
 const PureGridLore = () => {
   const [personajes, setPersonajes] = useState([]);
   const [filtered, setFiltered] = useState([]);
+  const [reinos, setReinos] = useState(['TODOS']); // Estado para reinos dinámicos
   const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('TODOS');
-
-  const reinos = ['TODOS', 'Caelistan', 'Omnisia', 'Froslia', 'Torres', 'Greendom', ];
 
   useEffect(() => {
     const fetchLore = async () => {
@@ -24,6 +23,14 @@ const PureGridLore = () => {
       if (data) {
         setPersonajes(data);
         setFiltered(data);
+
+        // EXTRAER REINOS ÚNICOS DINÁMICAMENTE
+        // 1. Mapeamos todos los reinos
+        // 2. Filtramos valores nulos o vacíos
+        // 3. Usamos Set para eliminar duplicados
+        const reinosExtraidos = data.map(p => p.reino).filter(Boolean);
+        const listaReinos = ['TODOS', ...new Set(reinosExtraidos)];
+        setReinos(listaReinos);
       }
       if (error) console.error("Error:", error.message);
       setLoading(false);
@@ -31,6 +38,7 @@ const PureGridLore = () => {
     fetchLore();
   }, []);
 
+  // FILTRADO DINÁMICO
   useEffect(() => {
     if (activeFilter === 'TODOS') {
       setFiltered(personajes);
@@ -47,7 +55,7 @@ const PureGridLore = () => {
   return (
     <div className="min-h-screen bg-[#EBEBEB] font-sans pb-20">
       
-      {/* HEADER DINÁMICO: Desaparece al seleccionar */}
+      {/* HEADER DINÁMICO */}
       <AnimatePresence>
         {!selected && (
           <motion.header 
@@ -63,11 +71,11 @@ const PureGridLore = () => {
                     Personajes
                   </h1>
                   <p className="mt-2 text-[#6B5E70]/60 font-medium italic text-sm">
-                    Registro de habitantes
+                    Registro de habitantes ({filtered.length})
                   </p>
                 </div>
 
-                {/* SELECTOR DE FILTROS */}
+                {/* SELECTOR DE FILTROS DINÁMICO */}
                 <div className="flex flex-wrap gap-2">
                   {reinos.map((reino) => (
                     <button
@@ -89,7 +97,7 @@ const PureGridLore = () => {
         )}
       </AnimatePresence>
 
-      {/* PANEL DE INFORMACIÓN (Aparece arriba del todo) */}
+      {/* PANEL DE INFORMACIÓN */}
       <AnimatePresence mode="wait">
         {selected && (
           <motion.div
@@ -102,15 +110,14 @@ const PureGridLore = () => {
             <div className="p-6 md:p-12 max-w-7xl mx-auto flex flex-col md:flex-row gap-8 md:gap-16 items-center">
               
               <motion.div 
-                initial={{ scale: 0.9 }}
-                animate={{ scale: 1 }}
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
                 className="w-full md:w-[450px] aspect-square rounded-[2.5rem] overflow-hidden shadow-2xl shrink-0 bg-zinc-100"
               >
                 <img src={selected.img_url} className="w-full h-full object-cover" alt={selected.nombre} />
               </motion.div>
 
               <div className="flex-1 relative w-full">
-                {/* Botón X ajustado para la parte superior */}
                 <button 
                   onClick={() => setSelected(null)} 
                   className="absolute -top-6 right-0 md:top-0 p-3 bg-zinc-100 rounded-full text-[#6B5E70] hover:bg-[#6B5E70] hover:text-white transition-all z-50 shadow-sm"
@@ -143,43 +150,47 @@ const PureGridLore = () => {
           <div className="flex flex-col justify-center items-center py-20 gap-4">
             <div className="w-8 h-8 border-4 border-[#6B5E70]/20 border-t-[#6B5E70] rounded-full animate-spin"></div>
             <p className="text-[#6B5E70]/50 animate-pulse text-xs font-black uppercase tracking-widest">
-              Accediendo a la base de datos...
+              Sincronizando Archivos...
             </p>
           </div>
         ) : (
           <motion.div layout className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {filtered.map((p) => (
-              <motion.div
-                key={p.id}
-                layout
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                onClick={() => handleSelect(p)}
-                className={`relative aspect-[3/4] cursor-pointer overflow-hidden transition-all duration-500 group
-                  ${selected?.id === p.id 
-                    ? 'rounded-[3rem] ring-8 ring-[#6B5E70] z-20 scale-95 shadow-2xl' 
-                    : 'rounded-2xl grayscale hover:grayscale-0'
-                  }`}
-              >
-                <img src={p.img_url} className="w-full h-full object-cover" alt={p.nombre} />
-                
-                <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="bg-white/90 backdrop-blur-sm text-[#6B5E70] text-[7px] font-black px-2 py-1 rounded uppercase tracking-tighter">
-                    {p.reino}
-                  </span>
-                </div>
+            <AnimatePresence>
+              {filtered.map((p) => (
+                <motion.div
+                  key={p.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.2 }}
+                  onClick={() => handleSelect(p)}
+                  className={`relative aspect-[3/4] cursor-pointer overflow-hidden transition-all duration-500 group
+                    ${selected?.id === p.id 
+                      ? 'rounded-[3rem] ring-8 ring-[#6B5E70] z-20 scale-95 shadow-2xl' 
+                      : 'rounded-2xl grayscale hover:grayscale-0'
+                    }`}
+                >
+                  <img src={p.img_url} className="w-full h-full object-cover" alt={p.nombre} />
+                  
+                  <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="bg-white/90 backdrop-blur-sm text-[#6B5E70] text-[7px] font-black px-2 py-1 rounded uppercase tracking-tighter">
+                      {p.reino}
+                    </span>
+                  </div>
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
-                
-                <div className="absolute bottom-4 left-4">
-                  <p className="text-white text-[11px] font-black uppercase tracking-tighter leading-none">
-                    {p.nombre}
-                  </p>
-                </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
+                  
+                  <div className="absolute bottom-4 left-4">
+                    <p className="text-white text-[11px] font-black uppercase tracking-tighter leading-none">
+                      {p.nombre}
+                    </p>
+                  </div>
 
-                <div className="absolute top-0 left-0 w-full h-1" style={{ backgroundColor: p.color_hex || '#6B5E70' }} />
-              </motion.div>
-            ))}
+                  <div className="absolute top-0 left-0 w-full h-1" style={{ backgroundColor: p.color_hex || '#6B5E70' }} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </motion.div>
         )}
       </main>
