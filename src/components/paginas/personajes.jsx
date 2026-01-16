@@ -41,51 +41,55 @@ const PureGridLore = () => {
 
   const handleSelect = (p) => {
     setSelected(selected?.id === p.id ? null : p);
-    if (selected?.id !== p.id) window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
     <div className="min-h-screen bg-[#EBEBEB] font-sans pb-20">
       
-      {/* HEADER NO FIJO (Se va con el scroll) */}
-      <header className="relative z-40 bg-[#EBEBEB] border-b border-zinc-200">
-        <div className="p-6 md:p-8 max-w-[1600px] mx-auto">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-            <div>
-              <h1 className="text-3xl md:text-5xl font-black tracking-tighter italic text-[#6B5E70] uppercase leading-none">
-                {selected ? `Explorando / ${selected.nombre}` : "Archivos de Reinos"}
-              </h1>
-              {!selected && (
-                <p className="mt-2 text-[#6B5E70]/60 font-medium italic text-sm">
-                  Cronología y registros de habitantes
-                </p>
-              )}
-            </div>
+      {/* HEADER DINÁMICO: Desaparece al seleccionar */}
+      <AnimatePresence>
+        {!selected && (
+          <motion.header 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="relative z-40 bg-[#EBEBEB] border-b border-zinc-200 overflow-hidden"
+          >
+            <div className="p-6 md:p-8 max-w-[1600px] mx-auto">
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                  <h1 className="text-3xl md:text-5xl font-black tracking-tighter italic text-[#6B5E70] uppercase leading-none">
+                    Archivos de Reinos
+                  </h1>
+                  <p className="mt-2 text-[#6B5E70]/60 font-medium italic text-sm">
+                    Cronología y registros de habitantes
+                  </p>
+                </div>
 
-            {/* SELECTOR DE ETIQUETAS ESTILO BESTIARIO */}
-            <div className="flex flex-wrap gap-2">
-              {reinos.map((reino) => (
-                <button
-                  key={reino}
-                  onClick={() => {
-                    setActiveFilter(reino);
-                    setSelected(null);
-                  }}
-                  className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all border ${
-                    activeFilter === reino 
-                    ? 'bg-[#6B5E70] text-white border-[#6B5E70] shadow-lg scale-105' 
-                    : 'bg-white/40 text-[#6B5E70]/40 border-[#6B5E70]/10 hover:border-[#6B5E70]/30 hover:bg-white/60'
-                  }`}
-                >
-                  {reino}
-                </button>
-              ))}
+                {/* SELECTOR DE FILTROS */}
+                <div className="flex flex-wrap gap-2">
+                  {reinos.map((reino) => (
+                    <button
+                      key={reino}
+                      onClick={() => setActiveFilter(reino)}
+                      className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all border ${
+                        activeFilter === reino 
+                        ? 'bg-[#6B5E70] text-white border-[#6B5E70] shadow-lg scale-105' 
+                        : 'bg-white/40 text-[#6B5E70]/40 border-[#6B5E70]/10 hover:border-[#6B5E70]/30 hover:bg-white/60'
+                      }`}
+                    >
+                      {reino}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </header>
+          </motion.header>
+        )}
+      </AnimatePresence>
 
-      {/* PANEL DE INFORMACIÓN */}
+      {/* PANEL DE INFORMACIÓN (Aparece arriba del todo) */}
       <AnimatePresence mode="wait">
         {selected && (
           <motion.div
@@ -106,12 +110,16 @@ const PureGridLore = () => {
               </motion.div>
 
               <div className="flex-1 relative w-full">
-                <button onClick={() => setSelected(null)} className="absolute -top-12 right-0 p-3 bg-zinc-100 rounded-full text-zinc-500 hover:text-black transition-colors">
+                {/* Botón X ajustado para la parte superior */}
+                <button 
+                  onClick={() => setSelected(null)} 
+                  className="absolute -top-6 right-0 md:top-0 p-3 bg-zinc-100 rounded-full text-[#6B5E70] hover:bg-[#6B5E70] hover:text-white transition-all z-50 shadow-sm"
+                >
                   <X size={20} />
                 </button>
                 
                 <div className="flex items-center gap-4 mb-4">
-                  <span className="px-3 py-1 bg-[#6B5E70] text-white text-[9px] font-black uppercase tracking-widest rounded">
+                  <span className="px-3 py-1 bg-[#6B5E70] text-white text-[9px] font-black uppercase tracking-widest rounded-full">
                     Reino: {selected.reino || 'Desconocido'}
                   </span>
                 </div>
