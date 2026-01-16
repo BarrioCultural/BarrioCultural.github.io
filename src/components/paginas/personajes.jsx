@@ -11,7 +11,7 @@ const PureGridLore = () => {
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('TODOS');
 
-  const reinos = ['TODOS', 'Caelistan', 'Omnisia', 'Froslia', 'Torres'];
+  const reinos = ['TODOS', 'Caelistan', 'Omnisia', 'Froslia', 'Torres', 'Greendom', ];
 
   useEffect(() => {
     const fetchLore = async () => {
