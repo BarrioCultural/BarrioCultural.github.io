@@ -30,7 +30,8 @@ const Criaturas = () => {
         setLoading(false);
       }
     };
-    fetchLore();
+
+    fetchCriaturas(); // <-- Corregido: antes decía fetchLore
   }, []);
 
   const criaturasFiltradas = useMemo(() => {
@@ -66,7 +67,7 @@ const Criaturas = () => {
         </p>
       </header>
 
-      {/* FILTROS: Solo se muestran si NO hay nada seleccionado */}
+      {/* FILTROS: Se ocultan al seleccionar una criatura */}
       <AnimatePresence>
         {!selected && (
           <motion.div 
