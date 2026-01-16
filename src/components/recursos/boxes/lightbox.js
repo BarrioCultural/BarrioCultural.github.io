@@ -1,8 +1,6 @@
 "use client";
-import React, { createContext, useState, useContext, useCallback, useEffect } from 'react';
+import React, { createContext, useState, useContext, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
-// Ruta ajustada a tu estructura de carpetas
-import { useAuth } from '@/components/recursos/control/authContext'; 
 
 // --- 1. CONTEXTO DEL LIGHTBOX ---
 const LightboxContext = createContext();
@@ -38,121 +36,11 @@ const ShareButton = ({ url, titulo }) => {
   );
 };
 
-// --- 3. COMPONENTE: SECCIÓN DE COMENTARIOS (ARREGLADO) ---
-const CommentsSection = ({ imagenId }) => {
-  const { user, perfil } = useAuth();
-  const [comentarios, setComentarios] = useState([]);
-  const [nuevoComentario, setNuevoComentario] = useState("");
-  const [enviando, setEnviando] = useState(false);
-
-  useEffect(() => {
-    const fetchComentarios = async () => {
-      if (!imagenId) return;
-      setComentarios([]); 
-      const { data, error } = await supabase
-        .from('comentarios')
-        .select(`*`) 
-        .eq('imagen_id', imagenId)
-        .order('created_at', { ascending: false });
-      
-      if (!error && data) setComentarios(data);
-    };
-    fetchComentarios();
-  }, [imagenId]);
-
-  const enviarComentario = async (e) => {
-    e.preventDefault();
-    if (!nuevoComentario.trim() || !user || enviando) return;
-
-    setEnviando(true);
-    try {
-      // Usamos el nombre del perfil del contexto
-      const nombreAEnviar = perfil?.nombre || "Usuario"; 
-
-      const { data, error } = await supabase
-        .from('comentarios')
-        .insert([{ 
-          texto: nuevoComentario.trim(), 
-          user_id: user.id, 
-          nombre: nombreAEnviar, // Guardamos el nombre directamente
-          imagen_id: String(imagenId) 
-        }])
-        .select()
-        .single();
-
-      if (error) {
-        console.error("Error al publicar:", error.message);
-      } else if (data) {
-        setComentarios(prev => [data, ...prev]);
-        setNuevoComentario("");
-      }
-    } catch (err) {
-      console.error("Error inesperado:", err);
-    } finally {
-      setEnviando(false);
-    }
-  };
-
-  return (
-    <div className="w-full max-w-2xl px-4 mt-6">
-      <h3 className="text-white/40 text-[9px] font-black uppercase tracking-[0.4em] mb-8 border-b border-white/5 pb-4">
-        Comentarios / {comentarios.length}
-      </h3>
-
-      {user ? (
-        <form onSubmit={enviarComentario} className="mb-12 flex gap-3">
-          <input 
-            type="text"
-            value={nuevoComentario}
-            onChange={(e) => setNuevoComentario(e.target.value)}
-            placeholder={`Comentar como ${perfil?.nombre || '...'}`}
-            className="flex-1 bg-white/[0.03] border border-white/10 rounded-xl px-5 py-4 text-sm text-white focus:outline-none focus:border-white/30 transition-all placeholder:text-white/20"
-          />
-          <button 
-            type="submit"
-            disabled={enviando}
-            className="bg-white text-black text-[10px] font-black px-8 py-2 rounded-xl hover:bg-gray-200 disabled:opacity-50 transition-all active:scale-95"
-          >
-            {enviando ? "..." : "PUBLICAR"}
-          </button>
-        </form>
-      ) : (
-        <div className="mb-12 p-8 bg-white/[0.02] rounded-2xl border border-dashed border-white/10 text-center">
-          <p className="text-white/20 text-[10px] font-bold uppercase tracking-[0.2em]">Inicia sesión para participar</p>
-        </div>
-      )}
-
-      <div className="space-y-10 pb-32">
-        {comentarios.map((c) => (
-          <div key={c.id} className="group animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex justify-between items-center mb-3">
-              <span className="text-white text-[11px] font-black uppercase tracking-tight">
-                {/* Lógica de prioridad de nombre */}
-                {c.nombre || (user?.id === c.user_id ? perfil?.nombre : null) || "Usuario"}
-              </span>
-              <span className="text-white/10 text-[9px] font-mono italic">
-                {new Date(c.created_at).toLocaleDateString()}
-              </span>
-            </div>
-            <p className="text-white/60 text-sm font-light leading-relaxed border-l-2 border-white/5 pl-5 group-hover:border-white/20 transition-colors">
-              {c.texto}
-            </p>
-          </div>
-        ))}
-        {comentarios.length === 0 && (
-          <p className="text-white/5 text-center py-20 italic text-sm tracking-widest uppercase">Sin comentarios aún</p>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// --- 4. VISUALIZADOR PRINCIPAL (LAYOUT MEJORADO) ---
+// --- 3. VISUALIZADOR PRINCIPAL (LAYOUT MEJORADO SIN COMENTARIOS) ---
 const LightboxVisual = () => {
   const { selectedImg, gallery, currentIndex, setCurrentIndex, closeLightbox } = useLightbox();
 
   if (!selectedImg) return null;
-  const imgId = selectedImg.id || selectedImg.src;
 
   return (
     <div className="fixed inset-0 z-[9999] flex flex-col bg-black selection:bg-white selection:text-black overflow-y-auto no-scrollbar">
@@ -177,7 +65,7 @@ const LightboxVisual = () => {
 
       <div className="flex flex-col lg:flex-row w-full max-w-[2000px] mx-auto flex-1">
         
-        {/* LADO IZQUIERDO: Arte + Miniaturas Móvil + Comentarios */}
+        {/* LADO IZQUIERDO: Arte + Miniaturas Móvil */}
         <div className="flex-1 flex flex-col items-center w-full lg:border-r lg:border-white/5">
           
           <div className="relative flex items-center justify-center w-full min-h-[50vh] md:min-h-[85vh] px-4 md:px-14 py-6 md:py-10">
@@ -215,8 +103,6 @@ const LightboxVisual = () => {
               ))}
             </div>
           </div>
-
-          <CommentsSection imagenId={imgId} />
         </div>
 
         {/* LADO DERECHO (Desktop) */}
@@ -238,7 +124,7 @@ const LightboxVisual = () => {
   );
 };
 
-// --- 5. PROVIDER ---
+// --- 4. PROVIDER ---
 export const LightboxProvider = ({ children }) => {
   const [gallery, setGallery] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
