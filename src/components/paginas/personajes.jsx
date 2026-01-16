@@ -48,17 +48,22 @@ const PureGridLore = () => {
   return (
     <div className="min-h-screen bg-[#EBEBEB] font-sans pb-20">
       
-      {/* HEADER CON FILTROS */}
+      {/* HEADER CON FILTROS ESTILO BESTIARIO */}
       <header className="sticky top-0 z-40 bg-[#EBEBEB]/90 backdrop-blur-md border-b border-zinc-200">
         <div className="p-6 md:p-8 max-w-[1600px] mx-auto">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
-              <h1 className="text-3xl md:text-5xl font-black tracking-tighter italic text-zinc-900 uppercase leading-none">
+              <h1 className="text-3xl md:text-5xl font-black tracking-tighter italic text-[#6B5E70] uppercase leading-none">
                 {selected ? `Explorando / ${selected.nombre}` : "Archivos de Reinos"}
               </h1>
+              {!selected && (
+                <p className="mt-2 text-[#6B5E70]/60 font-medium italic text-sm">
+                  Cronología y registros de habitantes
+                </p>
+              )}
             </div>
 
-            {/* ETIQUETAS DE REINOS */}
+            {/* SELECTOR DE ETIQUETAS ACTUALIZADO */}
             <div className="flex flex-wrap gap-2">
               {reinos.map((reino) => (
                 <button
@@ -67,10 +72,11 @@ const PureGridLore = () => {
                     setActiveFilter(reino);
                     setSelected(null); // Cerrar detalle al filtrar
                   }}
-                  className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all border-2 
-                    ${activeFilter === reino 
-                      ? 'bg-zinc-900 text-white border-zinc-900' 
-                      : 'bg-transparent text-zinc-500 border-zinc-300 hover:border-zinc-900'}`}
+                  className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all border ${
+                    activeFilter === reino 
+                    ? 'bg-[#6B5E70] text-white border-[#6B5E70] shadow-lg scale-105' 
+                    : 'bg-white/40 text-[#6B5E70]/40 border-[#6B5E70]/10 hover:border-[#6B5E70]/30 hover:bg-white/60'
+                  }`}
                 >
                   {reino}
                 </button>
@@ -106,7 +112,7 @@ const PureGridLore = () => {
                 </button>
                 
                 <div className="flex items-center gap-4 mb-4">
-                  <span className="px-3 py-1 bg-zinc-900 text-white text-[9px] font-black uppercase tracking-widest rounded">
+                  <span className="px-3 py-1 bg-[#6B5E70] text-white text-[9px] font-black uppercase tracking-widest rounded">
                     Reino: {selected.reino || 'Desconocido'}
                   </span>
                 </div>
@@ -115,7 +121,7 @@ const PureGridLore = () => {
                   {selected.nombre}
                 </h2>
                 
-                <p className="text-xl md:text-2xl text-zinc-700 font-medium leading-snug border-l-8 border-zinc-900 pl-8">
+                <p className="text-xl md:text-2xl text-zinc-700 font-medium leading-snug border-l-8 border-[#6B5E70] pl-8">
                   {selected.sobre}
                 </p>
               </div>
@@ -127,7 +133,12 @@ const PureGridLore = () => {
       {/* GRID FILTRADO */}
       <main className="p-4 md:p-8 max-w-[1600px] mx-auto">
         {loading ? (
-          <div className="text-center py-20 font-black italic text-zinc-400 animate-pulse uppercase tracking-widest">Accediendo a la base de datos...</div>
+          <div className="flex flex-col justify-center items-center py-20 gap-4">
+            <div className="w-8 h-8 border-4 border-[#6B5E70]/20 border-t-[#6B5E70] rounded-full animate-spin"></div>
+            <p className="text-[#6B5E70]/50 animate-pulse text-xs font-black uppercase tracking-widest">
+              Accediendo a la base de datos...
+            </p>
+          </div>
         ) : (
           <motion.div layout className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {filtered.map((p) => (
@@ -139,7 +150,7 @@ const PureGridLore = () => {
                 onClick={() => handleSelect(p)}
                 className={`relative aspect-[3/4] cursor-pointer overflow-hidden transition-all duration-500 group
                   ${selected?.id === p.id 
-                    ? 'rounded-[3rem] ring-8 ring-zinc-900 z-20 scale-95 shadow-2xl' 
+                    ? 'rounded-[3rem] ring-8 ring-[#6B5E70] z-20 scale-95 shadow-2xl' 
                     : 'rounded-2xl grayscale hover:grayscale-0'
                   }`}
               >
@@ -147,7 +158,7 @@ const PureGridLore = () => {
                 
                 {/* ETIQUETA FLOTANTE EN EL GRID */}
                 <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="bg-white/90 backdrop-blur-sm text-black text-[7px] font-black px-2 py-1 rounded uppercase tracking-tighter">
+                  <span className="bg-white/90 backdrop-blur-sm text-[#6B5E70] text-[7px] font-black px-2 py-1 rounded uppercase tracking-tighter">
                     {p.reino}
                   </span>
                 </div>
@@ -160,7 +171,7 @@ const PureGridLore = () => {
                   </p>
                 </div>
 
-                <div className="absolute top-0 left-0 w-full h-1" style={{ backgroundColor: p.color_hex }} />
+                <div className="absolute top-0 left-0 w-full h-1" style={{ backgroundColor: p.color_hex || '#6B5E70' }} />
               </motion.div>
             ))}
           </motion.div>
