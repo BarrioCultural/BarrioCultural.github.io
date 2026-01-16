@@ -9,7 +9,7 @@ const Criaturas = () => {
   const [criaturas, setCriaturas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filtro, setFiltro] = useState('todos');
-  const [selected, setSelected] = useState(null); // Estado para el panel desplegable
+  const [selected, setSelected] = useState(null);
 
   const categorias = ['todos', 'terrestres', 'voladoras', 'acuáticas'];
 
@@ -30,7 +30,7 @@ const Criaturas = () => {
         setLoading(false);
       }
     };
-    fetchCriaturas();
+    fetchLore();
   }, []);
 
   const criaturasFiltradas = useMemo(() => {
@@ -42,7 +42,6 @@ const Criaturas = () => {
   }, [criaturas, filtro]);
 
   const handleSelect = (c) => {
-    // Si ya está seleccionado, lo cierra. Si no, lo abre y hace scroll arriba suave.
     setSelected(selected?.id === c.id ? null : c);
     if (selected?.id !== c.id) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -51,8 +50,9 @@ const Criaturas = () => {
 
   return (
     <main className="min-h-screen bg-bg-main pb-20">
-      {/* HEADER */}
-      <header className="relative z-40 pt-20 mb-10 px-4 text-center">
+      
+      {/* HEADER DINÁMICO */}
+      <header className="relative z-40 pt-20 mb-6 px-4 text-center">
         <div className="flex justify-center mb-4">
             <div className="p-3 bg-[#6B5E70]/5 rounded-full border border-[#6B5E70]/10 text-[#6B5E70]">
                 <Footprints size={32} />
@@ -62,31 +62,37 @@ const Criaturas = () => {
           {selected ? `Avistamiento / ${selected.nombre}` : "Bestiario"}
         </h1>
         <p className="mt-2 text-[#6B5E70]/60 font-medium italic">
-          {selected ? `Detalles de espécimen ${selected.categoria}` : "Criaturas y entidades descubiertas"}
+          {selected ? `Registro detallado del espécimen` : "Criaturas y entidades descubiertas"}
         </p>
       </header>
 
-      {/* FILTROS */}
-      <div className="flex justify-center gap-2 mb-12 px-4 flex-wrap">
-        {categorias.map(cat => (
-          <button
-            key={cat}
-            onClick={() => {
-              setFiltro(cat);
-              setSelected(null);
-            }}
-            className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all border ${
-              filtro === cat 
-              ? 'bg-[#6B5E70] text-white border-[#6B5E70] shadow-lg scale-105' 
-              : 'bg-white/40 text-[#6B5E70]/40 border-[#6B5E70]/10 hover:border-[#6B5E70]/30'
-            }`}
+      {/* FILTROS: Solo se muestran si NO hay nada seleccionado */}
+      <AnimatePresence>
+        {!selected && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="flex justify-center gap-2 mb-12 px-4 flex-wrap"
           >
-            {cat}
-          </button>
-        ))}
-      </div>
+            {categorias.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setFiltro(cat)}
+                className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all border ${
+                  filtro === cat 
+                  ? 'bg-[#6B5E70] text-white border-[#6B5E70] shadow-lg scale-105' 
+                  : 'bg-white/40 text-[#6B5E70]/40 border-[#6B5E70]/10 hover:border-[#6B5E70]/30'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* PANEL DE INFORMACIÓN (EL DESPLEGABLE) */}
+      {/* PANEL DE INFORMACIÓN DESPLEGABLE */}
       <AnimatePresence mode="wait">
         {selected && (
           <motion.div
@@ -134,13 +140,13 @@ const Criaturas = () => {
       </AnimatePresence>
 
       {/* GRID DE CRIATURAS */}
-      {loading ? (
-        <div className="flex flex-col justify-center items-center h-60 gap-4">
-          <div className="w-8 h-8 border-4 border-[#6B5E70]/20 border-t-[#6B5E70] rounded-full animate-spin"></div>
-          <p className="text-[#6B5E70]/50 animate-pulse text-xs font-black uppercase tracking-widest">Rastreando huellas...</p>
-        </div>
-      ) : (
-        <div className="max-w-7xl mx-auto px-6">
+      <section className="max-w-7xl mx-auto px-6">
+        {loading ? (
+          <div className="flex flex-col justify-center items-center h-60 gap-4">
+            <div className="w-8 h-8 border-4 border-[#6B5E70]/20 border-t-[#6B5E70] rounded-full animate-spin"></div>
+            <p className="text-[#6B5E70]/50 animate-pulse text-xs font-black uppercase tracking-widest">Rastreando huellas...</p>
+          </div>
+        ) : (
           <motion.div layout className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
             {criaturasFiltradas.length > 0 ? (
               criaturasFiltradas.map((criatura) => (
@@ -162,10 +168,8 @@ const Criaturas = () => {
                     alt={criatura.nombre} 
                   />
                   
-                  {/* Overlay gradiente */}
                   <div className="absolute inset-0 bg-gradient-to-t from-[#6B5E70]/90 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
 
-                  {/* Info rápida inferior */}
                   <div className="absolute bottom-4 left-4 right-4 transition-all duration-500 translate-y-2 group-hover:translate-y-0">
                       <p className="text-[8px] font-black text-white/70 uppercase tracking-widest mb-1">
                           {criatura.categoria}
@@ -184,8 +188,8 @@ const Criaturas = () => {
               </div>
             )}
           </motion.div>
-        </div>
-      )}
+        )}
+      </section>
 
       <div className="h-24"></div>
     </main>
