@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Filter } from 'lucide-react';
+import { X } from 'lucide-react';
 
 const PureGridLore = () => {
   const [personajes, setPersonajes] = useState([]);
@@ -31,7 +31,6 @@ const PureGridLore = () => {
     fetchLore();
   }, []);
 
-  // Función de filtrado
   useEffect(() => {
     if (activeFilter === 'TODOS') {
       setFiltered(personajes);
@@ -48,8 +47,8 @@ const PureGridLore = () => {
   return (
     <div className="min-h-screen bg-[#EBEBEB] font-sans pb-20">
       
-      {/* HEADER CON FILTROS ESTILO BESTIARIO */}
-      <header className="sticky top-0 z-40 bg-[#EBEBEB]/90 backdrop-blur-md border-b border-zinc-200">
+      {/* HEADER NO FIJO (Se va con el scroll) */}
+      <header className="relative z-40 bg-[#EBEBEB] border-b border-zinc-200">
         <div className="p-6 md:p-8 max-w-[1600px] mx-auto">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
@@ -63,14 +62,14 @@ const PureGridLore = () => {
               )}
             </div>
 
-            {/* SELECTOR DE ETIQUETAS ACTUALIZADO */}
+            {/* SELECTOR DE ETIQUETAS ESTILO BESTIARIO */}
             <div className="flex flex-wrap gap-2">
               {reinos.map((reino) => (
                 <button
                   key={reino}
                   onClick={() => {
                     setActiveFilter(reino);
-                    setSelected(null); // Cerrar detalle al filtrar
+                    setSelected(null);
                   }}
                   className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all border ${
                     activeFilter === reino 
@@ -107,7 +106,7 @@ const PureGridLore = () => {
               </motion.div>
 
               <div className="flex-1 relative w-full">
-                <button onClick={() => setSelected(null)} className="absolute -top-12 right-0 p-3 bg-zinc-100 rounded-full text-zinc-500 hover:text-black">
+                <button onClick={() => setSelected(null)} className="absolute -top-12 right-0 p-3 bg-zinc-100 rounded-full text-zinc-500 hover:text-black transition-colors">
                   <X size={20} />
                 </button>
                 
@@ -156,7 +155,6 @@ const PureGridLore = () => {
               >
                 <img src={p.img_url} className="w-full h-full object-cover" alt={p.nombre} />
                 
-                {/* ETIQUETA FLOTANTE EN EL GRID */}
                 <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity">
                   <span className="bg-white/90 backdrop-blur-sm text-[#6B5E70] text-[7px] font-black px-2 py-1 rounded uppercase tracking-tighter">
                     {p.reino}
