@@ -30,8 +30,7 @@ const Criaturas = () => {
         setLoading(false);
       }
     };
-
-    fetchCriaturas(); // <-- Corregido: antes decía fetchLore
+    fetchCriaturas();
   }, []);
 
   const criaturasFiltradas = useMemo(() => {
@@ -44,56 +43,57 @@ const Criaturas = () => {
 
   const handleSelect = (c) => {
     setSelected(selected?.id === c.id ? null : c);
-    if (selected?.id !== c.id) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    // Hacemos scroll al inicio para que el panel aparezca arriba del todo
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
     <main className="min-h-screen bg-bg-main pb-20">
       
-      {/* HEADER DINÁMICO */}
-      <header className="relative z-40 pt-20 mb-6 px-4 text-center">
-        <div className="flex justify-center mb-4">
-            <div className="p-3 bg-[#6B5E70]/5 rounded-full border border-[#6B5E70]/10 text-[#6B5E70]">
-                <Footprints size={32} />
-            </div>
-        </div>
-        <h1 className="text-4xl font-black italic tracking-tighter text-[#6B5E70] uppercase">
-          {selected ? `Avistamiento / ${selected.nombre}` : "Bestiario"}
-        </h1>
-        <p className="mt-2 text-[#6B5E70]/60 font-medium italic">
-          {selected ? `Registro detallado del espécimen` : "Criaturas y entidades descubiertas"}
-        </p>
-      </header>
-
-      {/* FILTROS: Se ocultan al seleccionar una criatura */}
+      {/* HEADER COMPLETO: Se esconde si hay algo seleccionado */}
       <AnimatePresence>
         {!selected && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="flex justify-center gap-2 mb-12 px-4 flex-wrap"
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
           >
-            {categorias.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setFiltro(cat)}
-                className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all border ${
-                  filtro === cat 
-                  ? 'bg-[#6B5E70] text-white border-[#6B5E70] shadow-lg scale-105' 
-                  : 'bg-white/40 text-[#6B5E70]/40 border-[#6B5E70]/10 hover:border-[#6B5E70]/30'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
+            <header className="relative z-40 pt-20 mb-6 px-4 text-center">
+              <div className="flex justify-center mb-4">
+                  <div className="p-3 bg-[#6B5E70]/5 rounded-full border border-[#6B5E70]/10 text-[#6B5E70]">
+                      <Footprints size={32} />
+                  </div>
+              </div>
+              <h1 className="text-4xl font-black italic tracking-tighter text-[#6B5E70] uppercase">
+                Bestiario
+              </h1>
+              <p className="mt-2 text-[#6B5E70]/60 font-medium italic">
+                Criaturas y entidades descubiertas
+              </p>
+            </header>
+
+            {/* FILTROS */}
+            <div className="flex justify-center gap-2 mb-12 px-4 flex-wrap">
+              {categorias.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setFiltro(cat)}
+                  className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all border ${
+                    filtro === cat 
+                    ? 'bg-[#6B5E70] text-white border-[#6B5E70] shadow-lg scale-105' 
+                    : 'bg-white/40 text-[#6B5E70]/40 border-[#6B5E70]/10 hover:border-[#6B5E70]/30'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* PANEL DE INFORMACIÓN DESPLEGABLE */}
+      {/* PANEL DE INFORMACIÓN DESPLEGABLE (Ahora aparecerá arriba del todo) */}
       <AnimatePresence mode="wait">
         {selected && (
           <motion.div
@@ -101,7 +101,7 @@ const Criaturas = () => {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="bg-white/80 backdrop-blur-xl overflow-hidden shadow-2xl border-y border-[#6B5E70]/10 relative mb-12"
+            className="bg-white/80 backdrop-blur-xl overflow-hidden shadow-2xl border-b border-[#6B5E70]/10 relative mb-12"
           >
             <div className="p-6 md:p-12 max-w-7xl mx-auto flex flex-col md:flex-row gap-8 md:gap-16 items-center">
               
@@ -116,7 +116,7 @@ const Criaturas = () => {
               <div className="flex-1 relative w-full">
                 <button 
                   onClick={() => setSelected(null)} 
-                  className="absolute -top-12 right-0 p-3 bg-white rounded-full text-[#6B5E70] shadow-md hover:bg-[#6B5E70] hover:text-white transition-all"
+                  className="absolute -top-6 right-0 md:top-0 p-3 bg-white rounded-full text-[#6B5E70] shadow-md hover:bg-[#6B5E70] hover:text-white transition-all z-50"
                 >
                   <X size={20} />
                 </button>
