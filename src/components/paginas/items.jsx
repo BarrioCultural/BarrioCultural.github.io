@@ -4,10 +4,10 @@ import { supabase } from '@/lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
-export default function PureGridLore() {
-  const [personajes, setPersonajes] = useState([]);
+export default function PureGridItems() {
+  const [items, setItems] = useState([]);
   const [filtered, setFiltered] = useState([]);
-  const [reinosData, setReinosData] = useState([]); 
+  const [categoriasMenu, setCategoriasMenu] = useState([]); 
   const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('TODOS');
@@ -16,27 +16,23 @@ export default function PureGridLore() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Ejecutamos ambas consultas con sus respectivos órdenes
-        const [charsRes, reinosRes] = await Promise.all([
-          supabase
-            .from('personajes')
-            .select('*')
-            .order('id', { ascending: true }),
-          supabase
-            .from('reinos')
-            .select('*')
-            .order('orden', { ascending: true }) // Orden dinámico desde DB
-        ]);
+        // Consultamos la tabla 'items' ordenados por creación
+        const { data, error } = await supabase
+          .from('items')
+          .select('*')
+          .order('created_at', { ascending: false });
         
-        if (charsRes.data) {
-          setPersonajes(charsRes.data);
-          setFiltered(charsRes.data);
-        }
-        if (reinosRes.data) {
-          setReinosData(reinosRes.data);
+        if (error) throw error;
+
+        if (data) {
+          setItems(data);
+          setFiltered(data);
+          // Generamos las categorías dinámicamente desde la columna 'categoria'
+          const unicas = [...new Set(data.map(item => item.categoria))].filter(Boolean);
+          setCategoriasMenu(unicas);
         }
       } catch (err) {
-        console.error("Error en la sincronización:", err.message);
+        console.error("Error en la sincronización de items:", err.message);
       } finally {
         setLoading(false);
       }
@@ -44,25 +40,22 @@ export default function PureGridLore() {
     fetchData();
   }, []);
 
-  // Lógica de filtrado
+  // Lógica de filtrado idéntica a PureGridLore
   useEffect(() => {
     setFiltered(activeFilter === 'TODOS' 
-      ? personajes 
-      : personajes.filter(p => p.reino === activeFilter)
+      ? items 
+      : items.filter(i => i.categoria === activeFilter)
     );
-  }, [activeFilter, personajes]);
+  }, [activeFilter, items]);
 
-  // Lore del reino activo
-  const currentReino = reinosData.find(r => r.nombre === activeFilter);
-
-  const handleSelect = (p) => {
-    setSelected(p);
+  const handleSelect = (item) => {
+    setSelected(item);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
     <div className="min-h-screen bg-[#EBEBEB] pb-20">
-      {/* HEADER DINÁMICO */}
+      {/* HEADER DINÁMICO (Estilo Lore) */}
       <AnimatePresence>
         {!selected && (
           <motion.header 
@@ -74,7 +67,7 @@ export default function PureGridLore() {
             <div className="p-8 max-w-[1600px] mx-auto flex flex-col md:flex-row justify-between items-end gap-6">
               <div className="max-w-2xl">
                 <h1 className="text-4xl font-black italic text-[#6B5E70] uppercase tracking-tighter">
-                  {activeFilter === 'TODOS' ? 'Personajes' : activeFilter}
+                  {activeFilter === 'TODOS' ? 'Inventario' : activeFilter}
                 </h1>
                 
                 <motion.p 
@@ -84,12 +77,12 @@ export default function PureGridLore() {
                   className="text-[#6B5E70]/80 italic text-sm font-medium mt-2 border-l-2 border-[#6B5E70]/20 pl-4"
                 >
                   {activeFilter === 'TODOS' 
-                    ? `Habitantes registrados: ${personajes.length}` 
-                    : currentReino?.descripcion || "Explorando registros..."}
+                    ? `Objetos en el manifiesto: ${items.length}` 
+                    : `Explorando la categoría: ${activeFilter.toLowerCase()}`}
                 </motion.p>
               </div>
 
-              {/* FILTROS ORDENADOS */}
+              {/* FILTROS DINÁMICOS */}
               <div className="flex flex-wrap gap-2">
                 <button 
                   onClick={() => setActiveFilter('TODOS')} 
@@ -97,13 +90,13 @@ export default function PureGridLore() {
                 >
                   TODOS
                 </button>
-                {reinosData.map(r => (
+                {categoriasMenu.map(cat => (
                   <button 
-                    key={r.id} 
-                    onClick={() => setActiveFilter(r.nombre)} 
-                    className={`filter-pill uppercase ${activeFilter === r.nombre ? 'filter-pill-active' : 'filter-pill-inactive'}`}
+                    key={cat} 
+                    onClick={() => setActiveFilter(cat)} 
+                    className={`filter-pill uppercase ${activeFilter === cat ? 'filter-pill-active' : 'filter-pill-inactive'}`}
                   >
-                    {r.nombre}
+                    {cat}
                   </button>
                 ))}
               </div>
@@ -112,54 +105,74 @@ export default function PureGridLore() {
         )}
       </AnimatePresence>
 
-      {/* PANEL DE DETALLE */}
+      {/* PANEL DE DETALLE (Lore Panel) */}
       <AnimatePresence mode="wait">
         {selected && (
           <motion.div key="panel" initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="lore-panel">
             <div className="lore-panel-layout">
               <button onClick={() => setSelected(null)} className="btn-close-panel"><X size={24} /></button>
               
-              <div className="lore-image-container">
-                <img src={selected.img_url} alt={selected.nombre} />
+              <div className="lore-image-container bg-white flex items-center justify-center">
+                {/* Imagen en detalle con transparencia multiplicada para items */}
+                <img 
+                    src={selected.imagen_url} 
+                    alt={selected.nombre} 
+                    className="mix-blend-multiply object-contain p-12 max-h-[500px]" 
+                />
               </div>
 
               <div className="lore-content">
                 <span className="px-4 py-1 bg-[#6B5E70] text-white text-[10px] font-black uppercase rounded-full tracking-widest">
-                  Reino: {selected.reino}
+                  Categoría: {selected.categoria}
                 </span>
                 <h2 className="text-5xl md:text-8xl font-black uppercase italic text-zinc-900 mt-4 leading-none tracking-tighter">
                   {selected.nombre}
                 </h2>
-                <p className="lore-description">{selected.sobre}</p>
+                <p className="lore-description">{selected.descripcion || "Este objeto no posee una descripción en los archivos."}</p>
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* GRID DE TARJETAS */}
+      {/* GRID DE TARJETAS (Con Degradado como Personajes) */}
       <main className="p-8 max-w-[1600px] mx-auto">
         {loading ? (
           <div className="py-20 text-center flex flex-col items-center gap-4">
              <div className="w-10 h-10 border-4 border-[#6B5E70]/20 border-t-[#6B5E70] rounded-full animate-spin"></div>
-             <p className="text-[#6B5E70] font-black uppercase text-xs tracking-widest animate-pulse">Sincronizando Archivos...</p>
+             <p className="text-[#6B5E70] font-black uppercase text-xs tracking-widest">Sincronizando Inventario...</p>
           </div>
         ) : (
           <motion.div layout className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {filtered.map(p => (
+            {filtered.map(item => (
               <motion.div 
-                key={p.id} 
+                key={item.id} 
                 layout 
-                onClick={() => handleSelect(p)} 
-                className={`char-card group ${selected?.id === p.id ? 'char-card-selected' : ''}`}
+                onClick={() => handleSelect(item)} 
+                className={`char-card group bg-white ${selected?.id === item.id ? 'char-card-selected' : ''}`}
               >
-                <img src={p.img_url} className="w-full h-full object-cover" alt={p.nombre} />
-                <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="badge-reino uppercase">{p.reino}</span>
+                {/* Contenedor de imagen con máscara de degradado inferior */}
+                <div className="relative aspect-[4/5] overflow-hidden">
+                    <img 
+                        src={item.imagen_url} 
+                        className="w-full h-full object-contain p-6 group-hover:scale-110 transition-transform duration-700 mix-blend-multiply" 
+                        style={{
+                            maskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)',
+                            WebkitMaskImage: 'linear-gradient(to bottom, black 60%, transparent 100%)'
+                        }}
+                        alt={item.nombre} 
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-white/90 via-transparent to-transparent opacity-60" />
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-60" />
-                <p className="absolute bottom-4 left-4 text-white text-[11px] font-black uppercase tracking-wider">{p.nombre}</p>
-                <div className="absolute top-0 w-full h-1" style={{ backgroundColor: p.color_hex || '#6B5E70' }} />
+
+                <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="badge-reino uppercase !bg-[#6B5E70]">{item.categoria}</span>
+                </div>
+
+                <p className="absolute bottom-4 left-4 text-[#6B5E70] text-[11px] font-black uppercase tracking-wider">{item.nombre}</p>
+                
+                {/* Línea superior estética */}
+                <div className="absolute top-0 w-full h-1 bg-[#6B5E70]/10 group-hover:bg-[#6B5E70]/40 transition-colors" />
               </motion.div>
             ))}
           </motion.div>
