@@ -82,7 +82,8 @@ export default function SobreMi() {
             </h2>
             <div className="space-y-3">
               <p className="text-primary text-sm leading-relaxed font-medium">
-                Es mi rincón personal, un refugio donde exploro temas que me apasionan a través del dibujo y la narrativa. 
+                Es mi proyecto de vida, es un reflejo de temas que considero importantes con personajes que se basan en personas que he conocido y que han dejado una marca en mi.
+                Es un proyecto sin limites que ira a creciendo a mi lado mientras voy recorriendo este camino llamado vida. 
               </p>
               <p className="text-primary text-sm leading-relaxed font-medium">
                 Más que un portafolio, es un espacio en constante crecimiento (como un jardín real) donde cada pecado o imperfección se convierte en parte de la obra. 🥀
@@ -97,7 +98,6 @@ export default function SobreMi() {
           </div>
         </div>
       </section>
-      
 {/* SECCIÓN CONTACTO INTEGRADA */}
       <section className="card-franilover relative">
         {enviado ? (
