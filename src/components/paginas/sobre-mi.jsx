@@ -74,6 +74,30 @@ export default function SobreMi() {
         </div>
       </section>
 
+<section className="card-franilover md:p-12">
+        <div className="flex flex-col md:flex-row gap-8 items-center">
+          <div className="flex-1 space-y-4">
+            <h2 className="text-2xl font-bold text-primary flex items-center gap-2">
+              <Sparkles className="text-primary" size={24} /> ¿Qué es "Garden of Sins"?
+            </h2>
+            <div className="space-y-3">
+              <p className="text-primary text-sm leading-relaxed font-medium">
+                Es mi rincón personal, un refugio donde exploro temas que me apasionan a través del dibujo y la narrativa. 
+              </p>
+              <p className="text-primary text-sm leading-relaxed font-medium">
+                Más que un portafolio, es un espacio en constante crecimiento (como un jardín real) donde cada pecado o imperfección se convierte en parte de la obra. 🥀
+              </p>
+            </div>
+          </div>
+          
+          {/* Un detalle decorativo que usa tu color primario sin transparencias raras */}
+          <div className="w-full md:w-1/3 bg-primary/10 border-2 border-primary/20 p-6 rounded-3xl flex flex-col items-center justify-center text-center">
+             <span className="text-3xl mb-2">🌿</span>
+             <p className="text-primary font-black text-xs uppercase tracking-widest">Estética & Caos</p>
+          </div>
+        </div>
+      </section>
+      
 {/* SECCIÓN CONTACTO INTEGRADA */}
       <section className="card-franilover relative">
         {enviado ? (
@@ -146,6 +170,7 @@ export default function SobreMi() {
           </>
         )}
       </section>
+
     </div>
   );
 }
