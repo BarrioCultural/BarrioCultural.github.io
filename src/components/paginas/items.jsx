@@ -16,12 +16,11 @@ export default function PureGridItems() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Consultamos la tabla 'items' y la de 'categorias_items' sincronizadas
         const [itemsRes, catRes] = await Promise.all([
           supabase
             .from('items') 
             .select('*')
-            .order('created_at', { ascending: false }), // Sincronizado con tu captura
+            .order('created_at', { ascending: false }),
           supabase
             .from('categorias_items') 
             .select('*')
@@ -44,7 +43,6 @@ export default function PureGridItems() {
     fetchData();
   }, []);
 
-  // Filtrado por la columna 'tipo' (según tu captura)
   useEffect(() => {
     setFiltered(activeFilter === 'TODOS' 
       ? items 
@@ -61,7 +59,6 @@ export default function PureGridItems() {
 
   return (
     <div className="min-h-screen bg-[#EBEBEB] pb-20 font-sans">
-      {/* HEADER DINÁMICO */}
       <AnimatePresence>
         {!selected && (
           <motion.header 
@@ -87,7 +84,6 @@ export default function PureGridItems() {
                 </motion.p>
               </div>
 
-              {/* FILTROS (Mismo estilo que Personajes) */}
               <div className="flex flex-wrap gap-2">
                 <button 
                   onClick={() => setActiveFilter('TODOS')} 
@@ -110,7 +106,6 @@ export default function PureGridItems() {
         )}
       </AnimatePresence>
 
-      {/* PANEL DE DETALLE (Lore Panel) */}
       <AnimatePresence mode="wait">
         {selected && (
           <motion.div key="panel" initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="lore-panel">
@@ -132,11 +127,10 @@ export default function PureGridItems() {
                 <h2 className="text-5xl md:text-8xl font-black uppercase italic text-zinc-900 mt-4 leading-none tracking-tighter">
                   {selected.nombre}
                 </h2>
-                {/* Muestra la columna 'descripcion' añadida */}
                 <p className="lore-description">{selected.descripcion || "Este objeto no posee una descripción en los archivos."}</p>
                 
                 <div className="mt-8 pt-6 border-t border-zinc-100 opacity-30 text-[10px] font-black uppercase tracking-[0.3em]">
-                   ID: {selected.id.split('-')[0]} | Registro: {new Date(selected.created_at).toLocaleDateString()}
+                   ID: {selected.id.toString().slice(0, 8)}... | Registro: {new Date(selected.created_at).toLocaleDateString()}
                 </div>
               </div>
             </div>
@@ -144,7 +138,6 @@ export default function PureGridItems() {
         )}
       </AnimatePresence>
 
-      {/* GRID DE CARDS */}
       <main className="p-8 max-w-[1600px] mx-auto">
         {loading ? (
           <div className="py-20 text-center flex flex-col items-center gap-4">
