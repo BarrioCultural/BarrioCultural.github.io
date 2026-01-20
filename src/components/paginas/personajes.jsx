@@ -16,10 +16,16 @@ export default function PureGridLore() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Consultamos ambas tablas al mismo tiempo
+        // Ejecutamos ambas consultas con sus respectivos órdenes
         const [charsRes, reinosRes] = await Promise.all([
-          supabase.from('personajes').select('*').order('id', { ascending: true }),
-          supabase.from('reinos').select('*')
+          supabase
+            .from('personajes')
+            .select('*')
+            .order('id', { ascending: true }),
+          supabase
+            .from('reinos')
+            .select('*')
+            .order('orden', { ascending: true }) // Orden dinámico desde DB
         ]);
         
         if (charsRes.data) {
@@ -30,7 +36,7 @@ export default function PureGridLore() {
           setReinosData(reinosRes.data);
         }
       } catch (err) {
-        console.error("Error cargando base de datos:", err.message);
+        console.error("Error en la sincronización:", err.message);
       } finally {
         setLoading(false);
       }
@@ -38,7 +44,7 @@ export default function PureGridLore() {
     fetchData();
   }, []);
 
-  // Filtrado lógico
+  // Lógica de filtrado
   useEffect(() => {
     setFiltered(activeFilter === 'TODOS' 
       ? personajes 
@@ -46,7 +52,7 @@ export default function PureGridLore() {
     );
   }, [activeFilter, personajes]);
 
-  // Encontramos el Lore del reino activo (ignorando mayúsculas/minúsculas por seguridad)
+  // Lore del reino activo
   const currentReino = reinosData.find(r => r.nombre === activeFilter);
 
   const handleSelect = (p) => {
@@ -67,12 +73,10 @@ export default function PureGridLore() {
           >
             <div className="p-8 max-w-[1600px] mx-auto flex flex-col md:flex-row justify-between items-end gap-6">
               <div className="max-w-2xl">
-                {/* Visualmente siempre UPPERCASE */}
                 <h1 className="text-4xl font-black italic text-[#6B5E70] uppercase tracking-tighter">
                   {activeFilter === 'TODOS' ? 'Personajes' : activeFilter}
                 </h1>
                 
-                {/* Lore dinámico con animación al cambiar */}
                 <motion.p 
                   key={activeFilter}
                   initial={{ opacity: 0, x: -10 }} 
@@ -81,11 +85,11 @@ export default function PureGridLore() {
                 >
                   {activeFilter === 'TODOS' 
                     ? `Habitantes registrados: ${personajes.length}` 
-                    : currentReino?.descripcion || "Archivo confidencial de este reino..."}
+                    : currentReino?.descripcion || "Explorando registros..."}
                 </motion.p>
               </div>
 
-              {/* BARRA DE FILTROS */}
+              {/* FILTROS ORDENADOS */}
               <div className="flex flex-wrap gap-2">
                 <button 
                   onClick={() => setActiveFilter('TODOS')} 
