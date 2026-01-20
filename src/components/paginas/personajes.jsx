@@ -7,42 +7,47 @@ import { X } from 'lucide-react';
 export default function PureGridLore() {
   const [personajes, setPersonajes] = useState([]);
   const [filtered, setFiltered] = useState([]);
-  const [reinos, setReinos] = useState(['TODOS']);
+  const [reinosData, setReinosData] = useState([]); 
   const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('TODOS');
 
   useEffect(() => {
-    const fetchLore = async () => {
+    const fetchData = async () => {
       setLoading(true);
       try {
-        const { data, error } = await supabase
-          .from('personajes')
-          .select('*')
-          .order('id', { ascending: true });
+        // Consultamos ambas tablas al mismo tiempo
+        const [charsRes, reinosRes] = await Promise.all([
+          supabase.from('personajes').select('*').order('id', { ascending: true }),
+          supabase.from('reinos').select('*')
+        ]);
         
-        if (data) {
-          setPersonajes(data);
-          setFiltered(data);
-          const reinosExtraidos = data.map(p => p.reino).filter(Boolean);
-          setReinos(['TODOS', ...new Set(reinosExtraidos)]);
+        if (charsRes.data) {
+          setPersonajes(charsRes.data);
+          setFiltered(charsRes.data);
         }
-        if (error) throw error;
+        if (reinosRes.data) {
+          setReinosData(reinosRes.data);
+        }
       } catch (err) {
-        console.error("Error:", err.message);
+        console.error("Error cargando base de datos:", err.message);
       } finally {
         setLoading(false);
       }
     };
-    fetchLore();
+    fetchData();
   }, []);
 
+  // Filtrado lógico
   useEffect(() => {
     setFiltered(activeFilter === 'TODOS' 
       ? personajes 
       : personajes.filter(p => p.reino === activeFilter)
     );
   }, [activeFilter, personajes]);
+
+  // Encontramos el Lore del reino activo (ignorando mayúsculas/minúsculas por seguridad)
+  const currentReino = reinosData.find(r => r.nombre === activeFilter);
 
   const handleSelect = (p) => {
     setSelected(p);
@@ -51,7 +56,7 @@ export default function PureGridLore() {
 
   return (
     <div className="min-h-screen bg-[#EBEBEB] pb-20">
-      {/* HEADER CON FILTROS */}
+      {/* HEADER DINÁMICO */}
       <AnimatePresence>
         {!selected && (
           <motion.header 
@@ -61,18 +66,40 @@ export default function PureGridLore() {
             className="bg-[#EBEBEB] border-b border-zinc-200 overflow-hidden"
           >
             <div className="p-8 max-w-[1600px] mx-auto flex flex-col md:flex-row justify-between items-end gap-6">
-              <div>
-                <h1 className="text-4xl font-black italic text-[#6B5E70] uppercase tracking-tighter">Personajes</h1>
-                <p className="text-[#6B5E70]/60 italic text-sm font-medium">Habitantes registrados: {filtered.length}</p>
+              <div className="max-w-2xl">
+                {/* Visualmente siempre UPPERCASE */}
+                <h1 className="text-4xl font-black italic text-[#6B5E70] uppercase tracking-tighter">
+                  {activeFilter === 'TODOS' ? 'Personajes' : activeFilter}
+                </h1>
+                
+                {/* Lore dinámico con animación al cambiar */}
+                <motion.p 
+                  key={activeFilter}
+                  initial={{ opacity: 0, x: -10 }} 
+                  animate={{ opacity: 1, x: 0 }}
+                  className="text-[#6B5E70]/80 italic text-sm font-medium mt-2 border-l-2 border-[#6B5E70]/20 pl-4"
+                >
+                  {activeFilter === 'TODOS' 
+                    ? `Habitantes registrados: ${personajes.length}` 
+                    : currentReino?.descripcion || "Archivo confidencial de este reino..."}
+                </motion.p>
               </div>
+
+              {/* BARRA DE FILTROS */}
               <div className="flex flex-wrap gap-2">
-                {reinos.map(r => (
+                <button 
+                  onClick={() => setActiveFilter('TODOS')} 
+                  className={`filter-pill uppercase ${activeFilter === 'TODOS' ? 'filter-pill-active' : 'filter-pill-inactive'}`}
+                >
+                  TODOS
+                </button>
+                {reinosData.map(r => (
                   <button 
-                    key={r} 
-                    onClick={() => setActiveFilter(r)} 
-                    className={`filter-pill ${activeFilter === r ? 'filter-pill-active' : 'filter-pill-inactive'}`}
+                    key={r.id} 
+                    onClick={() => setActiveFilter(r.nombre)} 
+                    className={`filter-pill uppercase ${activeFilter === r.nombre ? 'filter-pill-active' : 'filter-pill-inactive'}`}
                   >
-                    {r}
+                    {r.nombre}
                   </button>
                 ))}
               </div>
@@ -124,10 +151,10 @@ export default function PureGridLore() {
               >
                 <img src={p.img_url} className="w-full h-full object-cover" alt={p.nombre} />
                 <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="badge-reino">{p.reino}</span>
+                  <span className="badge-reino uppercase">{p.reino}</span>
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-60" />
-                <p className="absolute bottom-4 left-4 text-white text-[11px] font-black uppercase">{p.nombre}</p>
+                <p className="absolute bottom-4 left-4 text-white text-[11px] font-black uppercase tracking-wider">{p.nombre}</p>
                 <div className="absolute top-0 w-full h-1" style={{ backgroundColor: p.color_hex || '#6B5E70' }} />
               </motion.div>
             ))}
