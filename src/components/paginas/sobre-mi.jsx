@@ -82,20 +82,18 @@ export default function SobreMi() {
             </h2>
             <div className="space-y-3">
               <p className="text-primary text-sm leading-relaxed font-medium">
-                Más que un portafolio, es un espacio en constante crecimiento (como un jardín real), es mi proyecto de vida, un reflejo de temas que considero importantes con personajes que se basan en personas que han dejado una marca en mi.
+                Más que un portafolio, es un espacio en constante crecimiento (como un jardín real), es mi proyecto de vida. 
+              </p>
+
+              <p className="text-primary text-sm leading-relaxed font-medium">
+                Un reflejo de temas que considero importantes con personajes que se basan en personas que han dejado una marca en mi.
                 Es un proyecto sin limites que ira a creciendo a mi lado mientras voy creciendo como persona y artista. 
               </p>
-              <p className="text-primary text-sm leading-relaxed font-medium">
-                 Cada flor de este jardin esta basada en una experiencia o una emocion que necesito quitarme de encima,
 
+              <p className="text-primary text-sm leading-relaxed font-medium">
+                 Cada flor de este jardin esta basada en una experiencia o una emocion que necesito quitarme de encima. 
               </p>
             </div>
-          </div>
-          
-          {/* Un detalle decorativo que usa tu color primario sin transparencias raras */}
-          <div className="w-full md:w-1/3 bg-primary/10 border-2 border-primary/20 p-6 rounded-3xl flex flex-col items-center justify-center text-center">
-             <span className="text-3xl mb-2">⭐</span>
-             <p className="text-primary font-black text-xs uppercase tracking-widest">Estética & Caos</p>
           </div>
         </div>
       </section>
