@@ -74,15 +74,16 @@ export default function SobreMi() {
         </div>
       </section>
 
-      {/* SECCIÓN CONTACTO INTEGRADA */}
+{/* SECCIÓN CONTACTO INTEGRADA */}
       <section className="card-franilover relative">
         {enviado ? (
           <div className="text-center py-8 animate-in zoom-in duration-300">
-            <p className="text-green-600 font-bold text-lg mb-2">✨ ¡Mensaje enviado con éxito!</p>
-            <p className="text-primary/80 text-sm mb-6 font-medium">Gracias por escribirme, te responderé pronto.</p>
+            {/* Usamos un verde sólido y oscuro para éxito */}
+            <p className="text-green-700 font-bold text-lg mb-2">✨ ¡Mensaje enviado con éxito!</p>
+            <p className="text-primary font-semibold text-sm mb-6">Gracias por escribirme, te responderé pronto.</p>
             <button 
               onClick={() => setEnviado(false)}
-              className="text-sm text-primary font-bold underline hover:opacity-80"
+              className="text-sm text-primary font-black underline hover:opacity-70"
             >
               Enviar otro mensaje
             </button>
@@ -93,8 +94,8 @@ export default function SobreMi() {
               <h2 className="text-xl font-bold text-primary text-center mb-2 flex items-center justify-center gap-2">
                 <Send size={20} /> Envíame un mensajito
               </h2>
-              {/* Texto de ayuda con más contraste */}
-              <p className="text-primary/80 text-sm text-center italic font-medium">
+              {/* Texto sólido sin opacidad para que no se vea blanco */}
+              <p className="text-primary text-sm text-center italic font-bold">
                 ¿Dudas, sugerencias o solo quieres saludar? (´｡• ᵕ •｡`) ♡
               </p>
             </div>
@@ -102,29 +103,43 @@ export default function SobreMi() {
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex flex-col">
-                  <label className="label-franilover font-bold">Nombre</label>
-                  <input type="text" name="name" placeholder="Tu nombre..." required className="input-franilover" />
+                  {/* Forzamos text-primary sólido en los labels */}
+                  <label className="label-franilover font-bold text-primary">Nombre</label>
+                  <input 
+                    type="text" 
+                    name="name" 
+                    placeholder="Tu nombre..." 
+                    required 
+                    className="input-franilover text-primary placeholder:text-primary/50 font-medium" 
+                  />
                 </div>
                 
                 <div className="flex flex-col">
-                  <label className="label-franilover font-bold">Correo</label>
-                  <input type="email" name="_replyto" placeholder="tu@correo.com" required className="input-franilover" />
+                  <label className="label-franilover font-bold text-primary">Correo</label>
+                  <input 
+                    type="email" 
+                    name="_replyto" 
+                    placeholder="tu@correo.com" 
+                    required 
+                    className="input-franilover text-primary placeholder:text-primary/50 font-medium" 
+                  />
                 </div>
               </div>
 
               <div className="flex flex-col">
-                <label className="label-franilover font-bold">Mensaje</label>
+                <label className="label-franilover font-bold text-primary">Mensaje</label>
                 <textarea 
                   name="message" 
                   placeholder="Escribe aquí lo que quieras..." 
                   required 
-                  className="input-franilover min-h-[120px] resize-none"
+                  className="input-franilover min-h-[120px] resize-none text-primary placeholder:text-primary/50 font-medium"
                 ></textarea>
               </div>
 
               <input type="hidden" name="_subject" value="¡Nuevo mensaje desde Franilover!" />
 
-              <button type="submit" disabled={loading} className="btn-franilover font-bold shadow-sm">
+              {/* Botón con texto sólido y fuerte */}
+              <button type="submit" disabled={loading} className="btn-franilover font-black text-white bg-primary hover:brightness-110 shadow-md">
                 {loading ? 'Enviando...' : 'Enviar Mensaje'}
               </button>
             </form>
