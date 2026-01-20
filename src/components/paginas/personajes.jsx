@@ -4,10 +4,10 @@ import { supabase } from '@/lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
-const PureGridLore = () => {
+export default function PureGridLore() {
   const [personajes, setPersonajes] = useState([]);
   const [filtered, setFiltered] = useState([]);
-  const [reinos, setReinos] = useState(['TODOS']); // Estado para reinos dinámicos
+  const [reinos, setReinos] = useState(['TODOS']);
   const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('TODOS');
@@ -15,187 +15,125 @@ const PureGridLore = () => {
   useEffect(() => {
     const fetchLore = async () => {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('personajes')
-        .select('*')
-        .order('id', { ascending: true });
-      
-      if (data) {
-        setPersonajes(data);
-        setFiltered(data);
-
-        // EXTRAER REINOS ÚNICOS DINÁMICAMENTE
-        // 1. Mapeamos todos los reinos
-        // 2. Filtramos valores nulos o vacíos
-        // 3. Usamos Set para eliminar duplicados
-        const reinosExtraidos = data.map(p => p.reino).filter(Boolean);
-        const listaReinos = ['TODOS', ...new Set(reinosExtraidos)];
-        setReinos(listaReinos);
+      try {
+        const { data, error } = await supabase
+          .from('personajes')
+          .select('*')
+          .order('id', { ascending: true });
+        
+        if (data) {
+          setPersonajes(data);
+          setFiltered(data);
+          const reinosExtraidos = data.map(p => p.reino).filter(Boolean);
+          setReinos(['TODOS', ...new Set(reinosExtraidos)]);
+        }
+        if (error) throw error;
+      } catch (err) {
+        console.error("Error:", err.message);
+      } finally {
+        setLoading(false);
       }
-      if (error) console.error("Error:", error.message);
-      setLoading(false);
     };
     fetchLore();
   }, []);
 
-  // FILTRADO DINÁMICO
   useEffect(() => {
-    if (activeFilter === 'TODOS') {
-      setFiltered(personajes);
-    } else {
-      setFiltered(personajes.filter(p => p.reino === activeFilter));
-    }
+    setFiltered(activeFilter === 'TODOS' 
+      ? personajes 
+      : personajes.filter(p => p.reino === activeFilter)
+    );
   }, [activeFilter, personajes]);
 
   const handleSelect = (p) => {
-    setSelected(selected?.id === p.id ? null : p);
+    setSelected(p);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
-    <div className="min-h-screen bg-[#EBEBEB] font-sans pb-20">
-      
-      {/* HEADER DINÁMICO */}
+    <div className="min-h-screen bg-[#EBEBEB] pb-20">
+      {/* HEADER CON FILTROS */}
       <AnimatePresence>
         {!selected && (
           <motion.header 
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="relative z-40 bg-[#EBEBEB] border-b border-zinc-200 overflow-hidden"
+            initial={{ opacity: 0, height: 0 }} 
+            animate={{ opacity: 1, height: "auto" }} 
+            exit={{ opacity: 0, height: 0 }} 
+            className="bg-[#EBEBEB] border-b border-zinc-200 overflow-hidden"
           >
-            <div className="p-6 md:p-8 max-w-[1600px] mx-auto">
-              <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                <div>
-                  <h1 className="text-3xl md:text-5xl font-black tracking-tighter italic text-[#6B5E70] uppercase leading-none">
-                    Personajes
-                  </h1>
-                  <p className="mt-2 text-[#6B5E70]/60 font-medium italic text-sm">
-                    Registro de habitantes ({filtered.length})
-                  </p>
-                </div>
-
-                {/* SELECTOR DE FILTROS DINÁMICO */}
-                <div className="flex flex-wrap gap-2">
-                  {reinos.map((reino) => (
-                    <button
-                      key={reino}
-                      onClick={() => setActiveFilter(reino)}
-                      className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all border ${
-                        activeFilter === reino 
-                        ? 'bg-[#6B5E70] text-white border-[#6B5E70] shadow-lg scale-105' 
-                        : 'bg-white/40 text-[#6B5E70]/40 border-[#6B5E70]/10 hover:border-[#6B5E70]/30 hover:bg-white/60'
-                      }`}
-                    >
-                      {reino}
-                    </button>
-                  ))}
-                </div>
+            <div className="p-8 max-w-[1600px] mx-auto flex flex-col md:flex-row justify-between items-end gap-6">
+              <div>
+                <h1 className="text-4xl font-black italic text-[#6B5E70] uppercase tracking-tighter">Personajes</h1>
+                <p className="text-[#6B5E70]/60 italic text-sm font-medium">Habitantes registrados: {filtered.length}</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {reinos.map(r => (
+                  <button 
+                    key={r} 
+                    onClick={() => setActiveFilter(r)} 
+                    className={`filter-pill ${activeFilter === r ? 'filter-pill-active' : 'filter-pill-inactive'}`}
+                  >
+                    {r}
+                  </button>
+                ))}
               </div>
             </div>
           </motion.header>
         )}
       </AnimatePresence>
 
-      {/* PANEL DE INFORMACIÓN */}
+      {/* PANEL DE DETALLE */}
       <AnimatePresence mode="wait">
         {selected && (
-          <motion.div
-            key="info-panel"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="bg-white overflow-hidden shadow-2xl border-b border-zinc-300 relative"
-          >
-            <div className="p-6 md:p-12 max-w-7xl mx-auto flex flex-col md:flex-row gap-8 md:gap-16 items-center">
+          <motion.div key="panel" initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="lore-panel">
+            <div className="lore-panel-layout">
+              <button onClick={() => setSelected(null)} className="btn-close-panel"><X size={24} /></button>
               
-              <motion.div 
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="w-full md:w-[450px] aspect-square rounded-[2.5rem] overflow-hidden shadow-2xl shrink-0 bg-zinc-100"
-              >
-                <img src={selected.img_url} className="w-full h-full object-cover" alt={selected.nombre} />
-              </motion.div>
+              <div className="lore-image-container">
+                <img src={selected.img_url} alt={selected.nombre} />
+              </div>
 
-              <div className="flex-1 relative w-full">
-                <button 
-                  onClick={() => setSelected(null)} 
-                  className="absolute -top-6 right-0 md:top-0 p-3 bg-zinc-100 rounded-full text-[#6B5E70] hover:bg-[#6B5E70] hover:text-white transition-all z-50 shadow-sm"
-                >
-                  <X size={20} />
-                </button>
-                
-                <div className="flex items-center gap-4 mb-4">
-                  <span className="px-3 py-1 bg-[#6B5E70] text-white text-[9px] font-black uppercase tracking-widest rounded-full">
-                    Reino: {selected.reino || 'Desconocido'}
-                  </span>
-                </div>
-
-                <h2 className="text-6xl md:text-8xl font-black uppercase italic tracking-tighter text-zinc-900 mb-6 leading-none">
+              <div className="lore-content">
+                <span className="px-4 py-1 bg-[#6B5E70] text-white text-[10px] font-black uppercase rounded-full tracking-widest">
+                  Reino: {selected.reino}
+                </span>
+                <h2 className="text-5xl md:text-8xl font-black uppercase italic text-zinc-900 mt-4 leading-none tracking-tighter">
                   {selected.nombre}
                 </h2>
-                
-                <p className="text-xl md:text-2xl text-zinc-700 font-medium leading-snug border-l-8 border-[#6B5E70] pl-8">
-                  {selected.sobre}
-                </p>
+                <p className="lore-description">{selected.sobre}</p>
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* GRID FILTRADO */}
-      <main className="p-4 md:p-8 max-w-[1600px] mx-auto">
+      {/* GRID DE TARJETAS */}
+      <main className="p-8 max-w-[1600px] mx-auto">
         {loading ? (
-          <div className="flex flex-col justify-center items-center py-20 gap-4">
-            <div className="w-8 h-8 border-4 border-[#6B5E70]/20 border-t-[#6B5E70] rounded-full animate-spin"></div>
-            <p className="text-[#6B5E70]/50 animate-pulse text-xs font-black uppercase tracking-widest">
-              Sincronizando Archivos...
-            </p>
+          <div className="py-20 text-center flex flex-col items-center gap-4">
+             <div className="w-10 h-10 border-4 border-[#6B5E70]/20 border-t-[#6B5E70] rounded-full animate-spin"></div>
+             <p className="text-[#6B5E70] font-black uppercase text-xs tracking-widest animate-pulse">Sincronizando Archivos...</p>
           </div>
         ) : (
           <motion.div layout className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            <AnimatePresence>
-              {filtered.map((p) => (
-                <motion.div
-                  key={p.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.2 }}
-                  onClick={() => handleSelect(p)}
-                  className={`relative aspect-[3/4] cursor-pointer overflow-hidden transition-all duration-500 group
-                    ${selected?.id === p.id 
-                      ? 'rounded-[3rem] ring-8 ring-[#6B5E70] z-20 scale-95 shadow-2xl' 
-                      : 'rounded-2xl grayscale hover:grayscale-0'
-                    }`}
-                >
-                  <img src={p.img_url} className="w-full h-full object-cover" alt={p.nombre} />
-                  
-                  <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span className="bg-white/90 backdrop-blur-sm text-[#6B5E70] text-[7px] font-black px-2 py-1 rounded uppercase tracking-tighter">
-                      {p.reino}
-                    </span>
-                  </div>
-
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
-                  
-                  <div className="absolute bottom-4 left-4">
-                    <p className="text-white text-[11px] font-black uppercase tracking-tighter leading-none">
-                      {p.nombre}
-                    </p>
-                  </div>
-
-                  <div className="absolute top-0 left-0 w-full h-1" style={{ backgroundColor: p.color_hex || '#6B5E70' }} />
-                </motion.div>
-              ))}
-            </AnimatePresence>
+            {filtered.map(p => (
+              <motion.div 
+                key={p.id} 
+                layout 
+                onClick={() => handleSelect(p)} 
+                className={`char-card group ${selected?.id === p.id ? 'char-card-selected' : ''}`}
+              >
+                <img src={p.img_url} className="w-full h-full object-cover" alt={p.nombre} />
+                <div className="absolute top-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="badge-reino">{p.reino}</span>
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-60" />
+                <p className="absolute bottom-4 left-4 text-white text-[11px] font-black uppercase">{p.nombre}</p>
+                <div className="absolute top-0 w-full h-1" style={{ backgroundColor: p.color_hex || '#6B5E70' }} />
+              </motion.div>
+            ))}
           </motion.div>
         )}
       </main>
     </div>
   );
-};
-
-export default PureGridLore;
+}

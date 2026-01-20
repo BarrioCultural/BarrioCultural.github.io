@@ -2,14 +2,14 @@
 @plugin "tailwindcss-animate";
 
 @theme inline {
-  /* Colores de tu sistema original */
+  /* Colores Base */
   --color-primary: var(--primary);
   --color-accent: var(--accent);
   --color-bg-main: var(--bg-main);
   --color-bg-menu: var(--bg-menu);
   --color-white-custom: var(--white-custom);
 
-  /* Colores de Personajes */
+  /* Colores de Personajes Específicos */
   --color-frani: #fff9c4;
   --color-faker: #e9d841;
   --color-pinkkiller: #a65a92;
@@ -18,17 +18,15 @@
   --color-abel: #7c363d;
   --color-yoa: #c8e6c9;
 
-  /* --- COLORES DE TERMINAL --- */
+  /* Colores de Terminal */
   --color-terminal-green: #00ff00;
   --color-terminal-dark: #0a0a0a;
   --color-terminal-gray: #004400;
   --color-terminal-red: #ff0000;
 
-  /* --- ANIMACIONES Y KEYFRAMES --- */
+  /* Animaciones */
   --animate-terminal-flicker: flicker 0.15s infinite;
   --animate-cursor-blink: blink 1s step-end infinite;
-  
-  /* 🟢 NUEVA: ANIMACIÓN DE VIBRACIÓN */
   --animate-shake: shake 0.2s ease-in-out 0s 2;
 
   @keyframes flicker {
@@ -40,23 +38,12 @@
     from, to { color: transparent; }
     50% { color: #00ff00; }
   }
-  
-  /* 🟢 KEYFRAMES DE VIBRACIÓN (DENTRO DEL THEME) */
   @keyframes shake {
-    0% { transform: translateX(0); }
+    0%, 100% { transform: translateX(0); }
     25% { transform: translateX(5px); }
     50% { transform: translateX(-5px); }
     75% { transform: translateX(5px); }
-    100% { transform: translateX(0); }
   }
-
-  /* Efectos y Layout */
-  --spacing-container: 1100px;
-  --spacing-pad-sm: 0.5rem;
-  --spacing-pad-md: 1rem;
-  --spacing-pad-lg: 1.25rem;
-  --shadow-terminal: 0 0 15px rgba(0, 255, 0, 0.3);
-  --shadow-custom-sm: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 :root {
@@ -66,33 +53,86 @@
   --bg-menu: #67556d;
   --white-custom: #e4d7e6;
   --foreground: #ffffff;
-  --radius: 0.625rem;
 }
 
 @layer base {
   body {
-    background-color: var(--bg-main);
-    color: var(--foreground);
-    font-family: ui-sans-serif, system-ui, sans-serif;
+    @apply bg-[var(--bg-main)] text-[var(--foreground)] antialiased font-sans;
   }
 }
 
-/* Efecto visual de monitor CRT (Scanlines) */
 @layer components {
+  /* --- COMPONENTES GENÉRICOS --- */
+  .card-franilover {
+    @apply bg-primary/5 border border-primary/10 rounded-3xl p-8 md:p-10 backdrop-blur-sm;
+  }
+
+  .btn-franilover {
+    @apply bg-primary text-white font-bold px-8 py-4 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/10 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer;
+  }
+
+  .input-franilover {
+    @apply w-full bg-bg-main border border-primary/20 rounded-xl px-4 py-3 text-primary focus:ring-2 focus:ring-primary/40 outline-none transition-all;
+  }
+
+  /* --- SISTEMA DE FILTROS --- */
+  .filter-pill {
+    @apply px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all border cursor-pointer inline-block;
+  }
+  .filter-pill-active { 
+    @apply bg-[#6B5E70] text-white border-[#6B5E70] shadow-lg scale-105; 
+  }
+  .filter-pill-inactive { 
+    @apply bg-white/40 text-[#6B5E70]/40 border-[#6B5E70]/10 hover:border-[#6B5E70]/30 hover:bg-white/60; 
+  }
+
+  /* --- GRID DE TARJETAS (Lore y Bestiario) --- */
+  .char-card {
+    @apply relative aspect-[3/4] cursor-pointer overflow-hidden transition-all duration-500 rounded-2xl grayscale hover:grayscale-0 shadow-md;
+  }
+  .char-card-selected { 
+    @apply rounded-[3rem] ring-8 ring-[#6B5E70] z-20 scale-95 shadow-2xl grayscale-0; 
+  }
+  .badge-reino { 
+    @apply bg-white/90 backdrop-blur-sm text-[#6B5E70] text-[7px] font-black px-2 py-1 rounded uppercase tracking-tighter; 
+  }
+
+  /* --- PANEL DE INFORMACIÓN (El que se despliega) --- */
+  .lore-panel {
+    @apply bg-white shadow-2xl border-b border-zinc-300 relative w-full overflow-hidden;
+  }
+  
+  .lore-panel-layout {
+    @apply p-6 md:p-12 max-w-7xl mx-auto flex flex-col md:flex-row gap-8 md:gap-16 items-start;
+  }
+
+  .lore-image-container {
+    @apply w-full max-w-[350px] md:w-[400px] lg:w-[450px] aspect-square rounded-[2.5rem] overflow-hidden shadow-2xl shrink-0 bg-zinc-100;
+  }
+  .lore-image-container img {
+    @apply w-full h-full object-cover block;
+  }
+
+  .lore-content {
+    @apply flex-1 relative w-full pt-4 md:pt-0 text-left;
+  }
+
+  .lore-description {
+    @apply text-lg md:text-xl lg:text-2xl text-zinc-700 font-medium leading-relaxed border-l-8 border-[#6B5E70] pl-6 md:pl-8 mt-6 italic;
+  }
+
+  .btn-close-panel {
+    @apply absolute top-4 right-4 md:top-8 md:right-8 p-3 bg-zinc-100 rounded-full text-[#6B5E70] hover:bg-[#6B5E70] hover:text-white transition-all z-50 shadow-sm cursor-pointer;
+  }
+
+  /* --- EFECTOS VISUALES --- */
   .scanlines {
-    position: relative;
-    overflow: hidden;
+    @apply relative overflow-hidden;
   }
   .scanlines::before {
     content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      rgba(18, 16, 16, 0) 50%, 
-      rgba(0, 0, 0, 0.1) 50%
-    );
+    @apply absolute inset-0 z-20 pointer-events-none;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
     background-size: 100% 4px;
-    z-index: 20;
-    pointer-events: none;
   }
 }
