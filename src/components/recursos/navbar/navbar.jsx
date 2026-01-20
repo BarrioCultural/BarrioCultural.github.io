@@ -9,8 +9,8 @@ import { supabase } from '@/lib/supabase';
 import { 
   User, LogOut, Plus, ChevronDown, Smile, 
   ImageIcon, Camera, Sparkles, 
-  Users, Terminal, CircleUser, Flower2, Sword,
-  Footprints 
+  Users, CircleUser, Flower2, Sword,
+  Footprints, Package // <-- Nuevo icono para Items
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -49,7 +49,6 @@ const Navbar = () => {
 
   const navContent = useMemo(() => (
     <div className="flex w-full items-center justify-around px-2 h-full">
-      {/* Botón Personal que ahora engloba Bio, Dibujos y Fotos */}
       <button onClick={() => setOpenSubmenu(openSubmenu === 'personal_galeria' ? null : 'personal_galeria')} className="flex-1 flex justify-center">
         <Camera size={22} className={['/sobre-mi', '/dibujos', '/fotos'].includes(currentPath) ? "text-[#6B5E70]" : "text-[#6B5E70]/30"} />
       </button>
@@ -64,7 +63,7 @@ const Navbar = () => {
       </div>
 
       <button onClick={() => setOpenSubmenu(openSubmenu === 'gos' ? null : 'gos')} className="flex-1 flex justify-center">
-        <Sparkles size={22} className={['/personajes', '/archivos', '/criaturas'].includes(currentPath) ? "text-[#6B5E70]" : "text-[#6B5E70]/30"} />
+        <Sparkles size={22} className={['/personajes', '/items', '/criaturas'].includes(currentPath) ? "text-[#6B5E70]" : "text-[#6B5E70]/30"} />
       </button>
 
       <button onClick={() => user ? setUserMenuOpen(!userMenuOpen) : window.location.href="/login"} className="flex-1 flex justify-center">
@@ -83,7 +82,6 @@ const Navbar = () => {
           </Link>
           <nav className="flex items-center gap-1 bg-[#6B5E70]/5 p-1 rounded-2xl border border-[#6B5E70]/10">
             
-            {/* GRUPO PERSONAL ACTUALIZADO CON BIO */}
             <PCGroup 
               label="Personal" 
               active={['/sobre-mi', '/dibujos', '/fotos'].includes(currentPath)} 
@@ -96,16 +94,18 @@ const Navbar = () => {
             />
 
             <PCGroup 
-              label="GOS" 
-              active={['/personajes', '/archivos', '/criaturas'].includes(currentPath)} 
+              label="Mundo" // Cambiado de GOS a Mundo para un tono más amable, o mantenlo como prefieras
+              active={['/personajes', '/items', '/criaturas'].includes(currentPath)} 
               items={[
                 { href: '/personajes', label: 'Personajes', icon: <Users size={14}/> }, 
                 { href: '/criaturas', label: 'Criaturas', icon: <Footprints size={14}/> }, 
-                { href: '/archivos', label: 'Archivos', icon: <Terminal size={14}/> }
+                { href: '/items', label: 'Items', icon: <Package size={14}/> } // Actualizado
               ]} 
               currentPath={currentPath} 
             />
           </nav>
+          
+          {/* ... Resto del componente PC (User menu, Logout, etc) igual ... */}
           <div className="flex items-center gap-6">
             {puedeSubir && <Link href="/upload" className={cn("px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all shadow-sm", currentPath === '/upload' ? "bg-white text-[#6B5E70]" : "bg-[#6B5E70] text-white")}>+ SUBIR</Link>}
             
@@ -160,7 +160,7 @@ const Navbar = () => {
               className="absolute bottom-20 right-0 w-[calc(100vw-48px)] bg-white border border-[#6B5E70]/10 rounded-[2rem] p-3 shadow-2xl flex flex-col gap-2 z-[1001]"
             >
               {openSubmenu === 'personal_galeria' && (
-                <div className="grid grid-cols-3 gap-2"> {/* Ajustado a 3 columnas */}
+                <div className="grid grid-cols-3 gap-2">
                   <MobileSubItem href="/sobre-mi" label="Bio" active={currentPath === '/sobre-mi'} icon={<Smile size={18}/>} onClick={closeAll} />
                   <MobileSubItem href="/dibujos" label="Dibujos" active={currentPath === '/dibujos'} icon={<ImageIcon size={18}/>} onClick={closeAll} />
                   <MobileSubItem href="/fotos" label="Fotos" active={currentPath === '/fotos'} icon={<Camera size={18}/>} onClick={closeAll} />
@@ -170,10 +170,11 @@ const Navbar = () => {
                 <div className="grid grid-cols-3 gap-2">
                   <MobileSubItem href="/personajes" label="Personajes" active={currentPath === '/personajes'} icon={<Users size={18}/>} onClick={closeAll} />
                   <MobileSubItem href="/criaturas" label="Criaturas" active={currentPath === '/criaturas'} icon={<Footprints size={18}/>} onClick={closeAll} />
-                  <MobileSubItem href="/archivos" label="Archivos" active={currentPath === '/archivos'} icon={<Terminal size={18}/>} onClick={closeAll} />
+                  <MobileSubItem href="/items" label="Items" active={currentPath === '/items'} icon={<Package size={18}/>} onClick={closeAll} />
                 </div>
               )}
               
+              {/* Menu Usuario Movil igual ... */}
               {userMenuOpen && user && (
                 <div className="flex flex-col gap-2">
                   <Link href="/personal" onClick={closeAll} className="w-full p-5 bg-[#6B5E70]/5 text-[#6B5E70] rounded-[1.5rem] font-black uppercase text-[10px] flex items-center justify-center gap-3">
@@ -196,38 +197,38 @@ const Navbar = () => {
   );
 };
 
-// ... Subcomponentes PCGroup y MobileSubItem se mantienen igual
+// ... PCGroup y MobileSubItem se mantienen igual ...
 const PCGroup = ({ label, items, active, currentPath }) => (
-  <div className="relative group px-2">
-    <button className={cn(
-      "px-3 py-2 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all rounded-xl",
-      active ? "text-[#6B5E70]" : "text-[#6B5E70]/40 group-hover:text-[#6B5E70]"
-    )}>
-      {label} <ChevronDown size={10} className="group-hover:rotate-180 transition-transform" />
-    </button>
-    <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto transition-all">
-      <div className="bg-white border border-[#6B5E70]/10 p-2 rounded-2xl shadow-xl min-w-[170px]">
-        {items.map((item, i) => (
-          <Link key={i} href={item.href} className={cn(
-            "flex items-center gap-3 w-full px-4 py-3 text-[10px] font-black uppercase rounded-xl transition-all",
-            currentPath === item.href ? "bg-[#6B5E70] text-white" : "text-[#6B5E70]/40 hover:bg-[#6B5E70]/5"
-          )}>
-            {item.icon} {item.label}
-          </Link>
-        ))}
+    <div className="relative group px-2">
+      <button className={cn(
+        "px-3 py-2 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all rounded-xl",
+        active ? "text-[#6B5E70]" : "text-[#6B5E70]/40 group-hover:text-[#6B5E70]"
+      )}>
+        {label} <ChevronDown size={10} className="group-hover:rotate-180 transition-transform" />
+      </button>
+      <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 opacity-0 scale-95 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto transition-all">
+        <div className="bg-white border border-[#6B5E70]/10 p-2 rounded-2xl shadow-xl min-w-[170px]">
+          {items.map((item, i) => (
+            <Link key={i} href={item.href} className={cn(
+              "flex items-center gap-3 w-full px-4 py-3 text-[10px] font-black uppercase rounded-xl transition-all",
+              currentPath === item.href ? "bg-[#6B5E70] text-white" : "text-[#6B5E70]/40 hover:bg-[#6B5E70]/5"
+            )}>
+              {item.icon} {item.label}
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
-  </div>
-);
-
-const MobileSubItem = ({ href, label, icon, active, onClick }) => (
-  <Link href={href} onClick={onClick} className={cn(
-    "flex flex-col items-center gap-2 p-5 rounded-[1.5rem] border transition-all",
-    active ? "bg-[#6B5E70] border-[#6B5E70] text-white shadow-lg" : "bg-[#6B5E70]/5 border-transparent text-[#6B5E70]/40"
-  )}>
-    {icon}
-    <span className="text-[9px] font-black uppercase tracking-widest leading-none text-center">{label}</span>
-  </Link>
-);
+  );
+  
+  const MobileSubItem = ({ href, label, icon, active, onClick }) => (
+    <Link href={href} onClick={onClick} className={cn(
+      "flex flex-col items-center gap-2 p-5 rounded-[1.5rem] border transition-all",
+      active ? "bg-[#6B5E70] border-[#6B5E70] text-white shadow-lg" : "bg-[#6B5E70]/5 border-transparent text-[#6B5E70]/40"
+    )}>
+      {icon}
+      <span className="text-[9px] font-black uppercase tracking-widest leading-none text-center">{label}</span>
+    </Link>
+  );
 
 export default Navbar;
