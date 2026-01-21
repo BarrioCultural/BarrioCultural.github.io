@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { Palette, Heart, Sparkles, Send } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function SobreMi() {
   const [enviado, setEnviado] = useState(false);
@@ -34,143 +35,108 @@ export default function SobreMi() {
   };
 
   return (
-    <div className="flex flex-col gap-8 w-full max-w-3xl animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <main className="min-h-screen bg-[#F0F0F0] pb-20 pt-16 font-sans">
       
-      {/* SECCIÓN INFORMACIÓN PERSONAL */}
-      <section className="card-franilover md:p-12">
-        <div className="flex flex-col items-center mb-10">
-          <div className="w-24 h-24 rounded-full bg-primary/20 border-2 border-primary/30 mb-4 flex items-center justify-center">
-            {/* Subida la opacidad del icono para que no sea blanco */}
-            <Sparkles size={40} className="text-primary/60" />
-          </div>
-          <h2 className="text-2xl font-bold text-primary">Sobre Mi</h2>
-          {/* Texto secundario con color más sólido */}
-          <p className="text-primary/80 italic text-sm font-medium">Dibujante y creador</p>
-        </div>
+      {/* CABECERA: Título limpio, sin bloques */}
+      <header className="mb-20 text-center px-4">
+        <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter text-[#6B5E70] uppercase leading-none">
+          Sobre Mi
+        </h1>
+        <div className="h-1 w-24 bg-[#6B5E70] mx-auto mt-4 rounded-full opacity-10" />
+      </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold text-primary flex items-center gap-2">
-              <Heart size={18} /> Mi Atelier
+      <div className="max-w-4xl mx-auto px-6 space-y-24">
+        
+        {/* SECCIÓN 1: Texto fluido, sin tarjetas pesadas */}
+        <section className="grid md:grid-cols-2 gap-12 items-start">
+          <div className="space-y-6">
+            <h3 className="text-lg font-black text-[#6B5E70] uppercase tracking-widest flex items-center gap-2">
+              <Heart size={18} className="opacity-50" /> Mi Atelier
             </h3>
-            {/* Texto principal casi sólido para lectura perfecta */}
-            <p className="text-primary leading-relaxed text-sm">
-              Bienvenido a mi pequeño jardín digital <br />
+            <p className="text-[#6B5E70] leading-relaxed text-base font-medium italic">
+              Bienvenido a mi pequeño jardín digital.<br />
               Me encanta compartir mi arte y conectar con personas que disfrutan de este.
             </p>
           </div>
 
-          <div className="bg-white/30 rounded-2xl p-6 border border-primary/10 shadow-sm">
-            <h3 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
-              <Palette size={18} /> Herramientas
+          <div className="space-y-6 border-l border-[#6B5E70]/10 pl-8">
+            <h3 className="text-lg font-black text-[#6B5E70] uppercase tracking-widest flex items-center gap-2">
+              <Palette size={18} className="opacity-50" /> Herramientas
             </h3>
-            {/* Subida la opacidad de la lista */}
-            <ul className="text-xs text-primary/90 space-y-2 font-semibold">
-              <li>✨ Linux y Krita</li>
-              <li>🎨 Acuarelas y Acrílico</li>
-              <li>☕ Mucha música</li>
+            <ul className="text-sm text-[#6B5E70]/80 space-y-3 font-bold uppercase italic tracking-tighter">
+              <li className="flex items-center gap-2"><Sparkles size={12}/> Linux y Krita</li>
+              <li className="flex items-center gap-2"><Sparkles size={12}/> Acuarelas y Acrílico</li>
+              <li className="flex items-center gap-2"><Sparkles size={12}/> Mucha música</li>
             </ul>
           </div>
-        </div>
-      </section>
+        </section>
 
-<section className="card-franilover md:p-12">
-        <div className="flex flex-col md:flex-row gap-8 items-center">
-          <div className="flex-1 space-y-4">
-            <h2 className="text-2xl font-bold text-primary flex items-center gap-2">
-              <Sparkles className="text-primary" size={24} /> ¿Qué es "Garden of Sins"?
+        {/* SECCIÓN 2: Garden of Sins - Texto protagonista */}
+        <section className="space-y-8 text-center md:text-left">
+          <div className="flex items-center space-x-4 mb-4">
+            <h2 className="text-3xl md:text-4xl font-black uppercase italic text-[#6B5E70] tracking-tighter">
+              ¿Qué es "Garden of Sins"?
             </h2>
-            <div className="space-y-3">
-              <p className="text-primary text-sm leading-relaxed font-medium">
-                Más que un portafolio, es un espacio en constante crecimiento (como un jardín real), es mi proyecto de vida. 
-              </p>
-
-              <p className="text-primary text-sm leading-relaxed font-medium">
-                Un reflejo de temas que considero importantes con personajes que se basan en personas que han dejado una marca en mi.
-                Es un proyecto sin limites que ira a creciendo a mi lado mientras voy creciendo como persona y artista. 
-              </p>
-
-              <p className="text-primary text-sm leading-relaxed font-medium">
-                 Cada flor de este jardin esta basada en una experiencia o una emocion que necesito quitarme de encima. 
-              </p>
-            </div>
+            <div className="h-[1px] flex-1 bg-gradient-to-r from-[#6B5E70]/20 to-transparent" />
           </div>
-        </div>
-      </section>
-
-{/* SECCIÓN CONTACTO INTEGRADA */}
-      <section className="card-franilover relative">
-        {enviado ? (
-          <div className="text-center py-8 animate-in zoom-in duration-300">
-            {/* Usamos un verde sólido y oscuro para éxito */}
-            <p className="text-green-700 font-bold text-lg mb-2">✨ ¡Mensaje enviado con éxito!</p>
-            <p className="text-primary font-semibold text-sm mb-6">Gracias por escribirme, te responderé pronto.</p>
-            <button 
-              onClick={() => setEnviado(false)}
-              className="text-sm text-primary font-black underline hover:opacity-70"
-            >
-              Enviar otro mensaje
-            </button>
+          
+          <div className="grid gap-6 text-[#6B5E70]/70 text-lg italic leading-relaxed font-medium max-w-3xl">
+            <p>Más que un portafolio, es un espacio en constante crecimiento (como un jardín real), es mi proyecto de vida.</p>
+            <p>Un reflejo de temas que considero importantes con personajes que se basan en personas que han dejado una marca en mí. Es un proyecto sin límites que irá creciendo a mi lado mientras voy creciendo como persona y artista.</p>
+            <p className="text-[#6B5E70] font-black underline decoration-[#6B5E70]/20 underline-offset-8">
+              Cada flor de este jardín está basada en una experiencia o una emoción que necesito quitarme de encima.
+            </p>
           </div>
-        ) : (
-          <>
-            <div className="mb-8">
-              <h2 className="text-xl font-bold text-primary text-center mb-2 flex items-center justify-center gap-2">
-                <Send size={20} /> Envíame un mensajito
-              </h2>
-              {/* Texto sólido sin opacidad para que no se vea blanco */}
-              <p className="text-primary text-sm text-center italic font-bold">
-                ¿Dudas, sugerencias o solo quieres saludar? (´｡• ᵕ •｡`) ♡
-              </p>
-            </div>
-            
-            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex flex-col">
-                  {/* Forzamos text-primary sólido en los labels */}
-                  <label className="label-franilover font-bold text-primary">Nombre</label>
-                  <input 
-                    type="text" 
-                    name="name" 
-                    placeholder="Tu nombre..." 
-                    required 
-                    className="input-franilover text-primary placeholder:text-primary/50 font-medium" 
-                  />
+        </section>
+
+        {/* SECCIÓN 3: Contacto - Formulario integrado al fondo */}
+        <section className="pt-10">
+          <div className="bg-white/40 backdrop-blur-sm rounded-[3rem] p-8 md:p-16 border border-white/50 shadow-sm">
+            {enviado ? (
+              <div className="text-center py-10 animate-in zoom-in duration-300">
+                <p className="text-[#6B5E70] font-black text-2xl uppercase italic tracking-tighter mb-2">¡Mensaje enviado!</p>
+                <p className="text-[#6B5E70]/60 font-medium italic mb-8">Gracias por escribirme, te responderé pronto. ♡</p>
+                <button onClick={() => setEnviado(false)} className="text-[10px] font-black uppercase tracking-widest text-[#6B5E70] border-b border-[#6B5E70] pb-1">Enviar otro</button>
+              </div>
+            ) : (
+              <>
+                <div className="mb-12 text-center md:text-left">
+                  <h2 className="text-2xl font-black text-[#6B5E70] uppercase italic tracking-tighter flex items-center justify-center md:justify-start gap-3">
+                    <Send size={20} className="opacity-40" /> Envíame un mensajito
+                  </h2>
+                  <p className="text-[#6B5E70]/50 text-xs italic font-bold uppercase tracking-widest mt-2">
+                    ¿Dudas, sugerencias o solo quieres saludar? (´｡• ᵕ •｡`) ♡
+                  </p>
                 </div>
                 
-                <div className="flex flex-col">
-                  <label className="label-franilover font-bold text-primary">Correo</label>
-                  <input 
-                    type="email" 
-                    name="_replyto" 
-                    placeholder="tu@correo.com" 
-                    required 
-                    className="input-franilover text-primary placeholder:text-primary/50 font-medium" 
-                  />
-                </div>
-              </div>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#6B5E70]/60 ml-4">Nombre</label>
+                      <input type="text" name="name" required placeholder="Tu nombre..." className="w-full bg-white/50 border-none rounded-2xl px-6 py-4 text-[#6B5E70] placeholder:text-[#6B5E70]/30 font-bold focus:ring-2 focus:ring-[#6B5E70]/10 transition-all outline-none" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#6B5E70]/60 ml-4">Correo</label>
+                      <input type="email" name="_replyto" required placeholder="tu@correo.com" className="w-full bg-white/50 border-none rounded-2xl px-6 py-4 text-[#6B5E70] placeholder:text-[#6B5E70]/30 font-bold focus:ring-2 focus:ring-[#6B5E70]/10 transition-all outline-none" />
+                    </div>
+                  </div>
 
-              <div className="flex flex-col">
-                <label className="label-franilover font-bold text-primary">Mensaje</label>
-                <textarea 
-                  name="message" 
-                  placeholder="Escribe aquí lo que quieras..." 
-                  required 
-                  className="input-franilover min-h-[120px] resize-none text-primary placeholder:text-primary/50 font-medium"
-                ></textarea>
-              </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#6B5E70]/60 ml-4">Mensaje</label>
+                    <textarea name="message" required placeholder="Escribe aquí..." className="w-full bg-white/50 border-none rounded-[2rem] px-6 py-5 text-[#6B5E70] placeholder:text-[#6B5E70]/30 font-bold focus:ring-2 focus:ring-[#6B5E70]/10 transition-all outline-none min-h-[150px] resize-none"></textarea>
+                  </div>
 
-              <input type="hidden" name="_subject" value="¡Nuevo mensaje desde Franilover!" />
+                  <input type="hidden" name="_subject" value="¡Nuevo mensaje desde Franilover!" />
 
-              {/* Botón con texto sólido y fuerte */}
-              <button type="submit" disabled={loading} className="btn-franilover font-black text-white bg-primary hover:brightness-110 shadow-md">
-                {loading ? 'Enviando...' : 'Enviar Mensaje'}
-              </button>
-            </form>
-          </>
-        )}
-      </section>
-
-    </div>
+                  <button type="submit" disabled={loading} className="w-full md:w-auto px-12 bg-[#6B5E70] text-white font-black uppercase italic tracking-widest py-5 rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-[#6B5E70]/20">
+                    {loading ? 'Sincronizando...' : 'Enviar Mensaje'}
+                  </button>
+                </form>
+              </>
+            )}
+          </div>
+        </section>
+      </div>
+    </main>
   );
 }
