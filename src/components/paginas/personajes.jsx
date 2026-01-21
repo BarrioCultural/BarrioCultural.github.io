@@ -49,12 +49,15 @@ export default function Criaturas() {
       <AnimatePresence>
         {!selected && (
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+            {/* CABECERA LIMPIA */}
             <header className="mb-12 px-4 text-center">
-              <h1 className="text-5xl font-black italic tracking-tighter text-[#6B5E70] uppercase">Bestiario</h1>
+              <h1 className="text-6xl font-black italic tracking-tighter text-[#6B5E70] uppercase">
+                Bestiario
+              </h1>
             </header>
 
-            {/* Selectores de Filtros Estilo Pills */}
-            <div className="max-w-5xl mx-auto mb-16 px-6 flex flex-wrap justify-center gap-x-10 gap-y-8">
+            {/* SELECTORES DE FILTROS */}
+            <div className="max-w-5xl mx-auto mb-16 px-6 flex flex-wrap justify-center gap-x-12 gap-y-8">
               {Object.entries(configFiltros).map(([grupo, opciones]) => (
                 <div key={grupo} className="flex flex-col items-center">
                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#6B5E70]/40 mb-3 italic">
@@ -82,7 +85,7 @@ export default function Criaturas() {
         )}
       </AnimatePresence>
 
-      {/* Panel de Detalle */}
+      {/* PANEL DE DETALLE */}
       <AnimatePresence mode="wait">
         {selected && (
           <motion.div 
@@ -90,22 +93,32 @@ export default function Criaturas() {
             initial={{ height: 0, opacity: 0 }} 
             animate={{ height: "auto", opacity: 1 }} 
             exit={{ height: 0, opacity: 0 }} 
-            className="lore-panel mb-12 overflow-hidden"
+            className="mb-12 overflow-hidden"
           >
             <div className="max-w-7xl mx-auto p-8 relative bg-white/40 backdrop-blur-sm rounded-[3rem] border border-white/20">
-              <button onClick={() => setSelected(null)} className="absolute top-8 right-8 text-[#6B5E70] hover:scale-110 transition-transform"><X size={32} /></button>
+              <button 
+                onClick={() => setSelected(null)} 
+                className="absolute top-8 right-8 text-[#6B5E70] hover:scale-110 transition-transform z-50"
+              >
+                <X size={32} />
+              </button>
+              
               <div className="grid md:grid-cols-2 gap-12 items-center">
-                <div className="rounded-[2.5rem] overflow-hidden aspect-square shadow-xl">
+                <div className="rounded-[2.5rem] overflow-hidden aspect-square shadow-xl bg-gray-200">
                   <img src={selected.imagen_url} alt={selected.nombre} className="w-full h-full object-cover" />
                 </div>
                 <div>
-                  <div className="flex gap-2 mb-4">
+                  <div className="flex flex-wrap gap-2 mb-4">
                     <span className="px-3 py-1 bg-[#6B5E70] text-white text-[9px] font-black uppercase rounded-full tracking-widest">{selected.habitat}</span>
                     <span className="px-3 py-1 bg-[#6B5E70]/10 text-[#6B5E70] text-[9px] font-black uppercase rounded-full tracking-widest">{selected.pensamiento}</span>
                     <span className="px-3 py-1 bg-[#6B5E70]/10 text-[#6B5E70] text-[9px] font-black uppercase rounded-full tracking-widest">Alma {selected.alma}</span>
                   </div>
-                  <h2 className="text-7xl font-black uppercase italic text-[#6B5E70] leading-none tracking-tighter mb-6">{selected.nombre}</h2>
-                  <p className="text-[#6B5E70]/80 text-xl italic leading-relaxed">{selected.descripcion}</p>
+                  <h2 className="text-7xl font-black uppercase italic text-[#6B5E70] leading-none tracking-tighter mb-6">
+                    {selected.nombre}
+                  </h2>
+                  <p className="text-[#6B5E70]/80 text-xl italic leading-relaxed max-w-xl">
+                    {selected.descripcion}
+                  </p>
                 </div>
               </div>
             </div>
@@ -113,28 +126,34 @@ export default function Criaturas() {
         )}
       </AnimatePresence>
 
-      {/* Resultados */}
+      {/* RESULTADOS */}
       <section className="max-w-7xl mx-auto px-6">
         {loading ? (
-          <div className="py-20 text-center animate-pulse text-[#6B5E70] font-black uppercase text-xs tracking-widest">Sincronizando registros...</div>
+          <div className="py-20 text-center animate-pulse text-[#6B5E70] font-black uppercase text-xs tracking-widest">Accediendo a los registros...</div>
         ) : (
           <>
             {filtradas.length === 0 ? (
-              <div className="text-center py-20 text-[#6B5E70]/30 italic uppercase text-sm font-bold tracking-[0.2em]">Sin coincidencias en el registro</div>
+              <div className="text-center py-20 text-[#6B5E70]/30 italic uppercase text-sm font-bold tracking-[0.2em]">Registro vacío para esta combinación</div>
             ) : (
               <motion.div layout className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
                 {filtradas.map(c => (
                   <motion.div 
                     key={c.id} 
                     layout 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
                     onClick={() => { setSelected(c); window.scrollTo({ top: 0, behavior: 'smooth' }); }} 
-                    className="group relative aspect-[4/5] overflow-hidden rounded-[2.5rem] cursor-pointer shadow-sm hover:shadow-2xl transition-all duration-500"
+                    className="group relative aspect-[4/5] overflow-hidden rounded-[2.5rem] cursor-pointer shadow-sm hover:shadow-2xl transition-all duration-500 bg-white"
                   >
-                    <img src={c.imagen_url} className="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105" alt={c.nombre} />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#6B5E70]/90 via-[#6B5E70]/20 to-transparent opacity-80" />
+                    <img src={c.imagen_url} className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105" alt={c.nombre} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#6B5E70]/90 via-[#6B5E70]/10 to-transparent opacity-80" />
                     <div className="absolute bottom-6 left-6 right-6">
-                      <p className="text-[7px] font-black text-white/50 uppercase tracking-[0.3em] mb-1">{c.habitat} / {c.alma}</p>
-                      <h3 className="text-lg font-black text-white uppercase italic leading-none tracking-tighter">{c.nombre}</h3>
+                      <p className="text-[7px] font-black text-white/50 uppercase tracking-[0.3em] mb-1">
+                        {c.habitat} / {c.alma}
+                      </p>
+                      <h3 className="text-lg font-black text-white uppercase italic leading-none tracking-tighter">
+                        {c.nombre}
+                      </h3>
                     </div>
                   </motion.div>
                 ))}
