@@ -45,100 +45,121 @@ export default function Criaturas() {
   };
 
   return (
-    <main className="min-h-screen bg-[#EBEBEB] pb-20 pt-16">
+    <main className="min-h-screen bg-[#F0F0F0] pb-20 pt-16 font-sans">
       <AnimatePresence>
         {!selected && (
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            exit={{ opacity: 0 }}
-          >
-            {/* CABECERA: SOLO TEXTO */}
-            <header className="mb-12 text-center">
-              <h1 className="text-6xl font-black italic tracking-tighter text-[#6B5E70] uppercase">
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+            {/* CABECERA ARTÍSTICA */}
+            <header className="mb-16 text-center">
+              <h1 className="text-7xl font-black italic tracking-tighter text-[#6B5E70] uppercase leading-none">
                 Bestiario
               </h1>
+              <div className="h-1 w-24 bg-[#6B5E70] mx-auto mt-4 rounded-full opacity-20" />
             </header>
 
-            {/* FILTROS: BOTONES DIRECTOS (PILLS) */}
-            <div className="max-w-5xl mx-auto mb-16 px-6 flex flex-wrap justify-center gap-x-12 gap-y-8">
-              {Object.entries(configFiltros).map(([grupo, opciones]) => (
-                <div key={grupo} className="flex flex-col items-center">
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#6B5E70]/40 mb-3 italic">
-                    {grupo}
-                  </span>
-                  <div className="flex flex-wrap justify-center gap-2">
-                    {opciones.map(opt => (
-                      <button
-                        key={opt}
-                        onClick={() => updateFiltro(grupo, opt)}
-                        className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase transition-all border ${
-                          filtros[grupo] === opt 
-                          ? 'bg-[#6B5E70] text-white border-[#6B5E70]' 
-                          : 'bg-white/50 text-[#6B5E70]/50 border-[#6B5E70]/10 hover:text-[#6B5E70] hover:border-[#6B5E70]/30'
-                        }`}
-                      >
-                        {opt}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            {/* SECCIÓN DE FILTROS REDISEÑADA */}
+            <div className="max-w-4xl mx-auto mb-20 px-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+                {Object.entries(configFiltros).map(([grupo, opciones], index) => (
+                  <div key={grupo} className="flex flex-col items-center space-y-4">
+                    {/* Título de categoría estético */}
+                    <div className="flex items-center space-x-2 w-full justify-center">
+                      <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-[#6B5E70]/20" />
+                      <span className="text-[11px] font-black uppercase tracking-[0.3em] text-[#6B5E70] italic">
+                        {grupo}
+                      </span>
+                      <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent to-[#6B5E70]/20" />
+                    </div>
 
-      {/* PANEL DE DETALLE */}
-      <AnimatePresence mode="wait">
-        {selected && (
-          <motion.div 
-            key="panel" 
-            initial={{ opacity: 0, y: 20 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            exit={{ opacity: 0, y: 20 }} 
-            className="max-w-7xl mx-auto mb-12 p-8 relative bg-white/40 backdrop-blur-md rounded-[3rem] border border-white/20"
-          >
-            <button 
-              onClick={() => setSelected(null)} 
-              className="absolute top-8 right-8 text-[#6B5E70] hover:rotate-90 transition-transform"
-            >
-              <X size={32} />
-            </button>
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <img src={selected.imagen_url} alt={selected.nombre} className="rounded-[2.5rem] shadow-2xl aspect-square object-cover" />
-              <div>
-                <div className="flex gap-2 mb-4">
-                  <span className="px-3 py-1 bg-[#6B5E70] text-white text-[9px] font-black uppercase rounded-full">{selected.habitat}</span>
-                  <span className="px-3 py-1 bg-[#6B5E70]/10 text-[#6B5E70] text-[9px] font-black uppercase rounded-full">{selected.pensamiento}</span>
-                  <span className="px-3 py-1 bg-[#6B5E70]/10 text-[#6B5E70] text-[9px] font-black uppercase rounded-full">Alma {selected.alma}</span>
-                </div>
-                <h2 className="text-7xl font-black uppercase italic text-[#6B5E70] leading-none tracking-tighter mb-6">{selected.nombre}</h2>
-                <p className="text-[#6B5E70]/80 text-xl italic leading-relaxed">{selected.descripcion}</p>
+                    {/* Contenedor de botones */}
+                    <div className="flex flex-wrap justify-center gap-2">
+                      {opciones.map(opt => (
+                        <button
+                          key={opt}
+                          onClick={() => updateFiltro(grupo, opt)}
+                          className={`px-4 py-1.5 rounded-xl text-[10px] font-bold uppercase transition-all duration-300 border ${
+                            filtros[grupo] === opt 
+                            ? 'bg-[#6B5E70] text-white border-[#6B5E70] shadow-lg shadow-[#6B5E70]/20 scale-105' 
+                            : 'bg-white text-[#6B5E70]/40 border-transparent hover:border-[#6B5E70]/20 hover:text-[#6B5E70]'
+                          }`}
+                        >
+                          {opt}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* GRILLA DE RESULTADOS */}
+      {/* PANEL DE DETALLE (Lore) */}
+      <AnimatePresence mode="wait">
+        {selected && (
+          <motion.div 
+            key="panel" 
+            initial={{ opacity: 0, scale: 0.95 }} 
+            animate={{ opacity: 1, scale: 1 }} 
+            exit={{ opacity: 0, scale: 0.95 }} 
+            className="max-w-6xl mx-auto mb-16 p-1 relative"
+          >
+            <div className="bg-white rounded-[3.5rem] overflow-hidden shadow-2xl border border-white p-10">
+              <button 
+                onClick={() => setSelected(null)} 
+                className="absolute top-10 right-10 p-3 bg-[#EBEBEB] text-[#6B5E70] rounded-full hover:bg-[#6B5E70] hover:text-white transition-all z-50"
+              >
+                <X size={24} />
+              </button>
+              
+              <div className="grid lg:grid-cols-2 gap-16 items-center">
+                <div className="rounded-[3rem] overflow-hidden shadow-inner aspect-square bg-[#F8F8F8]">
+                  <img src={selected.imagen_url} alt={selected.nombre} className="w-full h-full object-cover" />
+                </div>
+                <div>
+                  <div className="flex flex-wrap gap-3 mb-8">
+                    {['habitat', 'pensamiento', 'alma'].map(key => (
+                      <span key={key} className="px-4 py-1 bg-[#F0F0F0] text-[#6B5E70] text-[9px] font-black uppercase rounded-lg tracking-widest border border-[#6B5E70]/5">
+                        {key === 'alma' ? `Alma ${selected[key]}` : selected[key]}
+                      </span>
+                    ))}
+                  </div>
+                  <h2 className="text-8xl font-black uppercase italic text-[#6B5E70] leading-[0.85] tracking-tighter mb-8">
+                    {selected.nombre}
+                  </h2>
+                  <p className="text-[#6B5E70]/70 text-lg italic leading-relaxed font-medium">
+                    {selected.descripcion}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* RESULTADOS */}
       <section className="max-w-7xl mx-auto px-6">
         {loading ? (
-          <div className="py-20 text-center text-[#6B5E70] font-black uppercase text-xs animate-pulse">Cargando Registros...</div>
+          <div className="py-20 text-center text-[#6B5E70]/40 font-black uppercase text-xs tracking-[0.5em] animate-pulse">Sincronizando Archivos</div>
         ) : (
-          <motion.div layout className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+          <motion.div layout className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
             {filtradas.map(c => (
               <motion.div 
                 key={c.id} 
                 layout
                 onClick={() => { setSelected(c); window.scrollTo({ top: 0, behavior: 'smooth' }); }} 
-                className="group relative aspect-[4/5] overflow-hidden rounded-[2.5rem] cursor-pointer bg-white"
+                className="group relative aspect-[4/5] overflow-hidden rounded-[2.8rem] cursor-pointer bg-white transition-all duration-500 hover:-translate-y-2"
               >
-                <img src={c.imagen_url} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt={c.nombre} />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#6B5E70] via-transparent to-transparent opacity-70" />
-                <div className="absolute bottom-6 left-6 right-6">
-                  <p className="text-[7px] font-black text-white/50 uppercase tracking-widest mb-1">{c.habitat} / {c.alma}</p>
-                  <h3 className="text-lg font-black text-white uppercase italic leading-none">{c.nombre}</h3>
+                <img src={c.imagen_url} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale-[0.3] group-hover:grayscale-0" alt={c.nombre} />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#6B5E70] via-transparent to-transparent opacity-80" />
+                <div className="absolute bottom-8 left-8 right-8">
+                  <p className="text-[8px] font-black text-white/50 uppercase tracking-[0.3em] mb-2">
+                    {c.habitat} / {c.alma}
+                  </p>
+                  <h3 className="text-xl font-black text-white uppercase italic leading-none tracking-tighter">
+                    {c.nombre}
+                  </h3>
                 </div>
               </motion.div>
             ))}
