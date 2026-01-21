@@ -2,14 +2,14 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Footprints, X, Filter } from 'lucide-react';
+import { Footprints, X, ChevronDown } from 'lucide-react';
 
 export default function Criaturas() {
   const [criaturas, setCriaturas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
+  const [activeDropdown, setActiveDropdown] = useState(null);
 
-  // Estado único para todos los filtros
   const [filtros, setFiltros] = useState({
     habitat: 'todos',
     pensamiento: 'todos',
@@ -32,7 +32,6 @@ export default function Criaturas() {
     fetchCriaturas();
   }, []);
 
-  // Lógica de filtrado combinada
   const filtradas = useMemo(() => {
     return criaturas.filter(c => {
       const h = filtros.habitat === 'todos' || c.habitat?.toLowerCase() === filtros.habitat.toLowerCase();
@@ -42,15 +41,19 @@ export default function Criaturas() {
     });
   }, [criaturas, filtros]);
 
-  const updateFiltro = (grupo, valor) => {
+  const toggleDropdown = (name) => setActiveDropdown(activeDropdown === name ? null : name);
+
+  const seleccionarFiltro = (grupo, valor) => {
     setFiltros(prev => ({ ...prev, [grupo]: valor }));
+    setActiveDropdown(null);
   };
 
   return (
     <main className="min-h-screen bg-[#EBEBEB] pb-20 pt-10">
+      {/* HEADER Y FILTROS */}
       <AnimatePresence>
         {!selected && (
-          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             <header className="relative z-40 mb-10 px-4 text-center">
               <div className="flex justify-center mb-4">
                 <div className="p-3 bg-[#6B5E70]/5 rounded-full border border-[#6B5E70]/10 text-[#6B5E70]">
@@ -58,31 +61,49 @@ export default function Criaturas() {
                 </div>
               </div>
               <h1 className="text-4xl font-black italic tracking-tighter text-[#6B5E70] uppercase">Bestiario</h1>
-              <p className="mt-2 text-[#6B5E70]/60 font-medium italic">Filtra por naturaleza, conciencia y esencia</p>
+              <p className="mt-2 text-[#6B5E70]/60 font-medium italic">Explora las entidades registradas</p>
             </header>
 
-            {/* Contenedor de Filtros Grupales */}
-            <div className="max-w-4xl mx-auto mb-12 px-6 flex flex-wrap justify-center gap-8">
+            <div className="flex flex-wrap justify-center gap-4 mb-16 px-4 relative z-50">
               {Object.entries(configFiltros).map(([grupo, opciones]) => (
-                <div key={grupo} className="flex flex-col items-center">
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#6B5E70]/40 mb-3">
-                    {grupo}
-                  </span>
-                  <div className="flex gap-1 bg-white/50 p-1 rounded-full border border-[#6B5E70]/10">
-                    {opciones.map(opt => (
-                      <button
-                        key={opt}
-                        onClick={() => updateFiltro(grupo, opt)}
-                        className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase transition-all ${
-                          filtros[grupo] === opt 
-                          ? 'bg-[#6B5E70] text-white shadow-lg' 
-                          : 'text-[#6B5E70]/50 hover:text-[#6B5E70]'
-                        }`}
+                <div key={grupo} className="relative">
+                  <button
+                    onClick={() => toggleDropdown(grupo)}
+                    className={`flex items-center gap-3 px-6 py-3 rounded-full border transition-all text-[11px] font-black uppercase tracking-widest ${
+                      filtros[grupo] !== 'todos' 
+                      ? 'bg-[#6B5E70] text-white border-[#6B5E70]' 
+                      : 'bg-white text-[#6B5E70] border-[#6B5E70]/20 hover:border-[#6B5E70]/40'
+                    }`}
+                  >
+                    <span className="opacity-60">{grupo}:</span>
+                    <span>{filtros[grupo]}</span>
+                    <ChevronDown size={14} className={`transition-transform ${activeDropdown === grupo ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  <AnimatePresence>
+                    {activeDropdown === grupo && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        className="absolute top-full left-0 mt-2 w-48 bg-white rounded-2xl shadow-2xl border border-[#6B5E70]/10 overflow-hidden py-2 z-[60]"
                       >
-                        {opt}
-                      </button>
-                    ))}
-                  </div>
+                        {opciones.map(opt => (
+                          <button
+                            key={opt}
+                            onClick={() => seleccionarFiltro(grupo, opt)}
+                            className={`w-full text-left px-5 py-3 text-[10px] font-black uppercase tracking-wider transition-colors ${
+                              filtros[grupo] === opt 
+                              ? 'bg-[#6B5E70]/10 text-[#6B5E70]' 
+                              : 'text-[#6B5E70]/60 hover:bg-[#6B5E70]/5 hover:text-[#6B5E70]'
+                            }`}
+                          >
+                            {opt}
+                          </button>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               ))}
             </div>
@@ -90,50 +111,73 @@ export default function Criaturas() {
         )}
       </AnimatePresence>
 
-      {/* Panel de Detalle (Se mantiene tu estilo original) */}
+      {/* PANEL DE DETALLE (LORE) */}
       <AnimatePresence mode="wait">
         {selected && (
-          <motion.div key="panel" initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="lore-panel mb-12">
-            <div className="lore-panel-layout">
-              <button onClick={() => setSelected(null)} className="btn-close-panel"><X size={24} /></button>
-              <div className="lore-image-container"><img src={selected.imagen_url} alt={selected.nombre} /></div>
-              <div className="lore-content">
-                <div className="flex gap-2 mb-4">
-                  <span className="badge-lore">{selected.habitat}</span>
-                  <span className="badge-lore">{selected.pensamiento}</span>
-                  <span className="badge-lore">Alma {selected.alma}</span>
+          <motion.div 
+            key="panel" 
+            initial={{ height: 0, opacity: 0 }} 
+            animate={{ height: "auto", opacity: 1 }} 
+            exit={{ height: 0, opacity: 0 }} 
+            className="lore-panel mb-12 overflow-hidden bg-white/80 backdrop-blur-md"
+          >
+            <div className="max-w-7xl mx-auto p-8 relative">
+              <button 
+                onClick={() => setSelected(null)} 
+                className="absolute top-8 right-8 p-2 bg-[#6B5E70] text-white rounded-full hover:scale-110 transition-transform z-50"
+              >
+                <X size={24} />
+              </button>
+              
+              <div className="grid md:grid-cols-2 gap-12 items-center">
+                <div className="rounded-3xl overflow-hidden shadow-2xl aspect-square">
+                  <img src={selected.imagen_url} alt={selected.nombre} className="w-full h-full object-cover" />
                 </div>
-                <h2 className="text-5xl md:text-8xl font-black uppercase italic text-[#6B5E70] leading-none tracking-tighter">{selected.nombre}</h2>
-                <p className="lore-description italic">{selected.descripcion}</p>
+                <div className="lore-content">
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    <span className="px-4 py-1 bg-[#6B5E70]/10 text-[#6B5E70] text-[10px] font-black uppercase rounded-full tracking-widest">{selected.habitat}</span>
+                    <span className="px-4 py-1 bg-[#6B5E70]/10 text-[#6B5E70] text-[10px] font-black uppercase rounded-full tracking-widest">{selected.pensamiento}</span>
+                    <span className="px-4 py-1 bg-[#6B5E70] text-white text-[10px] font-black uppercase rounded-full tracking-widest">Alma {selected.alma}</span>
+                  </div>
+                  <h2 className="text-6xl md:text-8xl font-black uppercase italic text-[#6B5E70] leading-[0.8] tracking-tighter mb-6">
+                    {selected.nombre}
+                  </h2>
+                  <p className="text-[#6B5E70]/80 text-lg italic leading-relaxed max-w-xl">
+                    {selected.descripcion}
+                  </p>
+                </div>
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
+      {/* GRILLA DE CRIATURAS */}
       <section className="max-w-7xl mx-auto px-6">
         {loading ? (
-          <div className="py-20 text-center animate-pulse text-[#6B5E70] font-black uppercase text-xs">Rastreando huellas...</div>
+          <div className="py-20 text-center animate-pulse text-[#6B5E70] font-black uppercase text-xs tracking-widest">Rastreando huellas...</div>
         ) : (
           <>
             {filtradas.length === 0 ? (
-              <div className="text-center py-20 text-[#6B5E70]/40 italic uppercase text-sm font-bold">No hay criaturas con esta combinación</div>
+              <div className="text-center py-20 text-[#6B5E70]/40 italic uppercase text-sm font-bold tracking-widest">No hay criaturas con esta combinación</div>
             ) : (
               <motion.div layout className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
                 {filtradas.map(c => (
                   <motion.div 
                     key={c.id} 
                     layout 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
                     onClick={() => { setSelected(c); window.scrollTo({ top: 0, behavior: 'smooth' }); }} 
-                    className={`char-card group ${selected?.id === c.id ? 'char-card-selected' : ''}`}
+                    className={`group relative aspect-[3/4] overflow-hidden rounded-[2rem] cursor-pointer bg-white transition-all hover:shadow-2xl ${selected?.id === c.id ? 'ring-4 ring-[#6B5E70]' : ''}`}
                   >
-                    <img src={c.imagen_url} className="w-full h-full object-cover" alt={c.nombre} />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#6B5E70]/90 to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
-                    <div className="absolute bottom-4 left-4 right-4 translate-y-2 group-hover:translate-y-0 transition-all">
-                      <p className="text-[7px] font-black text-white/50 uppercase tracking-widest mb-1">
+                    <img src={c.imagen_url} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={c.nombre} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#6B5E70] via-[#6B5E70]/20 to-transparent opacity-80" />
+                    <div className="absolute bottom-6 left-6 right-6 translate-y-2 group-hover:translate-y-0 transition-transform">
+                      <p className="text-[8px] font-black text-white/60 uppercase tracking-widest mb-1">
                         {c.habitat} • {c.alma}
                       </p>
-                      <h3 className="text-lg font-black text-white uppercase italic leading-none">{c.nombre}</h3>
+                      <h3 className="text-xl font-black text-white uppercase italic leading-none tracking-tighter">{c.nombre}</h3>
                     </div>
                   </motion.div>
                 ))}
