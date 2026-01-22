@@ -89,14 +89,11 @@ export default function SobreMi() {
             
             <div className="max-w-2xl space-y-6 text-lg md:text-xl leading-relaxed font-light opacity-90">
               <p>
-                Más que un portafolio, es un espacio en constante crecimiento, como un jardín real. Es mi proyecto de vida.
-              </p>
-              <p>
-                Refleja temas que considero importantes a través de personajes basados en personas que han dejado una marca en mí.
+                Este refleja temas que considero importantes a través de personajes basados en personas que han dejado una marca en mí.
               </p>
               <div className="p-8 bg-[#E2D9E8]/40 rounded-3xl border-l-4 border-[#6B5E70]">
                 <p className="italic font-medium text-[#4A3F4F]">
-                  "Cada flor de este jardín está basada en una experiencia o una emoción que necesito quitarme de encima."
+                  "Cada flor de este jardín está basada en una experiencia o emoción que necesito quitarme de encima."
                 </p>
               </div>
             </div>
