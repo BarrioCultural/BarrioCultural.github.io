@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
+import { X, Play, Music } from 'lucide-react';
 
 export default function PersonajesGrid() {
   const [personajes, setPersonajes] = useState([]);
@@ -39,16 +39,11 @@ export default function PersonajesGrid() {
     fetchData();
   }, []);
 
-  // --- LÓGICA PARA MOSTRAR SOLO ESPECIES CON PERSONAJES ---
   const especiesConPersonajes = useMemo(() => {
-    // 1. Obtenemos un set de todas las especies que tienen los personajes actuales
     const especiesEnUso = new Set(personajes.map(p => p.especie?.toLowerCase().trim()));
-    
-    // 2. Filtramos la lista de criaturas para que solo queden las que están en el set
     return criaturasData.filter(c => especiesEnUso.has(c.nombre?.toLowerCase().trim()));
   }, [personajes, criaturasData]);
 
-  // Filtrado del Grid
   const filtered = useMemo(() => {
     return personajes.filter(p => {
       const matchReino = filtros.reino === 'TODOS' || p.reino === filtros.reino;
@@ -61,6 +56,14 @@ export default function PersonajesGrid() {
 
   const updateFiltro = (key, value) => {
     setFiltros(prev => ({ ...prev, [key]: value }));
+  };
+
+  // Función auxiliar para extraer ID de Youtube
+  const getYoutubeID = (url) => {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
   };
 
   return (
@@ -77,7 +80,6 @@ export default function PersonajesGrid() {
             </header>
 
             <div className="max-w-5xl mx-auto mb-20 px-6 space-y-10">
-              
               {/* FILTRO: REINOS */}
               <div className="flex flex-col items-center space-y-4">
                 <div className="flex items-center space-x-3 w-full max-w-2xl justify-center">
@@ -93,7 +95,7 @@ export default function PersonajesGrid() {
                 </div>
               </div>
 
-              {/* FILTRO: ESPECIES (FILTRADO AUTOMÁTICO) */}
+              {/* FILTRO: ESPECIES */}
               <div className="flex flex-col items-center space-y-4">
                 <div className="flex items-center space-x-3 w-full max-w-md justify-center">
                   <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-[#6B5E70]/20" />
@@ -101,21 +103,9 @@ export default function PersonajesGrid() {
                   <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent to-[#6B5E70]/20" />
                 </div>
                 <div className="flex flex-wrap justify-center gap-2">
-                  <button 
-                    onClick={() => updateFiltro('especie', 'TODOS')} 
-                    className={`px-3 py-1.5 rounded-xl text-[9px] md:text-[10px] font-bold uppercase transition-all border ${filtros.especie === 'TODOS' ? 'bg-[#6B5E70] text-white' : 'bg-white text-[#6B5E70]/40 border-transparent'}`}
-                  >
-                    TODOS
-                  </button>
-                  {/* Aquí usamos la lista procesada */}
+                  <button onClick={() => updateFiltro('especie', 'TODOS')} className={`px-3 py-1.5 rounded-xl text-[9px] md:text-[10px] font-bold uppercase transition-all border ${filtros.especie === 'TODOS' ? 'bg-[#6B5E70] text-white' : 'bg-white text-[#6B5E70]/40 border-transparent'}`}>TODOS</button>
                   {especiesConPersonajes.map((c, index) => (
-                    <button 
-                      key={index} 
-                      onClick={() => updateFiltro('especie', c.nombre)} 
-                      className={`px-3 py-1.5 rounded-xl text-[9px] md:text-[10px] font-bold uppercase transition-all border ${filtros.especie === c.nombre ? 'bg-[#6B5E70] text-white shadow-lg' : 'bg-white text-[#6B5E70]/40 border-transparent'}`}
-                    >
-                      {c.nombre}
-                    </button>
+                    <button key={index} onClick={() => updateFiltro('especie', c.nombre)} className={`px-3 py-1.5 rounded-xl text-[9px] md:text-[10px] font-bold uppercase transition-all border ${filtros.especie === c.nombre ? 'bg-[#6B5E70] text-white shadow-lg' : 'bg-white text-[#6B5E70]/40 border-transparent'}`}>{c.nombre}</button>
                   ))}
                 </div>
               </div>
@@ -124,7 +114,7 @@ export default function PersonajesGrid() {
         )}
       </AnimatePresence>
 
-      {/* PANEL DE DETALLE */}
+      {/* PANEL DE DETALLE CON VIDEOS */}
       <AnimatePresence mode="wait">
         {selected && (
           <motion.div key="panel" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="max-w-6xl mx-auto mb-16 p-4 md:p-6">
@@ -132,23 +122,64 @@ export default function PersonajesGrid() {
               <button onClick={() => setSelected(null)} className="absolute top-4 right-4 md:top-8 md:right-8 p-2 md:p-3 bg-[#F0F0F0] text-[#6B5E70] rounded-full hover:bg-[#6B5E70] hover:text-white transition-all z-50">
                 <X size={20} />
               </button>
+              
               <div className="flex flex-col lg:flex-row items-center lg:items-stretch">
                 <div className="w-full lg:w-1/2 aspect-square">
                   <img src={selected.img_url} alt={selected.nombre} className="w-full h-full object-cover" />
                 </div>
+                
                 <div className="w-full lg:w-1/2 p-6 md:p-12 flex flex-col justify-center">
                   <div className="flex flex-wrap gap-2 mb-6">
                     <span className="px-3 py-1 bg-[#6B5E70]/10 text-[#6B5E70] text-[8px] md:text-[10px] font-black uppercase rounded-lg tracking-widest border border-[#6B5E70]/5">Reino: {selected.reino}</span>
                     <span className="px-3 py-1 bg-[#6B5E70] text-white text-[8px] md:text-[10px] font-black uppercase rounded-lg tracking-widest">{selected.especie || 'Desconocido'}</span>
                   </div>
+                  
                   <h2 className="text-4xl md:text-6xl lg:text-8xl font-black uppercase italic text-[#6B5E70] leading-[0.9] tracking-tighter break-words mb-6">
                     {selected.nombre}
                   </h2>
-                  <div className="max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                  
+                  <div className="max-h-[300px] overflow-y-auto pr-2 custom-scrollbar mb-8">
                     <p className="text-[#6B5E70]/70 text-sm md:text-lg italic leading-relaxed font-medium">
                       {selected.sobre}
                     </p>
                   </div>
+
+                  {/* NUEVA SECCIÓN DE VIDEOS MUSICALES */}
+                  {selected.videos_url && selected.videos_url.length > 0 && (
+                    <div className="pt-6 border-t border-[#6B5E70]/10">
+                      <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#6B5E70]/60 mb-4 flex items-center">
+                        <Music size={12} className="mr-2" />
+                        Crónicas Musicales
+                      </h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {selected.videos_url.map((url, idx) => {
+                          const vId = getYoutubeID(url);
+                          return (
+                            <a 
+                              key={idx} 
+                              href={url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="group flex items-center space-x-3 p-2 rounded-2xl bg-[#F0F0F0] hover:bg-[#6B5E70] transition-all duration-300"
+                            >
+                              <div className="relative w-14 h-10 overflow-hidden rounded-lg bg-black flex-shrink-0">
+                                <img 
+                                  src={`https://img.youtube.com/vi/${vId}/mqdefault.jpg`} 
+                                  className="w-full h-full object-cover opacity-80 group-hover:scale-110 transition-transform"
+                                  alt="Video thumb"
+                                />
+                                <Play size={12} className="absolute inset-0 m-auto text-white fill-current" />
+                              </div>
+                              <div className="min-w-0">
+                                <p className="text-[9px] font-black text-[#6B5E70] group-hover:text-white uppercase truncate">Ver Historia</p>
+                                <p className="text-[7px] text-[#6B5E70]/40 group-hover:text-white/50 uppercase tracking-widest truncate">YouTube Audio</p>
+                              </div>
+                            </a>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
