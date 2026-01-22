@@ -101,7 +101,7 @@ export default function SobreMi() {
 
           {/* SECCIÓN 4: CONTACTO */}
           <section className="pt-10">
-            <div className="bg-[#4A3F4F] rounded-[3rem] p-8 md:p-16 text-white shadow-xl">
+            <div className="bg-[#6f5a78] rounded-[3rem] p-8 md:p-16 text-white shadow-xl">
               {enviado ? (
                 <div className="text-center py-10">
                   <Heart size={40} className="mx-auto text-[#D1C4DB] mb-6" />
