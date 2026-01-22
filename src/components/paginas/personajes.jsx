@@ -1,13 +1,17 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { GalleryGrid, GalleryItem } from "@/components/recursos/display/gallery";
-import { X } from 'lucide-react'; // Para el botón de cerrar detalle
+import { X } from 'lucide-react';
 
 export default function PersonajesGrid() {
   const [personajes, setPersonajes] = useState([]);
   const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
+  
+  // Estados para filtros
+  const [filtroReino, setFiltroReino] = useState('todos');
+  const [filtroEspecie, setFiltroEspecie] = useState('todos');
 
   useEffect(() => {
     const fetchChars = async () => {
@@ -19,9 +23,63 @@ export default function PersonajesGrid() {
     fetchChars();
   }, []);
 
+  // Lógica de filtrado dinámico
+  const reinos = useMemo(() => ['todos', ...new Set(personajes.map(p => p.reino))], [personajes]);
+  const especies = useMemo(() => ['todos', ...new Set(personajes.map(p => p.especie))], [personajes]);
+
+  const filtrados = useMemo(() => {
+    return personajes.filter(p => {
+      const matchReino = filtroReino === 'todos' || p.reino === filtroReino;
+      const matchEspecie = filtroEspecie === 'todos' || p.especie === filtroEspecie;
+      return matchReino && matchEspecie;
+    });
+  }, [personajes, filtroReino, filtroEspecie]);
+
+  // Estilo de botones consistente con los otros componentes
+  const btnStyle = (isActive) => `
+    px-4 py-1.5 rounded-xl text-[10px] font-bold uppercase transition-all border 
+    ${isActive 
+      ? 'bg-primary text-white border-primary shadow-lg scale-105' 
+      : 'bg-white/50 text-primary/60 border-transparent hover:border-primary/20'}
+  `;
+
   return (
     <main className="min-h-screen bg-bg-main py-20">
-      {/* Si hay un personaje seleccionado, mostramos su ficha (Lightbox Maestro) */}
+      
+      {/* SECCIÓN DE FILTROS RECUPERADA */}
+      <header className="mb-16 text-center px-4">
+        <h1 className="text-5xl md:text-8xl font-black italic tracking-tighter text-primary uppercase leading-none mb-12">
+          Personajes
+        </h1>
+        
+        <div className="max-w-4xl mx-auto space-y-8">
+          {/* Filtro de Reinos */}
+          <div className="flex flex-col items-center space-y-3">
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/30 italic">Reinos</span>
+            <div className="flex flex-wrap justify-center gap-2">
+              {reinos.map(r => (
+                <button key={r} onClick={() => setFiltroReino(r)} className={btnStyle(filtroReino === r)}>
+                  {r}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Filtro de Especies */}
+          <div className="flex flex-col items-center space-y-3">
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/30 italic">Especies</span>
+            <div className="flex flex-wrap justify-center gap-2">
+              {especies.map(e => (
+                <button key={e} onClick={() => setFiltroEspecie(e)} className={btnStyle(filtroEspecie === e)}>
+                  {e}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* DETALLE (Cuando se selecciona uno) */}
       {selected && (
         <div className="max-w-6xl mx-auto p-6 mb-20 animate-in fade-in zoom-in duration-300">
            <div className="bg-white rounded-[3rem] overflow-hidden flex flex-col md:flex-row shadow-2xl relative">
@@ -41,12 +99,12 @@ export default function PersonajesGrid() {
         </div>
       )}
 
-      {/* Cuadrícula Unificada */}
+      {/* CUADRÍCULA UNIFICADA */}
       {loading ? (
         <p className="text-center font-black uppercase text-[10px] tracking-widest opacity-20">Indexando...</p>
       ) : (
         <GalleryGrid>
-          {personajes.map(p => (
+          {filtrados.map(p => (
             <GalleryItem 
               key={p.id} 
               src={p.img_url} 
