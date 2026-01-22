@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { GalleryGrid, GalleryItem } from "@/components/recursos/display/gallery";
-import DetalleMaestro from './DetalleMaestro'; // Asegúrate de que la ruta sea correcta
+import DetalleMaestro from '@/components/recursos/display/detalles';
 
 export default function PersonajesGrid() {
   const [personajes, setPersonajes] = useState([]);
