@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import { Palette, Heart, Sparkles, Send } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function SobreMi() {
   const [enviado, setEnviado] = useState(false);
@@ -35,9 +35,10 @@ export default function SobreMi() {
   };
 
   return (
-    <main className="min-h-screen bg-[#F0F0F0] pb-20 pt-16 font-sans">
+    /* He añadido w-full y relativo para asegurar que el fondo cubra todo */
+    <main className="relative min-h-screen w-full bg-[#F0F0F0] pb-20 pt-16 font-sans overflow-x-hidden">
       
-      {/* CABECERA: Título limpio, sin bloques */}
+      {/* CABECERA */}
       <header className="mb-20 text-center px-4">
         <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter text-[#6B5E70] uppercase leading-none">
           Sobre Mi
@@ -47,7 +48,7 @@ export default function SobreMi() {
 
       <div className="max-w-4xl mx-auto px-6 space-y-24">
         
-        {/* SECCIÓN 1: Texto fluido, sin tarjetas pesadas */}
+        {/* SECCIÓN 1: Herramientas */}
         <section className="grid md:grid-cols-2 gap-12 items-start">
           <div className="space-y-6">
             <h3 className="text-lg font-black text-[#6B5E70] uppercase tracking-widest flex items-center gap-2">
@@ -71,7 +72,7 @@ export default function SobreMi() {
           </div>
         </section>
 
-        {/* SECCIÓN 2: Garden of Sins - Texto protagonista */}
+        {/* SECCIÓN 2: Garden of Sins */}
         <section className="space-y-8 text-center md:text-left">
           <div className="flex items-center space-x-4 mb-4">
             <h2 className="text-3xl md:text-4xl font-black uppercase italic text-[#6B5E70] tracking-tighter">
@@ -89,11 +90,12 @@ export default function SobreMi() {
           </div>
         </section>
 
-        {/* SECCIÓN 3: Contacto - Formulario integrado al fondo */}
+        {/* SECCIÓN 3: Contacto */}
         <section className="pt-10">
-          <div className="bg-white/40 backdrop-blur-sm rounded-[3rem] p-8 md:p-16 border border-white/50 shadow-sm">
+          {/* He subido la opacidad del fondo blanco para que bloquee el fondo rosa totalmente */}
+          <div className="bg-white/80 backdrop-blur-md rounded-[3rem] p-8 md:p-16 border border-white shadow-sm">
             {enviado ? (
-              <div className="text-center py-10 animate-in zoom-in duration-300">
+              <div className="text-center py-10">
                 <p className="text-[#6B5E70] font-black text-2xl uppercase italic tracking-tighter mb-2">¡Mensaje enviado!</p>
                 <p className="text-[#6B5E70]/60 font-medium italic mb-8">Gracias por escribirme, te responderé pronto. ♡</p>
                 <button onClick={() => setEnviado(false)} className="text-[10px] font-black uppercase tracking-widest text-[#6B5E70] border-b border-[#6B5E70] pb-1">Enviar otro</button>
@@ -113,17 +115,17 @@ export default function SobreMi() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#6B5E70]/60 ml-4">Nombre</label>
-                      <input type="text" name="name" required placeholder="Tu nombre..." className="w-full bg-white/50 border-none rounded-2xl px-6 py-4 text-[#6B5E70] placeholder:text-[#6B5E70]/30 font-bold focus:ring-2 focus:ring-[#6B5E70]/10 transition-all outline-none" />
+                      <input type="text" name="name" required placeholder="Tu nombre..." className="w-full bg-[#F5F5F5] border-none rounded-2xl px-6 py-4 text-[#6B5E70] placeholder:text-[#6B5E70]/30 font-bold focus:ring-2 focus:ring-[#6B5E70]/10 transition-all outline-none" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#6B5E70]/60 ml-4">Correo</label>
-                      <input type="email" name="_replyto" required placeholder="tu@correo.com" className="w-full bg-white/50 border-none rounded-2xl px-6 py-4 text-[#6B5E70] placeholder:text-[#6B5E70]/30 font-bold focus:ring-2 focus:ring-[#6B5E70]/10 transition-all outline-none" />
+                      <input type="email" name="_replyto" required placeholder="tu@correo.com" className="w-full bg-[#F5F5F5] border-none rounded-2xl px-6 py-4 text-[#6B5E70] placeholder:text-[#6B5E70]/30 font-bold focus:ring-2 focus:ring-[#6B5E70]/10 transition-all outline-none" />
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#6B5E70]/60 ml-4">Mensaje</label>
-                    <textarea name="message" required placeholder="Escribe aquí..." className="w-full bg-white/50 border-none rounded-[2rem] px-6 py-5 text-[#6B5E70] placeholder:text-[#6B5E70]/30 font-bold focus:ring-2 focus:ring-[#6B5E70]/10 transition-all outline-none min-h-[150px] resize-none"></textarea>
+                    <textarea name="message" required placeholder="Escribe aquí..." className="w-full bg-[#F5F5F5] border-none rounded-[2rem] px-6 py-5 text-[#6B5E70] placeholder:text-[#6B5E70]/30 font-bold focus:ring-2 focus:ring-[#6B5E70]/10 transition-all outline-none min-h-[150px] resize-none"></textarea>
                   </div>
 
                   <input type="hidden" name="_subject" value="¡Nuevo mensaje desde Franilover!" />
