@@ -59,7 +59,7 @@ export default function SobreMi() {
                 <Heart size={14} /> Mi Atelier
               </h3>
               <p className="text-2xl md:text-3xl leading-snug font-light">
-                Bienvenido a mi pequeño <span className="italic">jardín digital</span>. Me encanta compartir mi arte y conectar con personas que disfrutan de este proceso creativo.
+                Bienvenido a mi pequeño <span className="italic">jardín digital</span>. Me encanta compartir mi arte y conectar con personas que disfrutan de este.
               </p>
             </div>
           </section>
