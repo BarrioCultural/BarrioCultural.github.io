@@ -2,8 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { GalleryGrid, GalleryItem } from "@/components/recursos/display/gallery";
-import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
+import DetalleMaestro from "@/components/recursos/boxes/detalles";
 
 export default function Criaturas() {
   const [criaturas, setCriaturas] = useState([]);
@@ -57,8 +56,13 @@ export default function Criaturas() {
 
   const updateFiltro = (grupo, valor) => setFiltros(prev => ({ ...prev, [grupo]: valor }));
 
-  // --- COMPONENTE DE CABECERA Y FILTROS ---
-  // Este es el contenido que el GalleryGrid ocultará cuando selecciones una criatura
+  // Selección optimizada
+  const handleSelect = (c) => {
+    setSelected(c);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
+  // --- CABECERA Y FILTROS ---
   const MiMenuBestiario = (
     <div className="pt-16">
       <header className="mb-12 text-center px-4">
@@ -96,36 +100,20 @@ export default function Criaturas() {
   return (
     <main className="min-h-screen bg-bg-main pb-20 font-sans overflow-x-hidden">
       
-      {/* DETALLE DE CRIATURA */}
-      <AnimatePresence mode="wait">
-        {selected && (
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.98 }} 
-            animate={{ opacity: 1, scale: 1 }} 
-            exit={{ opacity: 0, scale: 0.98 }} 
-            className="max-w-6xl mx-auto mb-16 p-4 md:p-6 relative pt-24"
-          >
-            <div className="bg-white rounded-[3rem] overflow-hidden shadow-2xl flex flex-col lg:flex-row min-h-[500px]">
-              <button onClick={() => setSelected(null)} className="absolute top-10 right-10 z-50 p-3 bg-bg-main text-primary rounded-full shadow-md hover:bg-primary hover:text-white transition-all">
-                <X size={20} />
-              </button>
-              <img src={selected.imagen_url} className="w-full lg:w-1/2 aspect-square object-cover" />
-              <div className="p-12 md:p-20 flex flex-col justify-center bg-bg-main/5">
-                <div className="flex gap-2 mb-6">
-                  <span className="px-3 py-1 bg-primary text-white text-[10px] font-black uppercase rounded-lg tracking-widest">{selected.habitat}</span>
-                  <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase rounded-lg tracking-widest">Alma {selected.alma}</span>
-                </div>
-                <h2 className="text-6xl md:text-8xl font-black uppercase italic text-primary leading-none tracking-tighter mb-6">{selected.nombre}</h2>
-                <p className="text-primary/70 text-xl italic leading-relaxed border-l-4 border-primary pl-6">{selected.descripcion}</p>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* EL NUEVO DETALLE UNIFICADO */}
+      <DetalleMaestro 
+        isOpen={!!selected}
+        onClose={() => setSelected(null)}
+        data={selected}
+        tags={[selected?.habitat, selected?.alma ? `Alma ${selected.alma}` : null]}
+        mostrarMusica={false} // Las criaturas no tienen música por ahora
+      />
 
-      {/* GRID MAESTRO CON CONTROL DE FILTROS */}
+      {/* GRID MAESTRO */}
       {loading ? (
-        <div className="py-20 text-center text-primary/30 font-black uppercase text-[10px] tracking-widest animate-pulse">Sincronizando Archivos...</div>
+        <div className="py-20 text-center text-primary/30 font-black uppercase text-[10px] tracking-widest animate-pulse">
+          Sincronizando Archivos...
+        </div>
       ) : (
         <GalleryGrid 
           isDetailOpen={!!selected} 
@@ -135,10 +123,14 @@ export default function Criaturas() {
             <GalleryItem 
               key={c.id} 
               src={c.imagen_url} 
-              onClick={() => { setSelected(c); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              onClick={() => handleSelect(c)}
             >
-              <p className="text-[8px] font-black text-white/50 uppercase tracking-[0.2em] mb-1">{c.habitat} • {c.alma}</p>
-              <h3 className="text-xl font-black text-white uppercase italic leading-none tracking-tighter">{c.nombre}</h3>
+              <p className="text-[8px] font-black text-white/50 uppercase tracking-[0.2em] mb-1">
+                {c.habitat} • {c.alma}
+              </p>
+              <h3 className="text-xl font-black text-white uppercase italic leading-none tracking-tighter">
+                {c.nombre}
+              </h3>
             </GalleryItem>
           ))}
         </GalleryGrid>
