@@ -22,7 +22,6 @@ export default function Criaturas() {
     alma: 'todos'
   });
 
-  // Carga de opciones para los botones de filtro
   useEffect(() => {
     const fetchOpciones = async () => {
       const { data } = await supabase.from('criaturas').select('habitat, pensamiento, alma');
@@ -41,7 +40,6 @@ export default function Criaturas() {
     fetchOpciones();
   }, []);
 
-  // Carga de criaturas filtradas
   useEffect(() => {
     const fetchCriaturas = async () => {
       setLoading(true);
@@ -59,50 +57,54 @@ export default function Criaturas() {
 
   const updateFiltro = (grupo, valor) => setFiltros(prev => ({ ...prev, [grupo]: valor }));
 
-  return (
-    <main className="min-h-screen bg-bg-main pb-20 pt-16 font-sans overflow-x-hidden">
-      
-      {/* HEADER Y FILTROS */}
-      <AnimatePresence>
-        {!selected && (
-          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-            <header className="mb-12 text-center px-4">
-              <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter text-primary uppercase leading-none">
-                Bestiario
-              </h1>
-              <div className="h-1.5 w-24 bg-primary mx-auto mt-4 rounded-full opacity-20" />
-            </header>
+  // --- COMPONENTE DE CABECERA Y FILTROS ---
+  // Este es el contenido que el GalleryGrid ocultará cuando selecciones una criatura
+  const MiMenuBestiario = (
+    <div className="pt-16">
+      <header className="mb-12 text-center px-4">
+        <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter text-primary uppercase leading-none">
+          Bestiario
+        </h1>
+        <div className="h-1.5 w-24 bg-primary mx-auto mt-4 rounded-full opacity-20" />
+      </header>
 
-            <div className="max-w-5xl mx-auto mb-16 px-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {Object.entries(opcionesFiltros).map(([grupo, opciones]) => (
-                  <div key={grupo} className="flex flex-col items-center space-y-4">
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/40 italic">{grupo}</span>
-                    <div className="flex flex-wrap justify-center gap-2">
-                      {opciones.map(opt => (
-                        <button
-                          key={opt}
-                          onClick={() => updateFiltro(grupo, opt)}
-                          className={`px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase transition-all border ${
-                            filtros[grupo] === opt ? 'bg-primary text-white shadow-lg' : 'bg-white/50 text-primary/60 border-transparent'
-                          }`}
-                        >
-                          {opt}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+      <div className="max-w-5xl mx-auto mb-16 px-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {Object.entries(opcionesFiltros).map(([grupo, opciones]) => (
+            <div key={grupo} className="flex flex-col items-center space-y-4">
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary/40 italic">{grupo}</span>
+              <div className="flex flex-wrap justify-center gap-2">
+                {opciones.map(opt => (
+                  <button
+                    key={opt}
+                    onClick={() => updateFiltro(grupo, opt)}
+                    className={`px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase transition-all border ${
+                      filtros[grupo] === opt ? 'bg-primary text-white shadow-lg scale-105' : 'bg-white/50 text-primary/60 border-transparent hover:border-primary/20'
+                    }`}
+                  >
+                    {opt}
+                  </button>
                 ))}
               </div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 
+  return (
+    <main className="min-h-screen bg-bg-main pb-20 font-sans overflow-x-hidden">
+      
       {/* DETALLE DE CRIATURA */}
       <AnimatePresence mode="wait">
         {selected && (
-          <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="max-w-6xl mx-auto mb-16 p-4 md:p-6 relative">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.98 }} 
+            animate={{ opacity: 1, scale: 1 }} 
+            exit={{ opacity: 0, scale: 0.98 }} 
+            className="max-w-6xl mx-auto mb-16 p-4 md:p-6 relative pt-24"
+          >
             <div className="bg-white rounded-[3rem] overflow-hidden shadow-2xl flex flex-col lg:flex-row min-h-[500px]">
               <button onClick={() => setSelected(null)} className="absolute top-10 right-10 z-50 p-3 bg-bg-main text-primary rounded-full shadow-md hover:bg-primary hover:text-white transition-all">
                 <X size={20} />
@@ -110,8 +112,8 @@ export default function Criaturas() {
               <img src={selected.imagen_url} className="w-full lg:w-1/2 aspect-square object-cover" />
               <div className="p-12 md:p-20 flex flex-col justify-center bg-bg-main/5">
                 <div className="flex gap-2 mb-6">
-                  <span className="px-3 py-1 bg-primary text-white text-[10px] font-black uppercase rounded-lg">{selected.habitat}</span>
-                  <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase rounded-lg">Alma {selected.alma}</span>
+                  <span className="px-3 py-1 bg-primary text-white text-[10px] font-black uppercase rounded-lg tracking-widest">{selected.habitat}</span>
+                  <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black uppercase rounded-lg tracking-widest">Alma {selected.alma}</span>
                 </div>
                 <h2 className="text-6xl md:text-8xl font-black uppercase italic text-primary leading-none tracking-tighter mb-6">{selected.nombre}</h2>
                 <p className="text-primary/70 text-xl italic leading-relaxed border-l-4 border-primary pl-6">{selected.descripcion}</p>
@@ -121,11 +123,14 @@ export default function Criaturas() {
         )}
       </AnimatePresence>
 
-      {/* GRID MAESTRO */}
+      {/* GRID MAESTRO CON CONTROL DE FILTROS */}
       {loading ? (
         <div className="py-20 text-center text-primary/30 font-black uppercase text-[10px] tracking-widest animate-pulse">Sincronizando Archivos...</div>
       ) : (
-        <GalleryGrid>
+        <GalleryGrid 
+          isDetailOpen={!!selected} 
+          headerContent={MiMenuBestiario}
+        >
           {criaturas.map(c => (
             <GalleryItem 
               key={c.id} 
