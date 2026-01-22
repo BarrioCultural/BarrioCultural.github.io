@@ -7,7 +7,7 @@ import { X } from 'lucide-react';
 export default function PersonajesGrid() {
   const [personajes, setPersonajes] = useState([]);
   const [reinosData, setReinosData] = useState([]); 
-  const [criaturasData, setCriaturasData] = useState([]); // Usaremos esto para los nombres de especies
+  const [criaturasData, setCriaturasData] = useState([]); 
   const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -20,7 +20,6 @@ export default function PersonajesGrid() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Pedimos personajes, reinos y criaturas (que actúan como especies)
         const [charsRes, reinosRes, criaturasRes] = await Promise.all([
           supabase.from('personajes').select('*').order('id', { ascending: true }),
           supabase.from('reinos').select('*').order('orden', { ascending: true }),
@@ -40,14 +39,22 @@ export default function PersonajesGrid() {
     fetchData();
   }, []);
 
+  // --- LÓGICA PARA MOSTRAR SOLO ESPECIES CON PERSONAJES ---
+  const especiesConPersonajes = useMemo(() => {
+    // 1. Obtenemos un set de todas las especies que tienen los personajes actuales
+    const especiesEnUso = new Set(personajes.map(p => p.especie?.toLowerCase().trim()));
+    
+    // 2. Filtramos la lista de criaturas para que solo queden las que están en el set
+    return criaturasData.filter(c => especiesEnUso.has(c.nombre?.toLowerCase().trim()));
+  }, [personajes, criaturasData]);
+
+  // Filtrado del Grid
   const filtered = useMemo(() => {
     return personajes.filter(p => {
       const matchReino = filtros.reino === 'TODOS' || p.reino === filtros.reino;
-      // Normalización para comparar sin problemas de mayúsculas/minúsculas
       const pEspecie = p.especie?.toLowerCase().trim();
       const fEspecie = filtros.especie.toLowerCase().trim();
       const matchEspecie = fEspecie === 'todos' || pEspecie === fEspecie;
-      
       return matchReino && matchEspecie;
     });
   }, [personajes, filtros]);
@@ -59,7 +66,6 @@ export default function PersonajesGrid() {
   return (
     <div className="min-h-screen bg-[#F0F0F0] pb-20 font-sans overflow-x-hidden">
       
-      {/* SECCIÓN DE FILTROS Y CABECERA */}
       <AnimatePresence>
         {!selected && (
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
@@ -80,25 +86,14 @@ export default function PersonajesGrid() {
                   <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent to-[#6B5E70]/20" />
                 </div>
                 <div className="flex flex-wrap justify-center gap-2">
-                  <button 
-                    onClick={() => updateFiltro('reino', 'TODOS')} 
-                    className={`px-3 py-1.5 rounded-xl text-[9px] md:text-[10px] font-bold uppercase transition-all border ${filtros.reino === 'TODOS' ? 'bg-[#6B5E70] text-white' : 'bg-white text-[#6B5E70]/40 border-transparent'}`}
-                  >
-                    TODOS
-                  </button>
+                  <button onClick={() => updateFiltro('reino', 'TODOS')} className={`px-3 py-1.5 rounded-xl text-[9px] md:text-[10px] font-bold uppercase transition-all border ${filtros.reino === 'TODOS' ? 'bg-[#6B5E70] text-white' : 'bg-white text-[#6B5E70]/40 border-transparent'}`}>TODOS</button>
                   {reinosData.map(r => (
-                    <button 
-                      key={r.id} 
-                      onClick={() => updateFiltro('reino', r.nombre)} 
-                      className={`px-3 py-1.5 rounded-xl text-[9px] md:text-[10px] font-bold uppercase transition-all border ${filtros.reino === r.nombre ? 'bg-[#6B5E70] text-white shadow-lg' : 'bg-white text-[#6B5E70]/40 border-transparent'}`}
-                    >
-                      {r.nombre}
-                    </button>
+                    <button key={r.id} onClick={() => updateFiltro('reino', r.nombre)} className={`px-3 py-1.5 rounded-xl text-[9px] md:text-[10px] font-bold uppercase transition-all border ${filtros.reino === r.nombre ? 'bg-[#6B5E70] text-white shadow-lg' : 'bg-white text-[#6B5E70]/40 border-transparent'}`}>{r.nombre}</button>
                   ))}
                 </div>
               </div>
 
-              {/* FILTRO: ESPECIES (Basado en la tabla Criaturas) */}
+              {/* FILTRO: ESPECIES (FILTRADO AUTOMÁTICO) */}
               <div className="flex flex-col items-center space-y-4">
                 <div className="flex items-center space-x-3 w-full max-w-md justify-center">
                   <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-[#6B5E70]/20" />
@@ -112,7 +107,8 @@ export default function PersonajesGrid() {
                   >
                     TODOS
                   </button>
-                  {criaturasData.map((c, index) => (
+                  {/* Aquí usamos la lista procesada */}
+                  {especiesConPersonajes.map((c, index) => (
                     <button 
                       key={index} 
                       onClick={() => updateFiltro('especie', c.nombre)} 
@@ -128,7 +124,7 @@ export default function PersonajesGrid() {
         )}
       </AnimatePresence>
 
-      {/* PANEL DE DETALLE (Lightbox) */}
+      {/* PANEL DE DETALLE */}
       <AnimatePresence mode="wait">
         {selected && (
           <motion.div key="panel" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="max-w-6xl mx-auto mb-16 p-4 md:p-6">
@@ -136,22 +132,18 @@ export default function PersonajesGrid() {
               <button onClick={() => setSelected(null)} className="absolute top-4 right-4 md:top-8 md:right-8 p-2 md:p-3 bg-[#F0F0F0] text-[#6B5E70] rounded-full hover:bg-[#6B5E70] hover:text-white transition-all z-50">
                 <X size={20} />
               </button>
-              
               <div className="flex flex-col lg:flex-row items-center lg:items-stretch">
-                <div className="w-full lg:w-1/2 aspect-square bg-gray-100">
+                <div className="w-full lg:w-1/2 aspect-square">
                   <img src={selected.img_url} alt={selected.nombre} className="w-full h-full object-cover" />
                 </div>
-
                 <div className="w-full lg:w-1/2 p-6 md:p-12 flex flex-col justify-center">
                   <div className="flex flex-wrap gap-2 mb-6">
                     <span className="px-3 py-1 bg-[#6B5E70]/10 text-[#6B5E70] text-[8px] md:text-[10px] font-black uppercase rounded-lg tracking-widest border border-[#6B5E70]/5">Reino: {selected.reino}</span>
                     <span className="px-3 py-1 bg-[#6B5E70] text-white text-[8px] md:text-[10px] font-black uppercase rounded-lg tracking-widest">{selected.especie || 'Desconocido'}</span>
                   </div>
-                  
                   <h2 className="text-4xl md:text-6xl lg:text-8xl font-black uppercase italic text-[#6B5E70] leading-[0.9] tracking-tighter break-words mb-6">
                     {selected.nombre}
                   </h2>
-                  
                   <div className="max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                     <p className="text-[#6B5E70]/70 text-sm md:text-lg italic leading-relaxed font-medium">
                       {selected.sobre}
