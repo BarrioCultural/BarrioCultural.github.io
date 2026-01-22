@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Youtube, Music } from 'lucide-react';
+import { X, Music, Play } from 'lucide-react';
 
 export default function PersonajesGrid() {
   const [personajes, setPersonajes] = useState([]);
@@ -135,7 +135,7 @@ export default function PersonajesGrid() {
               </div>
             </div>
 
-            {/* BOTONES DE CANCIONES (Abajo de la tarjeta) */}
+            {/* BOTONES DE CANCIONES (Actualizados a Morado Pastel) */}
             {selected.canciones && selected.canciones.length > 0 && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }} 
@@ -157,12 +157,14 @@ export default function PersonajesGrid() {
                       href={url} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="group flex items-center space-x-4 bg-[#6B5E70] text-white px-8 py-4 rounded-2xl md:rounded-3xl hover:bg-[#FF0000] hover:scale-105 transition-all duration-300 shadow-xl shadow-[#6B5E70]/10"
+                      className="group flex items-center space-x-4 bg-purple-100 hover:bg-purple-200 text-[#6B5E70] px-8 py-4 rounded-2xl md:rounded-3xl transition-all duration-300 shadow-lg shadow-purple-500/5 border border-purple-200/60"
                     >
-                      <Youtube size={24} className="text-white fill-current" />
+                      <div className="bg-purple-300/40 p-2.5 rounded-full group-hover:bg-[#6B5E70] group-hover:text-white transition-colors duration-300">
+                        <Play size={18} className="fill-current ml-0.5" />
+                      </div>
                       <div className="text-left leading-tight">
-                        <p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-60 group-hover:opacity-100">YouTube</p>
-                        <p className="text-sm md:text-lg font-black uppercase italic tracking-tighter">Escuchar Tema {idx + 1}</p>
+                        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-purple-400 group-hover:text-[#6B5E70]/60 transition-colors">Tema Musical</p>
+                        <p className="text-sm md:text-lg font-black uppercase italic tracking-tighter text-[#6B5E70]">Escuchar Parte {idx + 1}</p>
                       </div>
                     </a>
                   ))}
