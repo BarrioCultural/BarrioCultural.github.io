@@ -135,7 +135,7 @@ export default function PersonajesGrid() {
               </div>
             </div>
 
-            {/* BOTONES DE CANCIONES (FONDO OSCURO ORIGINAL + LOGO MORADO PASTEL) */}
+            {/* BOTONES DE CANCIONES */}
             {selected.canciones && selected.canciones.length > 0 && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }} 
@@ -145,7 +145,7 @@ export default function PersonajesGrid() {
                 <div className="flex items-center space-x-4 w-full max-w-xl">
                   <div className="h-[1px] flex-1 bg-[#6B5E70]/20" />
                   <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#6B5E70]/60 italic flex items-center">
-                    <Music size={14} className="mr-2" /> Mas sobre {selected.nombre}
+                    <Music size={14} className="mr-2" /> Temas Musicales
                   </span>
                   <div className="h-[1px] flex-1 bg-[#6B5E70]/20" />
                 </div>
@@ -157,14 +157,15 @@ export default function PersonajesGrid() {
                       href={url} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="group flex items-center space-x-4 bg-[#6B5E70] text-white px-8 py-4 rounded-2xl md:rounded-3xl hover:bg-black hover:scale-105 transition-all duration-300 shadow-xl shadow-[#6B5E70]/10"
+                      className="group flex items-center space-x-4 bg-[#6B5E70] text-white px-8 py-5 rounded-2xl md:rounded-3xl hover:bg-black hover:scale-105 transition-all duration-300 shadow-xl shadow-[#6B5E70]/10"
                     >
-                      {/* Logo en Morado Pastel */}
-                      <Play size={24} className="text-[#D6BCFA] fill-current group-hover:scale-110 transition-transform" />
+                      {/* Logo Morado Pálido / Lavanda */}
+                      <Play size={20} className="text-[#E9D8FD] fill-current group-hover:scale-110 transition-transform" />
                       
                       <div className="text-left leading-tight">
-                        <p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-60">Multimedia</p>
-                        <p className="text-sm md:text-lg font-black uppercase italic tracking-tighter">Escuchar Tema {idx + 1}</p>
+                        <p className="text-sm md:text-xl font-black uppercase italic tracking-tighter">
+                          {selected.nombre} #{idx + 1}
+                        </p>
                       </div>
                     </a>
                   ))}
