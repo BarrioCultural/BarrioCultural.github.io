@@ -11,10 +11,7 @@ export default function AppLogic({ children }) {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // 1. Resetear el scroll al cambiar de página
       window.scrollTo(0, 0); 
-      
-      // 2. Cerramos el lightbox si estaba abierto
       if (closeLightbox) {
         closeLightbox();
       }
@@ -22,9 +19,9 @@ export default function AppLogic({ children }) {
   }, [pathname, closeLightbox]); 
 
   return (
-    <div className="app-container">
+    <div className="app-container bg-[#F0F0F0] min-h-screen w-full">
       <Navbar />
-      <main>{children}</main>
+      <main className="bg-[#F0F0F0] min-h-screen">{children}</main>
     </div>
   );
 }
