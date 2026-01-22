@@ -135,7 +135,7 @@ export default function PersonajesGrid() {
               </div>
             </div>
 
-            {/* BOTONES DE CANCIONES (Actualizados a Morado Pastel) */}
+            {/* BOTONES DE CANCIONES (FONDO OSCURO ORIGINAL + LOGO MORADO PASTEL) */}
             {selected.canciones && selected.canciones.length > 0 && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }} 
@@ -157,14 +157,14 @@ export default function PersonajesGrid() {
                       href={url} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="group flex items-center space-x-4 bg-purple-100 hover:bg-purple-200 text-[#6B5E70] px-8 py-4 rounded-2xl md:rounded-3xl transition-all duration-300 shadow-lg shadow-purple-500/5 border border-purple-200/60"
+                      className="group flex items-center space-x-4 bg-[#6B5E70] text-white px-8 py-4 rounded-2xl md:rounded-3xl hover:bg-black hover:scale-105 transition-all duration-300 shadow-xl shadow-[#6B5E70]/10"
                     >
-                      <div className="bg-purple-300/40 p-2.5 rounded-full group-hover:bg-[#6B5E70] group-hover:text-white transition-colors duration-300">
-                        <Play size={18} className="fill-current ml-0.5" />
-                      </div>
+                      {/* Logo en Morado Pastel */}
+                      <Play size={24} className="text-[#D6BCFA] fill-current group-hover:scale-110 transition-transform" />
+                      
                       <div className="text-left leading-tight">
-                        <p className="text-[9px] font-black uppercase tracking-[0.2em] text-purple-400 group-hover:text-[#6B5E70]/60 transition-colors">Tema Musical</p>
-                        <p className="text-sm md:text-lg font-black uppercase italic tracking-tighter text-[#6B5E70]">Escuchar Parte {idx + 1}</p>
+                        <p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-60">Multimedia</p>
+                        <p className="text-sm md:text-lg font-black uppercase italic tracking-tighter">Escuchar Tema {idx + 1}</p>
                       </div>
                     </a>
                   ))}
