@@ -164,7 +164,7 @@ export default function PersonajesGrid() {
                       
                       <div className="text-left leading-tight">
                         <p className="text-sm md:text-xl font-black uppercase italic tracking-tighter">
-                          {selected.nombre} #{idx + 1}
+                          {selected.nombre} {idx + 1}
                         </p>
                       </div>
                     </a>
