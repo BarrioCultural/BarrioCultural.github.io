@@ -145,7 +145,7 @@ export default function PersonajesGrid() {
                 <div className="flex items-center space-x-4 w-full max-w-xl">
                   <div className="h-[1px] flex-1 bg-[#6B5E70]/20" />
                   <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#6B5E70]/60 italic flex items-center">
-                    <Music size={14} className="mr-2" /> Crónicas Musicales
+                    <Music size={14} className="mr-2" /> Mas sobre {selected.nombre}
                   </span>
                   <div className="h-[1px] flex-1 bg-[#6B5E70]/20" />
                 </div>
