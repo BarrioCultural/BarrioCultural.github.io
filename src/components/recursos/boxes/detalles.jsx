@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Music } from 'lucide-react';
+import { X, Youtube, ExternalLink } from 'lucide-react';
 
 export default function DetalleMaestro({ 
   isOpen, 
@@ -16,9 +16,8 @@ export default function DetalleMaestro({
   const nombre = data.nombre;
   const descripcion = data.sobre || data.descripcion;
   
-  // USAMOS LA COLUMNA "CANCIONES" QUE ES DONDE TIENES EL LINK
-  const linkAudio = data.canciones; 
-  const tituloCancion = data.cancion_nombre || "Tema Principal";
+  // Obtenemos el link de la columna "canciones"
+  const linkVideo = data.canciones;
 
   return (
     <AnimatePresence mode="wait">
@@ -69,28 +68,36 @@ export default function DetalleMaestro({
                 {descripcion}
               </p>
 
-              {/* SECCIÓN DE MÚSICA CORREGIDA */}
-              {mostrarMusica && linkAudio && (
-                <div className="bg-white/40 backdrop-blur-sm p-6 rounded-[2.5rem] border border-primary/10 shadow-inner">
-                  <div className="flex items-center gap-3 mb-3 text-primary">
-                    <div className="p-2 bg-primary rounded-full text-white shadow-sm">
-                      <Music size={14} />
-                    </div>
-                    <span className="text-[10px] font-black uppercase tracking-widest">Soundtrack Personal</span>
+              {/* SECCIÓN DE VIDEOS DE YOUTUBE (BOTONES) */}
+              {mostrarMusica && linkVideo && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 text-primary/40 mb-2">
+                    <Youtube size={16} />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Contenido Multimedia</span>
                   </div>
                   
-                  <h4 className="text-xl font-black text-primary uppercase italic mb-3">
-                    {tituloCancion}
-                  </h4>
-
-                  <audio 
-                    key={linkAudio} // IMPORTANTE: Recarga el audio cuando cambia el link
-                    controls 
-                    className="w-full h-10 mix-blend-multiply opacity-80"
+                  <motion.a
+                    href={linkVideo}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="group flex items-center justify-between bg-primary text-white p-5 rounded-[2rem] shadow-xl hover:bg-primary/90 transition-all border-b-4 border-black/20"
                   >
-                    <source src={linkAudio} type="audio/mpeg" />
-                    Tu navegador no soporta audio.
-                  </audio>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-black uppercase opacity-60 tracking-tighter">Ver video de:</span>
+                      <span className="text-xl md:text-2xl font-black italic uppercase tracking-tighter">
+                        {nombre}
+                      </span>
+                    </div>
+                    <div className="bg-white/20 p-3 rounded-full group-hover:bg-white group-hover:text-primary transition-colors">
+                      <ExternalLink size={20} />
+                    </div>
+                  </motion.a>
+                  
+                  <p className="text-[9px] text-primary/30 uppercase font-bold text-center tracking-widest">
+                    Este link te llevará a YouTube
+                  </p>
                 </div>
               )}
             </div>
