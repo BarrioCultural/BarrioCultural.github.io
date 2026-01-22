@@ -10,7 +10,6 @@ export default function PersonajesGrid() {
   const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
   
-  // Estados para filtros
   const [filtroReino, setFiltroReino] = useState('todos');
   const [filtroEspecie, setFiltroEspecie] = useState('todos');
 
@@ -24,7 +23,6 @@ export default function PersonajesGrid() {
     fetchChars();
   }, []);
 
-  // Lógica de filtrado
   const reinos = useMemo(() => ['todos', ...new Set(personajes.map(p => p.reino))], [personajes]);
   const especies = useMemo(() => ['todos', ...new Set(personajes.map(p => p.especie))], [personajes]);
 
@@ -36,14 +34,19 @@ export default function PersonajesGrid() {
     });
   }, [personajes, filtroReino, filtroEspecie]);
 
+  // Función de selección instantánea
+  const handleSelect = (p) => {
+    setSelected(p);
+    window.scrollTo({ top: 0, behavior: 'instant' }); 
+  };
+
   const btnStyle = (isActive) => `
     px-4 py-1.5 rounded-xl text-[10px] font-bold uppercase transition-all border 
-    ${isActive ? 'bg-primary text-white border-primary shadow-lg scale-105' : 'bg-white/50 text-primary/60 border-transparent hover:border-primary/20'}
+    ${isActive ? 'bg-primary text-white border-primary shadow-lg' : 'bg-white/50 text-primary/60 border-transparent hover:border-primary/20'}
   `;
 
-  // --- EL MENU DE FILTROS ---
   const MiMenuDeFiltros = (
-    <header className="mb-16 text-center px-4">
+    <header className="mb-16 text-center px-4 pt-10">
       <h1 className="text-5xl md:text-8xl font-black italic tracking-tighter text-primary uppercase leading-none mb-12">
         Personajes
       </h1>
@@ -69,16 +72,18 @@ export default function PersonajesGrid() {
   );
 
   return (
-    <main className="min-h-screen bg-bg-main py-20 px-4 md:px-8">
+    <main className="min-h-screen bg-bg-main py-10 px-4 md:px-8">
       
-      {/* DETALLE DEL PERSONAJE (Aparece arriba si hay uno seleccionado) */}
-      <AnimatePresence mode="wait">
+      {/* DETALLE DEL PERSONAJE - Optimizado para cambio rápido */}
+      <AnimatePresence>
         {selected && (
           <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }} 
-            animate={{ opacity: 1, scale: 1 }} 
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="max-w-7xl mx-auto mb-20 relative"
+            key={selected.id}
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="max-w-7xl mx-auto mb-16 relative"
           >
             <div className="bg-white rounded-[3rem] overflow-hidden flex flex-col lg:flex-row shadow-2xl min-h-[600px]">
               <button 
@@ -94,12 +99,8 @@ export default function PersonajesGrid() {
 
               <div className="w-full lg:w-1/2 p-10 md:p-20 flex flex-col justify-center">
                 <div className="flex gap-3 mb-6">
-                  <span className="px-4 py-1 bg-primary text-white text-[10px] font-black uppercase rounded-full tracking-widest">
-                    {selected.reino}
-                  </span>
-                  <span className="px-4 py-1 border border-primary text-primary text-[10px] font-black uppercase rounded-full tracking-widest">
-                    {selected.especie}
-                  </span>
+                  <span className="px-4 py-1 bg-primary text-white text-[10px] font-black uppercase rounded-full tracking-widest">{selected.reino}</span>
+                  <span className="px-4 py-1 border border-primary text-primary text-[10px] font-black uppercase rounded-full tracking-widest">{selected.especie}</span>
                 </div>
                 
                 <h2 className="text-6xl md:text-9xl font-black italic uppercase tracking-tighter text-primary leading-none mb-8">
@@ -121,7 +122,7 @@ export default function PersonajesGrid() {
                       {selected.cancion_nombre || "Desconocido"}
                     </h4>
                     {selected.cancion_url && (
-                      <audio controls className="w-full mix-blend-multiply opacity-80">
+                      <audio key={selected.cancion_url} controls className="w-full mix-blend-multiply opacity-80">
                         <source src={selected.cancion_url} type="audio/mpeg" />
                       </audio>
                     )}
@@ -133,7 +134,7 @@ export default function PersonajesGrid() {
         )}
       </AnimatePresence>
 
-      {/* REJILLA UNIFICADA (Maneja el menú automáticamente) */}
+      {/* REJILLA UNIFICADA */}
       {loading ? (
         <div className="text-center font-black uppercase text-[10px] tracking-widest opacity-20 py-40">Indexando...</div>
       ) : (
@@ -146,7 +147,7 @@ export default function PersonajesGrid() {
               key={p.id} 
               src={p.img_url} 
               color={p.color_hex} 
-              onClick={() => { setSelected(p); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              onClick={() => handleSelect(p)}
             >
               <p className="text-[8px] font-black text-white/50 uppercase tracking-widest mb-1">
                 {p.reino} • {p.especie}
