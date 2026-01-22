@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
-import { Palette, Heart, Sparkles, Send } from 'lucide-react';
+import { Palette, Heart, Sparkles, Send, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion'; // Necesitarás instalar framer-motion
 
 export default function SobreMi() {
   const [enviado, setEnviado] = useState(false);
@@ -33,118 +34,142 @@ export default function SobreMi() {
     }
   };
 
+  // Variantes para animaciones suaves
+  const fadeInUp = {
+    initial: { opacity: 0, y: 20 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true },
+    transition: { duration: 0.6 }
+  };
+
   return (
-    <div className="w-full bg-[#F0F0F0] min-h-screen text-[#6B5E70]">
-      <main className="w-full bg-[#F0F0F0] pb-20 pt-20 md:pt-32 font-sans overflow-x-hidden">
+    <div className="w-full bg-[#F5F5F5] min-h-screen text-[#4A3F4F] selection:bg-[#D1C4DB]">
+      <main className="w-full pb-32 pt-24 md:pt-40 font-sans overflow-x-hidden">
         
-        {/* CABECERA */}
-        <header className="max-w-4xl mx-auto mb-16 md:mb-24 text-center px-6">
-          <h1 className="text-4xl md:text-6xl font-light italic tracking-widest uppercase">
-            Sobre Mi
+        {/* CABECERA MINIMALISTA PERO IMPACTANTE */}
+        <header className="max-w-5xl mx-auto mb-32 px-6 relative">
+          <motion.span 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 0.4 }} 
+            className="absolute -top-10 left-6 text-7xl md:text-9xl font-serif italic pointer-events-none"
+          >
+            01
+          </motion.span>
+          <h1 className="text-6xl md:text-[8rem] font-light leading-none tracking-tighter uppercase relative z-10">
+            Sobre <br />
+            <span className="ml-12 md:ml-24 italic font-serif text-[#6B5E70]">Mi</span>
           </h1>
-          <div className="h-px w-16 bg-[#6B5E70] mx-auto mt-6 opacity-40" />
+          <div className="h-px w-32 bg-[#6B5E70] mt-12 opacity-30" />
         </header>
 
-        <div className="max-w-4xl mx-auto px-4 md:px-6 space-y-16 md:space-y-24">
+        <div className="max-w-5xl mx-auto px-6 space-y-32">
           
-          {/* SECCIÓN 1: MI ATELIER - MORADO PASTEL */}
-          <section className="w-full">
-            <div className="bg-[#E2D9E8] rounded-[2.5rem] p-8 md:p-14 shadow-sm border border-white/50">
-              <h3 className="text-xs font-bold uppercase tracking-[0.3em] flex items-center gap-2 mb-8 opacity-70">
-                <Heart size={16} /> Mi Atelier
+          {/* SECCIÓN 1: MI ATELIER - FOCO EN EL TEXTO */}
+          <motion.section {...fadeInUp} className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+            <div className="md:col-span-7 bg-white p-10 md:p-20 rounded-tr-[5rem] rounded-bl-[5rem] shadow-sm border border-black/5">
+              <h3 className="text-[10px] font-black uppercase tracking-[0.5em] flex items-center gap-3 mb-10 text-[#6B5E70]/50">
+                <Heart size={14} /> El Concepto
               </h3>
-              <p className="text-lg md:text-2xl leading-relaxed font-medium">
-                Bienvenido a mi pequeño jardín digital. Me encanta compartir mi arte y conectar con personas que disfrutan de este proceso creativo.
+              <p className="text-2xl md:text-4xl leading-tight font-light text-[#332D35]">
+                "Un pequeño <span className="italic font-serif">jardín digital</span> donde las ideas florecen sin prisa."
               </p>
             </div>
-          </section>
+          </motion.section>
 
-          {/* SECCIÓN 2: HERRAMIENTAS - MORADO LAVANDA */}
-          <section className="w-full">
-            <div className="bg-[#D1C4DB] rounded-[2.5rem] p-8 md:p-14 shadow-sm border border-white/50">
-              <h3 className="text-xs font-bold uppercase tracking-[0.3em] flex items-center gap-2 mb-8 opacity-70">
-                <Palette size={16} /> Herramientas
-              </h3>
-              <ul className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <li className="flex flex-col gap-2 bg-white/30 p-6 rounded-2xl border border-white/40">
-                  <Sparkles size={16} className="opacity-50" />
-                  <span className="font-bold text-sm uppercase tracking-tight">Linux y Krita</span>
-                </li>
-                <li className="flex flex-col gap-2 bg-white/30 p-6 rounded-2xl border border-white/40">
-                  <Sparkles size={16} className="opacity-50" />
-                  <span className="font-bold text-sm uppercase tracking-tight">Acuarelas y Acrílico</span>
-                </li>
-                <li className="flex flex-col gap-2 bg-white/30 p-6 rounded-2xl border border-white/40">
-                  <Sparkles size={16} className="opacity-50" />
-                  <span className="font-bold text-sm uppercase tracking-tight">Mucha música</span>
-                </li>
-              </ul>
-            </div>
-          </section>
-
-          {/* SECCIÓN 3: GARDEN OF SINS - TEXTO NORMAL Y LIMPIO */}
-          <section className="px-4 md:px-2 space-y-8">
-            <div className="flex items-center gap-6 mb-10">
-              <h2 className="text-3xl md:text-5xl font-light uppercase italic tracking-tighter shrink-0">
-                Garden of Sins
-              </h2>
-              <div className="h-px w-full bg-[#6B5E70] opacity-20" />
+          {/* SECCIÓN 2: HERRAMIENTAS - DISEÑO DE TARJETAS FLOTANTES */}
+          <motion.section {...fadeInUp} className="space-y-12">
+            <div className="flex items-baseline gap-4">
+               <h2 className="text-4xl font-serif italic uppercase">Herramientas</h2>
+               <div className="h-px flex-grow bg-[#6B5E70] opacity-10" />
             </div>
             
-            <div className="max-w-3xl space-y-6 text-base md:text-xl leading-relaxed font-medium opacity-90">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
+              {[
+                { title: "Linux & Krita", desc: "Software libre para mentes libres." },
+                { title: "Tradicional", desc: "Acuarelas, acrílico y el tacto del papel." },
+                { title: "Atmósfera", desc: "Música constante y café frío." }
+              ].map((item, i) => (
+                <div key={i} className="group p-8 bg-[#E2D9E8]/30 hover:bg-[#E2D9E8] transition-colors duration-500 rounded-3xl border border-white">
+                  <Sparkles size={18} className="mb-6 opacity-30 group-hover:scale-125 transition-transform" />
+                  <h4 className="text-xs font-bold uppercase tracking-widest mb-2">{item.title}</h4>
+                  <p className="text-sm opacity-70">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </motion.section>
+
+          {/* SECCIÓN 3: GARDEN OF SINS - TEXTO EN COLUMNAS */}
+          <motion.section {...fadeInUp} className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+            <div className="sticky top-10">
+              <h2 className="text-5xl md:text-7xl font-serif italic leading-none text-[#6B5E70]">
+                Garden <br /> of Sins
+              </h2>
+              <p className="mt-6 text-sm uppercase tracking-[0.3em] font-bold opacity-40">Proyecto de vida</p>
+            </div>
+            
+            <div className="space-y-8 text-lg leading-relaxed font-light">
               <p>
-                Más que un portafolio, es un espacio en constante crecimiento, como un jardín real. Es mi proyecto de vida.
+                Este espacio es un organismo vivo. No busco la perfección, sino el reflejo de una evolución constante.
+              </p>
+              <p className="text-[#6B5E70] font-medium border-l-2 border-[#D1C4DB] pl-6 py-2 italic">
+                "Cada flor de este jardín nace de una emoción que necesitaba encontrar su propio peso en el mundo."
               </p>
               <p>
-                Refleja temas que considero importantes a través de personajes basados en personas que han dejado una marca en mí. Es un proyecto sin límites que irá creciendo a mi lado mientras voy creciendo como persona y artista.
-              </p>
-              <p className="p-6 bg-[#E2D9E8]/50 rounded-2xl border-l-4 border-[#6B5E70] italic font-bold">
-                Cada flor de este jardín está basada en una experiencia o una emoción que necesito quitarme de encima.
+                Mis personajes no son solo dibujos; son fragmentos de historias, personas que cruzaron mi camino y dejaron una esencia que solo el arte puede contener.
               </p>
             </div>
-          </section>
+          </motion.section>
 
-          {/* SECCIÓN 4: CONTACTO - DISEÑO SÓLIDO */}
-          <section className="pt-10">
-            <div className="bg-white rounded-[3rem] p-8 md:p-16 border-[6px] border-[#E2D9E8] shadow-sm">
+          {/* SECCIÓN 4: CONTACTO - LIMPIO Y MODERNO */}
+          <motion.section {...fadeInUp} className="pt-20">
+            <div className="bg-[#4A3F4F] rounded-[3rem] p-8 md:p-20 text-white relative overflow-hidden">
+              {/* Decoración de fondo */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl" />
+              
               {enviado ? (
-                <div className="text-center py-12">
-                  <Heart size={40} className="mx-auto text-[#6B5E70] mb-6 opacity-30" />
-                  <p className="text-[#6B5E70] font-bold text-xl md:text-2xl uppercase tracking-widest mb-4 text-center">¡Mensaje enviado!</p>
-                  <p className="text-[#6B5E70]/60 font-medium italic mb-10 text-center">Gracias por escribirme. ♡</p>
-                  <button onClick={() => setEnviado(false)} className="px-8 py-3 bg-[#6B5E70] text-white rounded-xl font-bold uppercase text-[10px] tracking-widest transition-opacity hover:opacity-90">Enviar otro</button>
+                <div className="text-center py-20 relative z-10">
+                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
+                    <Heart size={60} className="mx-auto text-[#D1C4DB] mb-8" />
+                  </motion.div>
+                  <h2 className="text-3xl font-serif italic mb-4">Mensaje recibido</h2>
+                  <p className="opacity-70 mb-10 text-lg">Pronto nos pondremos en contacto.</p>
+                  <button onClick={() => setEnviado(false)} className="text-xs uppercase tracking-[0.3em] border-b border-white pb-2 hover:opacity-50 transition-opacity">Volver a escribir</button>
                 </div>
               ) : (
-                <>
-                  <div className="mb-12 text-center md:text-left">
-                    <h2 className="text-2xl md:text-3xl font-light text-[#6B5E70] uppercase tracking-widest flex items-center justify-center md:justify-start gap-4">
-                      <Send size={24} className="opacity-40" /> Contacto
-                    </h2>
+                <div className="relative z-10">
+                  <div className="mb-16">
+                    <h2 className="text-4xl md:text-5xl font-serif italic mb-4">¿Hablamos?</h2>
+                    <p className="text-[#D1C4DB] tracking-wide font-light">Cuéntame sobre tu proyecto o simplemente di hola.</p>
                   </div>
                   
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold opacity-40 uppercase tracking-[0.2em] ml-2">Nombre</label>
-                        <input type="text" name="name" required placeholder="Tu nombre..." className="w-full bg-[#F0F0F0] rounded-2xl px-6 py-4 text-[#6B5E70] font-medium outline-none focus:ring-2 focus:ring-[#E2D9E8] transition-all" />
+                  <form onSubmit={handleSubmit} className="space-y-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                      <div className="group border-b border-white/20 focus-within:border-white transition-colors">
+                        <label className="text-[10px] uppercase tracking-widest opacity-50 block mb-2">Nombre</label>
+                        <input type="text" name="name" required className="w-full bg-transparent py-3 outline-none text-xl font-light placeholder:text-white/10" placeholder="Tu nombre..." />
                       </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold opacity-40 uppercase tracking-[0.2em] ml-2">Email</label>
-                        <input type="email" name="_replyto" required placeholder="tu@correo.com" className="w-full bg-[#F0F0F0] rounded-2xl px-6 py-4 text-[#6B5E70] font-medium outline-none focus:ring-2 focus:ring-[#E2D9E8] transition-all" />
+                      <div className="group border-b border-white/20 focus-within:border-white transition-colors">
+                        <label className="text-[10px] uppercase tracking-widest opacity-50 block mb-2">Email</label>
+                        <input type="email" name="_replyto" required className="w-full bg-transparent py-3 outline-none text-xl font-light placeholder:text-white/10" placeholder="hola@ejemplo.com" />
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold opacity-40 uppercase tracking-[0.2em] ml-2">Mensaje</label>
-                      <textarea name="message" required placeholder="Escribe aquí lo que quieras..." className="w-full bg-[#F0F0F0] rounded-[2rem] px-6 py-5 text-[#6B5E70] font-medium outline-none focus:ring-2 focus:ring-[#E2D9E8] min-h-[180px] resize-none transition-all"></textarea>
+                    <div className="group border-b border-white/20 focus-within:border-white transition-colors">
+                      <label className="text-[10px] uppercase tracking-widest opacity-50 block mb-2">Tu mensaje</label>
+                      <textarea name="message" required className="w-full bg-transparent py-4 outline-none text-xl font-light min-h-[150px] resize-none placeholder:text-white/10" placeholder="Escribe aquí..."></textarea>
                     </div>
-                    <button type="submit" disabled={loading} className="w-full md:w-auto px-12 bg-[#6B5E70] text-white font-bold uppercase italic tracking-widest py-5 rounded-2xl hover:opacity-90 active:scale-95 transition-all text-xs">
-                      {loading ? 'Enviando...' : 'Enviar Mensaje'}
+                    
+                    <button type="submit" disabled={loading} className="group flex items-center gap-4 text-sm font-bold uppercase tracking-[0.4em] pt-4 transition-all hover:gap-8">
+                      {loading ? 'Enviando...' : (
+                        <>
+                          Enviar Mensaje <ArrowRight size={20} className="text-[#D1C4DB]" />
+                        </>
+                      )}
                     </button>
                   </form>
-                </>
+                </div>
               )}
             </div>
-          </section>
+          </motion.section>
         </div>
       </main>
     </div>
