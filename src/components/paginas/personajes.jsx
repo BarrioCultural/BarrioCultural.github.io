@@ -71,8 +71,8 @@ export default function PersonajesGrid() {
               <div className="h-1 w-24 bg-[#6B5E70] mx-auto mt-4 rounded-full opacity-20" />
             </header>
 
+            {/* FILTROS */}
             <div className="max-w-5xl mx-auto mb-20 px-6 space-y-10">
-              {/* FILTROS */}
               <div className="flex flex-col items-center space-y-4">
                 <div className="flex items-center space-x-3 w-full max-w-2xl justify-center">
                   <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-[#6B5E70]/20" />
@@ -110,7 +110,6 @@ export default function PersonajesGrid() {
         {selected && (
           <motion.div key="panel" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="max-w-6xl mx-auto mb-16 p-4 md:p-6">
             
-            {/* Contenedor Principal Blanco */}
             <div className="bg-white rounded-[2rem] md:rounded-[3.5rem] overflow-hidden shadow-2xl border border-white relative mb-8">
               <button onClick={() => setSelected(null)} className="absolute top-4 right-4 md:top-8 md:right-8 p-2 md:p-3 bg-[#F0F0F0] text-[#6B5E70] rounded-full hover:bg-[#6B5E70] hover:text-white transition-all z-50">
                 <X size={20} />
@@ -136,35 +135,34 @@ export default function PersonajesGrid() {
               </div>
             </div>
 
-            {/* SECCIÓN DE BOTONES DE YOUTUBE (Abajo de la tarjeta) */}
-            {selected.videos_url && selected.videos_url.length > 0 && (
+            {/* BOTONES DE CANCIONES (Abajo de la tarjeta) */}
+            {selected.canciones && selected.canciones.length > 0 && (
               <motion.div 
                 initial={{ opacity: 0, y: 20 }} 
                 animate={{ opacity: 1, y: 0 }} 
-                transition={{ delay: 0.2 }}
                 className="flex flex-col items-center space-y-6"
               >
                 <div className="flex items-center space-x-4 w-full max-w-xl">
                   <div className="h-[1px] flex-1 bg-[#6B5E70]/20" />
                   <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#6B5E70]/60 italic flex items-center">
-                    <Music size={14} className="mr-2" /> Banda Sonora
+                    <Music size={14} className="mr-2" /> Crónicas Musicales
                   </span>
                   <div className="h-[1px] flex-1 bg-[#6B5E70]/20" />
                 </div>
 
                 <div className="flex flex-wrap justify-center gap-4">
-                  {selected.videos_url.map((url, idx) => (
+                  {selected.canciones.map((url, idx) => (
                     <a 
                       key={idx} 
                       href={url} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="group flex items-center space-x-4 bg-[#6B5E70] text-white px-8 py-4 rounded-2xl md:rounded-3xl hover:bg-[#FF0000] hover:scale-105 transition-all duration-300 shadow-xl shadow-[#6B5E70]/20"
+                      className="group flex items-center space-x-4 bg-[#6B5E70] text-white px-8 py-4 rounded-2xl md:rounded-3xl hover:bg-[#FF0000] hover:scale-105 transition-all duration-300 shadow-xl shadow-[#6B5E70]/10"
                     >
-                      <Youtube size={24} className="text-white fill-current group-hover:animate-pulse" />
+                      <Youtube size={24} className="text-white fill-current" />
                       <div className="text-left leading-tight">
-                        <p className="text-[10px] font-black uppercase tracking-widest opacity-70">Escuchar</p>
-                        <p className="text-sm md:text-base font-black uppercase italic tracking-tighter">Canción #{idx + 1}</p>
+                        <p className="text-[9px] font-black uppercase tracking-[0.2em] opacity-60 group-hover:opacity-100">YouTube</p>
+                        <p className="text-sm md:text-lg font-black uppercase italic tracking-tighter">Escuchar Tema {idx + 1}</p>
                       </div>
                     </a>
                   ))}
