@@ -16,10 +16,7 @@ export default function DetalleMaestro({
   const nombre = data.nombre;
   const descripcion = data.sobre || data.descripcion;
   
-  // LOGICA PARA SEPARAR POR COMAS DENTRO DEL ARRAY
-  // 1. Verificamos que sea un array.
-  // 2. Usamos flatMap para entrar en cada elemento y hacer split por coma.
-  // 3. Limpiamos espacios vacíos.
+  // Procesamos los links: si vienen en array y traen comas, los separamos todos
   const listaLinks = Array.isArray(data.canciones) 
     ? data.canciones.flatMap(item => typeof item === 'string' ? item.split(',') : item)
                    .map(link => link.trim())
@@ -45,7 +42,7 @@ export default function DetalleMaestro({
               <X size={20} />
             </button>
             
-            {/* IMAGEN */}
+            {/* SECCIÓN IMAGEN */}
             <div className="w-full lg:w-1/2 bg-gradient-to-br from-white to-primary/5 flex items-center justify-center p-10 lg:p-16 border-b lg:border-b-0 lg:border-r border-primary/5">
               <div className="relative w-full aspect-square max-w-[400px]">
                 <div className="absolute inset-0 bg-primary/5 rounded-[4rem] rotate-3 scale-105" />
@@ -57,7 +54,7 @@ export default function DetalleMaestro({
               </div>
             </div>
 
-            {/* TEXTO */}
+            {/* SECCIÓN TEXTO */}
             <div className="w-full lg:w-1/2 p-8 md:p-12 lg:pl-10 lg:pr-16 flex flex-col justify-center bg-bg-main/5">
               <div className="flex flex-wrap gap-2 mb-4">
                 {tags.map((tag, i) => tag && (
@@ -75,12 +72,12 @@ export default function DetalleMaestro({
                 {descripcion}
               </p>
 
-              {/* BOTONES POR CADA CANCIÓN SEPARADA POR COMA */}
+              {/* BOTONES CON NOMBRE DEL PERSONAJE Y NÚMERO */}
               {mostrarMusica && listaLinks.length > 0 && (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-primary/30 mb-2">
                     <Music size={14} />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Temas Musicales</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest">Soundtrack</span>
                   </div>
                   
                   <div className="flex flex-wrap gap-3">
@@ -95,7 +92,7 @@ export default function DetalleMaestro({
                         className="flex items-center gap-3 bg-white border-2 border-primary/10 px-6 py-3 rounded-2xl hover:border-primary hover:bg-primary/5 transition-all shadow-sm"
                       >
                         <span className="text-sm font-black italic uppercase text-primary tracking-tighter">
-                          Personaje {index + 1}
+                          {nombre} {index + 1}
                         </span>
                         <Music size={16} className="text-primary/40" />
                       </motion.a>
