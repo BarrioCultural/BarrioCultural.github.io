@@ -8,6 +8,7 @@
   --color-bg-main: var(--bg-main);
   --color-bg-menu: var(--bg-menu);
   --color-white-custom: var(--white-custom);
+  
   /* Animaciones */
   --animate-terminal-flicker: flicker 0.15s infinite;
   --animate-cursor-blink: blink 1s step-end infinite;
@@ -30,6 +31,7 @@
   }
 }
 
+/* TAMAÑO BASE PARA MÓVILES */
 :root {
   --primary: #67556d;
   --accent: #be97d1;
@@ -37,6 +39,14 @@
   --bg-menu: #67556d;
   --white-custom: #e4d7e6;
   --foreground: #ffffff;
+  font-size: 14px; 
+}
+
+/* TAMAÑO BASE PARA ESCRITORIO */
+@media (min-width: 768px) {
+  :root {
+    font-size: 15px; 
+  }
 }
 
 @layer base {
@@ -46,7 +56,6 @@
 }
 
 @layer components {
-  
   .card-main {
     @apply bg-white/5 border border-primary/10 rounded-[2rem] p-6 backdrop-blur-sm transition-all;
   }
@@ -62,7 +71,6 @@
            text-primary focus:ring-2 focus:ring-primary/40 outline-none transition-all;
   }
 
-  
   .char-card-base {
     @apply relative aspect-[3/4] cursor-pointer overflow-hidden rounded-2xl 
            grayscale hover:grayscale-0 transition-all duration-500 shadow-md;
