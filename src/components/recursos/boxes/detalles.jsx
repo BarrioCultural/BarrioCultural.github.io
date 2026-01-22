@@ -12,7 +12,6 @@ export default function DetalleMaestro({
 }) {
   if (!data) return null;
 
-  // Normalización de datos
   const imagen = data.img_url || data.imagen_url;
   const nombre = data.nombre;
   const descripcion = data.sobre || data.descripcion;
@@ -35,16 +34,22 @@ export default function DetalleMaestro({
               <X size={20} />
             </button>
             
-            {/* Imagen */}
-            <div className="w-full lg:w-1/2 bg-white flex items-center justify-center p-8 border-b lg:border-b-0 lg:border-r border-primary/5">
-              <img 
-                src={imagen} 
-                alt={nombre} 
-                className="max-h-[450px] w-full object-contain mix-blend-multiply" 
-              />
+            {/* CONTENEDOR DE IMAGEN ESTÉTICO */}
+            <div className="w-full lg:w-1/2 bg-gradient-to-br from-white to-primary/5 flex items-center justify-center p-10 lg:p-16 border-b lg:border-b-0 lg:border-r border-primary/5">
+              <div className="relative w-full aspect-square max-w-[400px]">
+                {/* Decoración de fondo para la imagen */}
+                <div className="absolute inset-0 bg-primary/5 rounded-[4rem] rotate-3 scale-105" />
+                
+                {/* Imagen con bordes ultra redondeados */}
+                <img 
+                  src={imagen} 
+                  alt={nombre} 
+                  className="relative z-10 w-full h-full object-contain mix-blend-multiply rounded-[3.5rem] transform transition-transform duration-500 hover:scale-105" 
+                />
+              </div>
             </div>
 
-            {/* Texto y Contenido */}
+            {/* CONTENEDOR DE TEXTO */}
             <div className="w-full lg:w-1/2 p-8 md:p-12 lg:pl-10 lg:pr-16 flex flex-col justify-center bg-bg-main/5">
               <div className="flex flex-wrap gap-2 mb-4">
                 {tags.map((tag, i) => tag && (
@@ -54,21 +59,21 @@ export default function DetalleMaestro({
                 ))}
               </div>
 
-              {/* Título optimizado */}
               <h2 className="text-4xl md:text-6xl font-black uppercase italic text-primary leading-[0.85] tracking-tighter mb-6 break-words">
                 {nombre}
               </h2>
               
-              {/* Descripción pegada a la izquierda (sin bordes que la empujen) */}
               <p className="text-primary/80 text-base md:text-lg italic leading-snug mb-8">
                 {descripcion}
               </p>
 
-              {/* Música */}
+              {/* MÚSICA */}
               {mostrarMusica && (data.cancion_nombre || data.cancion_url) && (
-                <div className="bg-bg-main/20 p-6 rounded-[2rem] border border-primary/10">
+                <div className="bg-white/40 backdrop-blur-sm p-6 rounded-[2.5rem] border border-primary/10 shadow-inner">
                   <div className="flex items-center gap-3 mb-3 text-primary">
-                    <Music size={18} />
+                    <div className="p-2 bg-primary rounded-full text-white">
+                      <Music size={14} />
+                    </div>
                     <span className="text-[10px] font-black uppercase tracking-widest">Tema Musical</span>
                   </div>
                   <h4 className="text-xl font-black text-primary uppercase italic mb-3">
