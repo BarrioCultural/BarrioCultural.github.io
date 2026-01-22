@@ -16,9 +16,10 @@ export default function DetalleMaestro({
   const nombre = data.nombre;
   const descripcion = data.sobre || data.descripcion;
   
-  // Convertimos el contenido de la columna "canciones" en un array
-  // Si hay varios links separados por comas, creará varios botones
-  const listaLinks = data.canciones ? data.canciones.split(',').map(link => link.trim()) : [];
+  // CORRECCIÓN DEL ERROR: Validamos que data.canciones sea un string antes de usar split
+  const listaLinks = (data.canciones && typeof data.canciones === 'string') 
+    ? data.canciones.split(',').map(link => link.trim()) 
+    : [];
 
   return (
     <AnimatePresence mode="wait">
@@ -39,19 +40,19 @@ export default function DetalleMaestro({
               <X size={20} />
             </button>
             
-            {/* CONTENEDOR DE IMAGEN ESTÉTICO */}
+            {/* IMAGEN */}
             <div className="w-full lg:w-1/2 bg-gradient-to-br from-white to-primary/5 flex items-center justify-center p-10 lg:p-16 border-b lg:border-b-0 lg:border-r border-primary/5">
               <div className="relative w-full aspect-square max-w-[400px]">
                 <div className="absolute inset-0 bg-primary/5 rounded-[4rem] rotate-3 scale-105" />
                 <img 
                   src={imagen} 
                   alt={nombre} 
-                  className="relative z-10 w-full h-full object-contain mix-blend-multiply rounded-[3.5rem] transform transition-transform duration-500 hover:scale-105" 
+                  className="relative z-10 w-full h-full object-contain mix-blend-multiply rounded-[3.5rem]" 
                 />
               </div>
             </div>
 
-            {/* CONTENEDOR DE TEXTO */}
+            {/* TEXTO */}
             <div className="w-full lg:w-1/2 p-8 md:p-12 lg:pl-10 lg:pr-16 flex flex-col justify-center bg-bg-main/5">
               <div className="flex flex-wrap gap-2 mb-4">
                 {tags.map((tag, i) => tag && (
@@ -69,15 +70,14 @@ export default function DetalleMaestro({
                 {descripcion}
               </p>
 
-              {/* SECCIÓN DE BOTONES ALINEADOS (LADO A LADO) */}
+              {/* BOTONES ALINEADOS (SOLO SI HAY LINKS) */}
               {mostrarMusica && listaLinks.length > 0 && (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-primary/30 mb-2">
                     <Music size={14} />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Temas Musicales</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest">Soundtrack</span>
                   </div>
                   
-                  {/* flex-wrap y gap-3 para que se pongan uno al lado del otro */}
                   <div className="flex flex-wrap gap-3">
                     {listaLinks.map((link, index) => (
                       <motion.a
@@ -85,14 +85,14 @@ export default function DetalleMaestro({
                         href={link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        whileHover={{ y: -3, scale: 1.02 }}
+                        whileHover={{ y: -3 }}
                         whileTap={{ scale: 0.98 }}
-                        className="flex items-center gap-3 bg-white border-2 border-primary/10 px-6 py-3 rounded-2xl hover:border-primary hover:bg-primary/5 transition-all shadow-sm"
+                        className="flex items-center gap-3 bg-white border-2 border-primary/10 px-6 py-3 rounded-2xl hover:border-primary transition-all shadow-sm"
                       >
-                        <span className="text-sm md:text-base font-black italic uppercase text-primary tracking-tighter">
+                        <span className="text-sm font-black italic uppercase text-primary tracking-tighter">
                           Personaje {index + 1}
                         </span>
-                        <Music size={16} className="text-primary/40" />
+                        <Music size={14} className="text-primary/40" />
                       </motion.a>
                     ))}
                   </div>
