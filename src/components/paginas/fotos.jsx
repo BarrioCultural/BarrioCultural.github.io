@@ -48,7 +48,7 @@ export default function Diario() {
   return (
     <main className="min-h-screen bg-[#F0F0F0] pb-20 pt-16 font-sans overflow-x-hidden">
       
-      {/* CABECERA CONSISTENTE */}
+      {/* CABECERA */}
       <header className="mb-12 md:mb-16 text-center px-4">
         <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter text-[#6B5E70] uppercase leading-none break-words">
           Diario
@@ -118,12 +118,13 @@ export default function Diario() {
                             className="grayscale-[0.5] group-hover:grayscale-0 transition-all duration-700 rounded-[1rem] md:rounded-[2rem]"
                           />
                         </div>
-                        {/* Fecha/Título debajo con estilo minimalista */}
-                        <div className="mt-4 px-4 text-center">
-                          <p className="text-[9px] font-black text-[#6B5E70]/40 uppercase tracking-[0.2em] mb-0.5">
+                        
+                        {/* Fecha/Título CORREGIDO PARA MÓVIL */}
+                        <div className="mt-3 md:mt-4 px-2 md:px-4 text-center w-full overflow-hidden">
+                          <p className="text-[8px] md:text-[9px] font-black text-[#6B5E70]/40 uppercase tracking-[0.2em] mb-0.5 truncate">
                             {entrada.categoria}
                           </p>
-                          <h3 className="text-[11px] font-black text-[#6B5E70] uppercase italic tracking-tighter">
+                          <h3 className="text-[10px] md:text-[11px] font-black text-[#6B5E70] uppercase italic tracking-tighter leading-tight break-words max-w-[140px] md:max-w-none mx-auto">
                             {entrada.fecha || entrada.titulo}
                           </h3>
                         </div>
