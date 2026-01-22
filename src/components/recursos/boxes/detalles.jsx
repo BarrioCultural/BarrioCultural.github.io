@@ -16,9 +16,14 @@ export default function DetalleMaestro({
   const nombre = data.nombre;
   const descripcion = data.sobre || data.descripcion;
   
-  // CORRECCIÓN DEL ERROR: Validamos que data.canciones sea un string antes de usar split
-  const listaLinks = (data.canciones && typeof data.canciones === 'string') 
-    ? data.canciones.split(',').map(link => link.trim()) 
+  // LOGICA PARA SEPARAR POR COMAS DENTRO DEL ARRAY
+  // 1. Verificamos que sea un array.
+  // 2. Usamos flatMap para entrar en cada elemento y hacer split por coma.
+  // 3. Limpiamos espacios vacíos.
+  const listaLinks = Array.isArray(data.canciones) 
+    ? data.canciones.flatMap(item => typeof item === 'string' ? item.split(',') : item)
+                   .map(link => link.trim())
+                   .filter(link => link !== "")
     : [];
 
   return (
@@ -47,7 +52,7 @@ export default function DetalleMaestro({
                 <img 
                   src={imagen} 
                   alt={nombre} 
-                  className="relative z-10 w-full h-full object-contain mix-blend-multiply rounded-[3.5rem]" 
+                  className="relative z-10 w-full h-full object-contain mix-blend-multiply rounded-[3.5rem] transform transition-transform duration-500 hover:scale-105" 
                 />
               </div>
             </div>
@@ -70,12 +75,12 @@ export default function DetalleMaestro({
                 {descripcion}
               </p>
 
-              {/* BOTONES ALINEADOS (SOLO SI HAY LINKS) */}
+              {/* BOTONES POR CADA CANCIÓN SEPARADA POR COMA */}
               {mostrarMusica && listaLinks.length > 0 && (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-primary/30 mb-2">
                     <Music size={14} />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Soundtrack</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest">Temas Musicales</span>
                   </div>
                   
                   <div className="flex flex-wrap gap-3">
@@ -85,14 +90,14 @@ export default function DetalleMaestro({
                         href={link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        whileHover={{ y: -3 }}
+                        whileHover={{ y: -3, scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        className="flex items-center gap-3 bg-white border-2 border-primary/10 px-6 py-3 rounded-2xl hover:border-primary transition-all shadow-sm"
+                        className="flex items-center gap-3 bg-white border-2 border-primary/10 px-6 py-3 rounded-2xl hover:border-primary hover:bg-primary/5 transition-all shadow-sm"
                       >
                         <span className="text-sm font-black italic uppercase text-primary tracking-tighter">
                           Personaje {index + 1}
                         </span>
-                        <Music size={14} className="text-primary/40" />
+                        <Music size={16} className="text-primary/40" />
                       </motion.a>
                     ))}
                   </div>
