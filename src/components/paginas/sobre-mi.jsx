@@ -37,102 +37,108 @@ export default function SobreMi() {
     <div className="w-full bg-[#F0F0F0] min-h-screen">
       <main className="w-full bg-[#F0F0F0] pb-20 pt-20 md:pt-32 font-sans overflow-x-hidden">
         
-        {/* CABECERA */}
-        <header className="mb-10 md:mb-20 text-center px-6">
-          <h1 className="text-4xl md:text-7xl font-black italic tracking-tighter text-[#6B5E70] uppercase leading-none drop-shadow-[0_2px_10px_rgba(107,94,112,0.1)]">
+        {/* CABECERA - ESTILO BOLD */}
+        <header className="mb-16 md:mb-24 text-center px-6">
+          <h1 className="text-5xl md:text-8xl font-black italic tracking-tighter text-[#6B5E70] uppercase leading-none">
             Sobre Mi
           </h1>
-          <div className="h-1.5 w-16 md:w-24 bg-gradient-to-r from-transparent via-[#D4C9DE] to-transparent mx-auto mt-6 rounded-full" />
+          <div className="h-2 w-20 bg-[#6B5E70] mx-auto mt-6 rounded-full" />
         </header>
 
-        <div className="max-w-4xl mx-auto px-4 md:px-6 space-y-12 md:space-y-20">
+        <div className="max-w-4xl mx-auto px-4 md:px-6 space-y-24 md:space-y-32">
           
-          {/* SECCIÓN 1: Mi Atelier - Morado Cálido */}
-          <section className="space-y-6">
-            <div className="bg-[#E2D9E8] rounded-[2rem] md:rounded-[2.5rem] p-8 md:p-12 shadow-sm border border-white/60">
-              <h3 className="text-xs md:text-sm font-black text-[#6B5E70] uppercase tracking-[0.3em] flex items-center gap-2 mb-6">
-                <Heart size={16} fill="#6B5E70" className="text-[#6B5E70]" /> Mi Atelier
+          {/* SECCIÓN 1: MI ATELIER - MORADO PASTEL SÓLIDO */}
+          <section className="relative">
+            <div className="bg-[#E2D9E8] rounded-[2.5rem] p-8 md:p-14 border-2 border-[#6B5E70]/10 relative z-10">
+              <h3 className="text-xs font-black text-[#6B5E70] uppercase tracking-[0.4em] mb-8 flex items-center gap-3">
+                <Heart size={16} fill="#6B5E70" /> MI ATELIER
               </h3>
-              <p className="text-[#6B5E70] leading-relaxed text-lg md:text-2xl font-medium italic">
-                Bienvenido a mi pequeño jardín digital.<br />
-                Me encanta compartir mi arte y conectar con personas que disfrutan de este.
+              <p className="text-[#6B5E70] text-2xl md:text-4xl font-black italic leading-[1.1] tracking-tighter uppercase">
+                Bienvenido a mi pequeño jardín digital. compartir mi arte es mi forma de conectar con el mundo.
               </p>
             </div>
+            {/* Elemento decorativo detrás */}
+            <div className="absolute top-4 left-4 w-full h-full bg-[#6B5E70]/5 rounded-[2.5rem] -z-0" />
           </section>
 
-          {/* SECCIÓN 2: Herramientas - Morado Diferente (Más Lavanda/Azulado) */}
-          <section className="space-y-6">
-            <div className="bg-[#D9E0EE] rounded-[2rem] md:rounded-[2.5rem] p-8 md:p-12 shadow-sm border border-white/60">
-              <h3 className="text-xs md:text-sm font-black text-[#6B5E70] uppercase tracking-[0.3em] flex items-center gap-2 mb-8">
-                <Palette size={16} className="text-[#6B5E70]" /> Herramientas
-              </h3>
-              <ul className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {[
-                  { text: "Linux y Krita" },
-                  { text: "Acuarelas y Acrílico" },
-                  { text: "Mucha música" },
-                ].map((item, idx) => (
-                  <li key={idx} className="flex flex-col items-center justify-center gap-2 bg-white/40 border border-white/60 p-6 rounded-2xl text-[#6B5E70] font-bold uppercase italic tracking-tighter text-xs text-center transition-transform hover:scale-105">
-                    <Sparkles size={16} className="text-[#6B5E70]/50" />
-                    {item.text}
-                  </li>
-                ))}
-              </ul>
+          {/* SECCIÓN 2: HERRAMIENTAS - MORADO LAVANDA SÓLIDO */}
+          <section className="bg-[#D1C4DB] rounded-[2.5rem] p-8 md:p-14 border-2 border-[#6B5E70]/10">
+            <h3 className="text-xs font-black text-[#6B5E70] uppercase tracking-[0.4em] mb-10 flex items-center gap-3">
+              <Palette size={16} fill="#6B5E70" /> MIS HERRAMIENTAS
+            </h3>
+            <div className="flex flex-wrap gap-4">
+              {["Linux y Krita", "Acuarelas y Acrílico", "Mucha música"].map((item, i) => (
+                <div key={i} className="bg-[#6B5E70] text-[#E2D9E8] px-8 py-4 rounded-2xl text-sm md:text-base font-black uppercase italic tracking-widest flex items-center gap-3">
+                  <Sparkles size={14} />
+                  {item}
+                </div>
+              ))}
             </div>
           </section>
 
-          {/* SECCIÓN 3: Garden of Sins - Diseño más Estético */}
-          <section className="py-10 px-4 md:px-0 text-center md:text-left">
-            <div className="relative inline-block mb-10">
-              <h2 className="text-3xl md:text-5xl font-black uppercase italic text-[#6B5E70] tracking-tighter relative z-10">
-                Garden of Sins
+          {/* SECCIÓN 3: GARDEN OF SINS - ESTILO POSTER EDITORIAL */}
+          <section className="relative py-10 flex flex-col md:flex-row gap-12 items-center md:items-start">
+            <div className="bg-[#6B5E70] text-[#E2D9E8] p-10 md:p-16 rounded-[3rem] rotate-[-3deg] shadow-2xl flex-shrink-0">
+              <h2 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter leading-none text-center">
+                Garden<br/>of Sins
               </h2>
-              <div className="absolute -bottom-2 left-0 w-full h-4 bg-[#E2D9E8] -z-10 rotate-[-1deg]" />
             </div>
             
-            <div className="space-y-8 max-w-3xl">
-              <div className="border-l-4 border-[#D4C9DE] pl-6 py-2">
-                <p className="text-[#6B5E70]/80 text-lg md:text-xl italic leading-relaxed font-medium">
-                  Más que un portafolio, es un espacio en constante crecimiento como un jardín real. Es mi proyecto de vida.
+            <div className="flex-1 space-y-8 text-center md:text-left">
+              <div className="space-y-4">
+                <p className="text-[#6B5E70] text-xl md:text-2xl font-black uppercase italic leading-tight">
+                  Más que un portafolio, es mi proyecto de vida en constante crecimiento.
                 </p>
+                <div className="h-1 w-full bg-[#6B5E70]" />
               </div>
               
-              <p className="text-[#6B5E70]/70 text-base md:text-lg italic leading-relaxed">
-                Un reflejo de temas que considero importantes con personajes que se basan en personas que han dejado una marca en mí. Es un proyecto sin límites que irá creciendo a mi lado.
+              <p className="text-[#6B5E70]/70 text-lg md:text-xl font-bold italic leading-relaxed">
+                Personajes basados en marcas que la vida ha dejado en mí. Un reflejo de temas importantes que evolucionan conmigo.
               </p>
 
               <div className="pt-4">
-                <span className="inline-block bg-[#6B5E70] text-[#E2D9E8] px-6 py-3 rounded-full text-xs md:text-sm font-black uppercase tracking-widest italic shadow-lg shadow-[#6B5E70]/20">
-                  Cada flor es una emoción que necesito soltar.
+                <span className="inline-block border-4 border-[#6B5E70] text-[#6B5E70] px-8 py-4 rounded-full font-black text-sm md:text-base uppercase tracking-widest italic">
+                  CADA FLOR ES UNA EMOCIÓN LIBERADA
                 </span>
               </div>
             </div>
           </section>
 
-          {/* CONTACTO */}
-          <section className="pt-6 md:pt-10">
-            <div className="bg-gradient-to-br from-[#F4F1F6] to-white rounded-[2.5rem] md:rounded-[3rem] p-8 md:p-16 border-[4px] border-white shadow-xl shadow-[#6B5E70]/5">
+          {/* SECCIÓN 4: CONTACTO - SÓLIDO Y LIMPIO */}
+          <section className="pt-10">
+            <div className="bg-white rounded-[3rem] p-8 md:p-16 border-[6px] border-[#E2D9E8] shadow-2xl shadow-[#6B5E70]/10">
               {enviado ? (
-                <div className="text-center py-10">
-                  <p className="text-[#6B5E70] font-black text-xl md:text-2xl uppercase italic tracking-tighter mb-2">¡Mensaje enviado!</p>
-                  <p className="text-[#6B5E70]/60 font-medium italic mb-8">Gracias por escribirme. ♡</p>
-                  <button onClick={() => setEnviado(false)} className="px-8 py-3 rounded-full bg-[#E2D9E8] text-[#6B5E70] font-black uppercase text-[10px] tracking-widest">Enviar otro</button>
+                <div className="text-center py-12">
+                  <Heart size={48} className="mx-auto text-[#6B5E70] mb-6" fill="#6B5E70" />
+                  <p className="text-[#6B5E70] font-black text-2xl md:text-3xl uppercase italic tracking-tighter mb-4">¡MENSAJE ENVIADO!</p>
+                  <p className="text-[#6B5E70]/60 font-bold italic mb-10 uppercase tracking-widest">GRACIAS POR ESCRIBIRME. ♡</p>
+                  <button onClick={() => setEnviado(false)} className="px-10 py-4 bg-[#6B5E70] text-white rounded-2xl font-black uppercase italic tracking-widest text-xs">ENVIAR OTRO</button>
                 </div>
               ) : (
                 <>
-                  <div className="mb-10 text-center md:text-left">
-                    <h2 className="text-xl md:text-2xl font-black text-[#6B5E70] uppercase italic tracking-tighter flex items-center justify-center md:justify-start gap-3">
-                      <Send size={20} className="text-[#B39BBD]" /> Envíame un mensajito
+                  <div className="mb-12 text-center md:text-left">
+                    <h2 className="text-3xl md:text-4xl font-black text-[#6B5E70] uppercase italic tracking-tighter flex items-center justify-center md:justify-start gap-4">
+                      <Send size={32} /> ESCRÍBEME
                     </h2>
+                    <p className="text-[#6B5E70]/40 font-black uppercase tracking-[0.3em] mt-4 text-xs">DISEÑO, DUDAS O SOLO SALUDAR</p>
                   </div>
                   
-                  <form onSubmit={handleSubmit} className="space-y-5">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <input type="text" name="name" required placeholder="TU NOMBRE" className="w-full bg-white/80 border-2 border-transparent focus:border-[#D4C9DE] rounded-2xl px-6 py-4 text-[#6B5E70] placeholder:text-[#6B5E70]/30 font-bold outline-none transition-all" />
-                      <input type="email" name="_replyto" required placeholder="TU@CORREO" className="w-full bg-white/80 border-2 border-transparent focus:border-[#D4C9DE] rounded-2xl px-6 py-4 text-[#6B5E70] placeholder:text-[#6B5E70]/30 font-bold outline-none transition-all" />
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black text-[#6B5E70] uppercase tracking-widest ml-4">NOMBRE</label>
+                        <input type="text" name="name" required placeholder="TU NOMBRE" className="w-full bg-[#F0F0F0] border-4 border-transparent focus:border-[#6B5E70] rounded-2xl px-8 py-5 text-[#6B5E70] font-black outline-none transition-all placeholder:text-[#6B5E70]/20" />
+                      </div>
+                      <div className="space-y-3">
+                        <label className="text-[10px] font-black text-[#6B5E70] uppercase tracking-widest ml-4">EMAIL</label>
+                        <input type="email" name="_replyto" required placeholder="TU@CORREO.COM" className="w-full bg-[#F0F0F0] border-4 border-transparent focus:border-[#6B5E70] rounded-2xl px-8 py-5 text-[#6B5E70] font-black outline-none transition-all placeholder:text-[#6B5E70]/20" />
+                      </div>
                     </div>
-                    <textarea name="message" required placeholder="TU MENSAJE..." className="w-full bg-white/80 border-2 border-transparent focus:border-[#D4C9DE] rounded-[2rem] px-6 py-5 text-[#6B5E70] placeholder:text-[#6B5E70]/30 font-bold outline-none min-h-[150px] resize-none transition-all"></textarea>
-                    <button type="submit" disabled={loading} className="w-full md:w-auto px-12 bg-[#6B5E70] text-white font-black uppercase italic tracking-widest py-5 rounded-2xl hover:brightness-110 transition-all text-xs">
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black text-[#6B5E70] uppercase tracking-widest ml-4">TU MENSAJE</label>
+                      <textarea name="message" required placeholder="ESCRIBE AQUÍ..." className="w-full bg-[#F0F0F0] border-4 border-transparent focus:border-[#6B5E70] rounded-[2.5rem] px-8 py-6 text-[#6B5E70] font-black outline-none min-h-[200px] resize-none transition-all placeholder:text-[#6B5E70]/20"></textarea>
+                    </div>
+                    <button type="submit" disabled={loading} className="w-full md:w-auto px-16 bg-[#6B5E70] text-white font-black uppercase italic tracking-[0.2em] py-6 rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-[#6B5E70]/30">
                       {loading ? 'ENVIANDO...' : 'ENVIAR MENSAJE'}
                     </button>
                   </form>
