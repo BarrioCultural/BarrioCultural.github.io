@@ -8,22 +8,6 @@
   --color-bg-main: var(--bg-main);
   --color-bg-menu: var(--bg-menu);
   --color-white-custom: var(--white-custom);
-
-  /* Colores de Personajes Específicos */
-  --color-frani: #fff9c4;
-  --color-faker: #e9d841;
-  --color-pinkkiller: #a65a92;
-  --color-dorian: #684b6d;
-  --color-florgelida: #bbdefb;
-  --color-abel: #7c363d;
-  --color-yoa: #c8e6c9;
-
-  /* Colores de Terminal */
-  --color-terminal-green: #00ff00;
-  --color-terminal-dark: #0a0a0a;
-  --color-terminal-gray: #004400;
-  --color-terminal-red: #ff0000;
-
   /* Animaciones */
   --animate-terminal-flicker: flicker 0.15s infinite;
   --animate-cursor-blink: blink 1s step-end infinite;
@@ -62,70 +46,32 @@
 }
 
 @layer components {
-  /* --- COMPONENTES GENÉRICOS --- */
-  .card-franilover {
-    @apply bg-primary/5 border border-primary/10 rounded-3xl p-8 md:p-10 backdrop-blur-sm;
-  }
-
-  .btn-franilover {
-    @apply bg-primary text-white font-bold px-8 py-4 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/10 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer;
-  }
-
-  .input-franilover {
-    @apply w-full bg-bg-main border border-primary/20 rounded-xl px-4 py-3 text-primary focus:ring-2 focus:ring-primary/40 outline-none transition-all;
-  }
-
-  /* --- SISTEMA DE FILTROS --- */
-  .filter-pill {
-    @apply px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all border cursor-pointer inline-block;
-  }
-  .filter-pill-active { 
-    @apply bg-[#6B5E70] text-white border-[#6B5E70] shadow-lg scale-105; 
-  }
-  .filter-pill-inactive { 
-    @apply bg-white/40 text-[#6B5E70]/40 border-[#6B5E70]/10 hover:border-[#6B5E70]/30 hover:bg-white/60; 
-  }
-
-  /* --- GRID DE TARJETAS (Lore y Bestiario) --- */
-  .char-card {
-    @apply relative aspect-[3/4] cursor-pointer overflow-hidden transition-all duration-500 rounded-2xl grayscale hover:grayscale-0 shadow-md;
-  }
-  .char-card-selected { 
-    @apply rounded-[3rem] ring-8 ring-[#6B5E70] z-20 scale-95 shadow-2xl grayscale-0; 
-  }
-  .badge-reino { 
-    @apply bg-white/90 backdrop-blur-sm text-[#6B5E70] text-[7px] font-black px-2 py-1 rounded uppercase tracking-tighter; 
-  }
-
-  /* --- PANEL DE INFORMACIÓN (El que se despliega) --- */
-  .lore-panel {
-    @apply bg-white shadow-2xl border-b border-zinc-300 relative w-full overflow-hidden;
-  }
   
-  .lore-panel-layout {
-    @apply p-6 md:p-12 max-w-7xl mx-auto flex flex-col md:flex-row gap-8 md:gap-16 items-start;
+  .card-main {
+    @apply bg-white/5 border border-primary/10 rounded-[2rem] p-6 backdrop-blur-sm transition-all;
   }
 
-  .lore-image-container {
-    @apply w-full max-w-[350px] md:w-[400px] lg:w-[450px] aspect-square rounded-[2.5rem] overflow-hidden shadow-2xl shrink-0 bg-zinc-100;
-  }
-  .lore-image-container img {
-    @apply w-full h-full object-cover block;
-  }
-
-  .lore-content {
-    @apply flex-1 relative w-full pt-4 md:pt-0 text-left;
+  .btn-brand {
+    @apply bg-primary text-white font-bold px-8 py-3 rounded-xl 
+           hover:scale-105 active:scale-95 transition-all shadow-lg 
+           flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50;
   }
 
-  .lore-description {
-    @apply text-lg md:text-xl lg:text-2xl text-zinc-700 font-medium leading-relaxed border-l-8 border-[#6B5E70] pl-6 md:pl-8 mt-6 italic;
+  .input-brand {
+    @apply w-full bg-bg-main border border-primary/20 rounded-xl px-4 py-3 
+           text-primary focus:ring-2 focus:ring-primary/40 outline-none transition-all;
   }
 
-  .btn-close-panel {
-    @apply absolute top-4 right-4 md:top-8 md:right-8 p-3 bg-zinc-100 rounded-full text-[#6B5E70] hover:bg-[#6B5E70] hover:text-white transition-all z-50 shadow-sm cursor-pointer;
+  
+  .char-card-base {
+    @apply relative aspect-[3/4] cursor-pointer overflow-hidden rounded-2xl 
+           grayscale hover:grayscale-0 transition-all duration-500 shadow-md;
   }
 
-  /* --- EFECTOS VISUALES --- */
+  .char-card-active { 
+    @apply ring-8 ring-primary z-20 scale-95 grayscale-0 shadow-2xl; 
+  }
+
   .scanlines {
     @apply relative overflow-hidden;
   }
