@@ -68,7 +68,8 @@ export default function DetalleMaestro({
                 {nombre}
               </h2>
               
-              <p className="text-primary/80 text-base md:text-lg italic leading-snug mb-8">
+              {/* Se añadió 'whitespace-pre-wrap' para respetar saltos de línea y espacios */}
+              <p className="text-primary/80 text-base md:text-lg italic leading-snug mb-8 whitespace-pre-wrap">
                 {descripcion}
               </p>
 
@@ -77,7 +78,7 @@ export default function DetalleMaestro({
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-primary/30 mb-2">
                     <Music size={14} />
-                    <span className="text-[10px] font-black uppercase tracking-widest">¿Quieres descubrir mas?</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest">¿Quieres descubrir más?</span>
                   </div>
                   
                   <div className="flex flex-wrap gap-3">
