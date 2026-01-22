@@ -15,11 +15,16 @@ export default function DetalleMaestro({
   const imagen = data.img_url || data.imagen_url;
   const nombre = data.nombre;
   const descripcion = data.sobre || data.descripcion;
+  
+  // USAMOS LA COLUMNA "CANCIONES" QUE ES DONDE TIENES EL LINK
+  const linkAudio = data.canciones; 
+  const tituloCancion = data.cancion_nombre || "Tema Principal";
 
   return (
     <AnimatePresence mode="wait">
       {isOpen && (
         <motion.div 
+          key={data.id}
           initial={{ opacity: 0, y: 20 }} 
           animate={{ opacity: 1, y: 0 }} 
           exit={{ opacity: 0, y: -20 }}
@@ -37,10 +42,7 @@ export default function DetalleMaestro({
             {/* CONTENEDOR DE IMAGEN ESTÉTICO */}
             <div className="w-full lg:w-1/2 bg-gradient-to-br from-white to-primary/5 flex items-center justify-center p-10 lg:p-16 border-b lg:border-b-0 lg:border-r border-primary/5">
               <div className="relative w-full aspect-square max-w-[400px]">
-                {/* Decoración de fondo para la imagen */}
                 <div className="absolute inset-0 bg-primary/5 rounded-[4rem] rotate-3 scale-105" />
-                
-                {/* Imagen con bordes ultra redondeados */}
                 <img 
                   src={imagen} 
                   alt={nombre} 
@@ -67,23 +69,28 @@ export default function DetalleMaestro({
                 {descripcion}
               </p>
 
-              {/* MÚSICA */}
-              {mostrarMusica && (data.cancion_nombre || data.cancion_url) && (
+              {/* SECCIÓN DE MÚSICA CORREGIDA */}
+              {mostrarMusica && linkAudio && (
                 <div className="bg-white/40 backdrop-blur-sm p-6 rounded-[2.5rem] border border-primary/10 shadow-inner">
                   <div className="flex items-center gap-3 mb-3 text-primary">
-                    <div className="p-2 bg-primary rounded-full text-white">
+                    <div className="p-2 bg-primary rounded-full text-white shadow-sm">
                       <Music size={14} />
                     </div>
-                    <span className="text-[10px] font-black uppercase tracking-widest">Tema Musical</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest">Soundtrack Personal</span>
                   </div>
+                  
                   <h4 className="text-xl font-black text-primary uppercase italic mb-3">
-                    {data.cancion_nombre}
+                    {tituloCancion}
                   </h4>
-                  {data.cancion_url && (
-                    <audio key={data.cancion_url} controls className="w-full h-10 mix-blend-multiply opacity-80">
-                      <source src={data.cancion_url} type="audio/mpeg" />
-                    </audio>
-                  )}
+
+                  <audio 
+                    key={linkAudio} // IMPORTANTE: Recarga el audio cuando cambia el link
+                    controls 
+                    className="w-full h-10 mix-blend-multiply opacity-80"
+                  >
+                    <source src={linkAudio} type="audio/mpeg" />
+                    Tu navegador no soporta audio.
+                  </audio>
                 </div>
               )}
             </div>
