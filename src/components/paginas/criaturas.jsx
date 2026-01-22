@@ -21,7 +21,6 @@ export default function Criaturas() {
     alma: 'todos'
   });
 
-  // 1. CARGAR FILTROS DINÁMICOS
   useEffect(() => {
     const fetchOpciones = async () => {
       const { data, error } = await supabase
@@ -50,7 +49,6 @@ export default function Criaturas() {
     fetchOpciones();
   }, []);
 
-  // 2. CARGAR CRIATURAS CON FILTROS
   useEffect(() => {
     const fetchCriaturas = async () => {
       setLoading(true);
@@ -75,7 +73,6 @@ export default function Criaturas() {
   return (
     <main className="min-h-screen bg-bg-main pb-20 pt-16 font-sans overflow-x-hidden">
       
-      {/* SECCIÓN SUPERIOR: TÍTULO Y FILTROS */}
       <AnimatePresence>
         {!selected && (
           <motion.div 
@@ -125,7 +122,6 @@ export default function Criaturas() {
         )}
       </AnimatePresence>
 
-      {/* PANEL DE DETALLE (SE DESPLIEGA AL SELECCIONAR) */}
       <AnimatePresence mode="wait">
         {selected && (
           <motion.div 
@@ -135,7 +131,6 @@ export default function Criaturas() {
             exit={{ opacity: 0, scale: 0.98 }} 
             className="max-w-6xl mx-auto mb-16 p-4 md:p-6 relative"
           >
-            {/* Usamos la clase maestra .card-main y forzamos bg-white para el detalle */}
             <div className="card-main !bg-white !p-0 overflow-hidden shadow-2xl flex flex-col lg:flex-row min-h-[500px]">
               <button 
                 onClick={() => setSelected(null)} 

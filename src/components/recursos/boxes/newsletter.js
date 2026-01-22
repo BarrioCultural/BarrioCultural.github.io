@@ -1,12 +1,13 @@
 "use client";
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { X } from 'lucide-react'; // Si no tienes lucide-react, puedes usar una "X" de texto
+import { X, Mail, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Newsletter() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState(null);
-  const [isVisible, setIsVisible] = useState(true); // Estado para mostrar/ocultar
+  const [isVisible, setIsVisible] = useState(true);
 
   const handleSubscribe = async (e) => {
     e.preventDefault();
@@ -24,69 +25,94 @@ export default function Newsletter() {
     }
   };
 
-  // Si el usuario le dio a la X, no renderizamos nada
   if (!isVisible) return null;
 
   return (
-    <div className="max-w-2xl mx-auto mb-16 px-4 relative group">
-      <div className="bg-primary/5 border border-primary/10 rounded-3xl p-8 backdrop-blur-sm relative">
-        
-        {/* 🟢 BOTÓN PARA QUITAR EL FORMULARIO */}
-        <button 
-          onClick={() => setIsVisible(false)}
-          className="absolute top-4 right-4 text-primary/40 hover:text-primary transition-colors"
-          title="Cerrar"
-        >
-          <X size={20} /> 
-        </button>
+    <AnimatePresence>
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        className="max-w-2xl mx-auto mb-20 px-4 relative group"
+      >
+        <div className="card-main !bg-white/60 backdrop-blur-md p-10 md:p-14 relative overflow-hidden border-primary/10">
+          
+          {/* Decoración de fondo sutil */}
+          <Mail className="absolute -bottom-4 -right-4 text-primary/5 -rotate-12" size={120} />
+          
+          <button 
+            onClick={() => setIsVisible(false)}
+            className="absolute top-6 right-6 text-primary/30 hover:text-primary transition-all hover:rotate-90"
+            title="Cerrar"
+          >
+            <X size={20} /> 
+          </button>
 
-        {status === 'success' ? (
-          <div className="text-center py-4">
-            <p className="text-green-500 font-medium text-lg mb-2">
-              ✨ ¡Gracias! Ya estás en la lista.
-            </p>
-            <button 
-              onClick={() => setIsVisible(false)}
-              className="text-sm text-primary/60 underline hover:text-primary"
+          {status === 'success' ? (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }} 
+              animate={{ opacity: 1, scale: 1 }} 
+              className="text-center py-6"
             >
-              Cerrar este mensaje
-            </button>
-          </div>
-        ) : (
-          <>
-            <h2 className="text-xl font-semibold text-primary text-center mb-2">
-              ¿Quieres saber cuando suba nuevos dibujos?
-            </h2>
-            <p className="text-primary/60 text-sm text-center mb-6">
-              Porfavor nadie ve mi arte :C 
-            </p>
-            
-            <form onSubmit={handleSubscribe} className="flex flex-col md:flex-row gap-3">
-              <input 
-                type="email" 
-                placeholder="Tu email..." 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="flex-1 bg-bg-main border border-primary/20 rounded-xl px-4 py-3 text-primary focus:ring-2 focus:ring-primary/40 outline-none transition-all"
-              />
+              <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Sparkles className="text-primary" size={30} />
+              </div>
+              <h3 className="text-2xl font-black uppercase italic text-primary tracking-tighter mb-2">
+                ¡Registro Completado!
+              </h3>
+              <p className="text-primary/60 text-sm font-medium mb-8 uppercase tracking-widest">
+                Ahora eres parte del jardín.
+              </p>
               <button 
-                type="submit" 
-                disabled={status === 'loading'}
-                className="bg-primary text-bg-main font-bold px-8 py-3 rounded-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50"
+                onClick={() => setIsVisible(false)}
+                className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40 hover:text-primary underline decoration-2 underline-offset-4 transition-all"
               >
-                {status === 'loading' ? 'Anotando...' : '¡Suscribirme!'}
+                Cerrar este mensaje
               </button>
-            </form>
-          </>
-        )}
+            </motion.div>
+          ) : (
+            <>
+              <div className="text-center mb-10">
+                <h2 className="text-3xl md:text-4xl font-black uppercase italic text-primary tracking-tighter leading-none mb-4">
+                  ¿Quieres ver <br /> nuevos dibujos?
+                </h2>
+                <div className="h-1 w-12 bg-primary/20 mx-auto rounded-full mb-4" />
+                <p className="text-primary/50 text-[10px] md:text-xs font-black uppercase tracking-[0.2em]">
+                  Únete para recibir actualizaciones del Atelier
+                </p>
+              </div>
+              
+              <form onSubmit={handleSubscribe} className="flex flex-col md:flex-row gap-3 relative z-10">
+                <input 
+                  type="email" 
+                  placeholder="tu@email.com" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="input-brand !bg-white/80"
+                />
+                <button 
+                  type="submit" 
+                  disabled={status === 'loading'}
+                  className="btn-brand whitespace-nowrap px-10"
+                >
+                  {status === 'loading' ? 'Anotando...' : 'Suscribirse'}
+                </button>
+              </form>
+            </>
+          )}
 
-        {status === 'error' && (
-          <p className="text-center text-red-500 mt-4 text-sm">
-            ❌ Algo salió mal, intenta de nuevo.
-          </p>
-        )}
-      </div>
-    </div>
+          {status === 'error' && (
+            <motion.p 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              className="text-center text-red-500 mt-6 text-[10px] font-black uppercase tracking-widest"
+            >
+              ❌ Error: Quizás ya estás suscrito o hubo un fallo.
+            </motion.p>
+          )}
+        </div>
+      </motion.div>
+    </AnimatePresence>
   );
 }

@@ -13,6 +13,9 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  // --- OPTIMIZACIÓN: Clases para formularios ---
+  const labelStyle = "block text-[10px] font-black uppercase tracking-[0.2em] text-primary/60 mb-2 ml-1";
+
   const handleAuth = async (e) => {
     e.preventDefault();
     setMensaje('');
@@ -43,27 +46,29 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-[#EBEBEB] px-4">
+    // bg-bg-main unificado
+    <main className="min-h-screen flex items-center justify-center bg-bg-main px-4">
       <motion.div 
         initial={{ opacity: 0, y: 20 }} 
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md card-franilover bg-white shadow-2xl"
+        // Reemplazamos card-franilover por card-main y forzamos bg-white para legibilidad
+        className="w-full max-w-md card-main !bg-white shadow-2xl p-8 md:p-12"
       >
-        <h1 className="text-3xl font-black italic text-[#6B5E70] uppercase tracking-tighter text-center mb-8">
+        <h1 className="text-3xl md:text-4xl font-black italic text-primary uppercase tracking-tighter text-center mb-10">
           {isRegistering ? 'Crear Cuenta' : 'Iniciar Sesión'}
         </h1>
 
-        <form onSubmit={handleAuth} className="space-y-4">
+        <form onSubmit={handleAuth} className="space-y-6">
           <AnimatePresence mode="popLayout">
             {isRegistering && (
               <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }}>
-                <label className="label-franilover">NOMBRE DE USUARIO</label>
+                <label className={labelStyle}>Nombre de Usuario</label>
                 <input
                   type="text"
                   placeholder="Tu apodo..."
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="input-franilover"
+                  className="input-brand"
                   required
                 />
               </motion.div>
@@ -71,43 +76,43 @@ export default function LoginPage() {
           </AnimatePresence>
 
           <div>
-            <label className="label-franilover">EMAIL</label>
+            <label className={labelStyle}>Email</label>
             <input
               type="email"
               placeholder="nombre@ejemplo.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="input-franilover"
+              className="input-brand"
               required
             />
           </div>
 
           <div>
-            <label className="label-franilover">CONTRASEÑA</label>
+            <label className={labelStyle}>Contraseña</label>
             <input
               type="password"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="input-franilover"
+              className="input-brand"
               required
             />
           </div>
           
-          <button disabled={loading} className="btn-franilover w-full mt-4 uppercase text-xs tracking-widest">
+          <button disabled={loading} className="btn-brand w-full mt-4 uppercase text-xs tracking-widest">
             {loading ? 'Procesando...' : isRegistering ? 'Registrarse' : 'Entrar'}
           </button>
         </form>
 
         {mensaje && (
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-4 text-[10px] text-center text-[#6B5E70] font-black uppercase italic">
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-6 text-[10px] text-center text-primary font-black uppercase italic border-t border-primary/10 pt-4">
             {mensaje}
           </motion.p>
         )}
 
         <button 
           onClick={() => { setIsRegistering(!isRegistering); setMensaje(''); }}
-          className="w-full mt-8 text-[10px] font-black uppercase tracking-widest text-[#6B5E70]/40 hover:text-[#6B5E70] transition-colors underline decoration-2 underline-offset-4"
+          className="w-full mt-8 text-[10px] font-black uppercase tracking-[0.2em] text-primary/40 hover:text-primary transition-all underline decoration-1 underline-offset-8"
         >
           {isRegistering ? '¿Ya tienes cuenta? Entra aquí' : '¿No tienes cuenta? Regístrate'}
         </button>

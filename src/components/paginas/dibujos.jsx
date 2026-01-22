@@ -47,38 +47,37 @@ export default function Drawings() {
   }, [openLightbox, imagenesParaLightbox]);
 
   return (
-    <main className="min-h-screen bg-[#F0F0F0] pb-20 pt-16 font-sans overflow-x-hidden">
+    // Usamos bg-bg-main definido en tu CSS global
+    <main className="min-h-screen bg-bg-main pb-20 pt-16 font-sans overflow-x-hidden">
       
-      {/* CABECERA ESTILO LORE */}
+      {/* CABECERA (Ahora usa text-primary) */}
       <header className="mb-12 md:mb-16 text-center px-4">
-        <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter text-[#6B5E70] uppercase leading-none break-words">
+        <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter text-primary uppercase leading-none">
           Galería
         </h1>
-        <div className="h-1 w-20 md:w-24 bg-[#6B5E70] mx-auto mt-4 rounded-full opacity-20" />
+        <div className="h-1.5 w-24 bg-primary mx-auto mt-4 rounded-full opacity-20" />
       </header>
 
-      {/* FILTROS REDISEÑADOS (CONSISTENTES) */}
-      <div className="max-w-4xl mx-auto mb-16 md:mb-20 px-6">
+      {/* FILTROS (Misma lógica que en Bestiario) */}
+      <div className="max-w-4xl mx-auto mb-16 px-6">
         <div className="flex flex-col items-center space-y-4">
-          {/* Título de categoría estético */}
-          <div className="flex items-center space-x-2 w-full max-w-md justify-center">
-            <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-[#6B5E70]/20" />
-            <span className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.3em] text-[#6B5E70] italic">
+          <div className="flex items-center space-x-2 w-full max-w-md justify-center opacity-40">
+            <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-primary" />
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary italic">
               Categorías
             </span>
-            <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent to-[#6B5E70]/20" />
+            <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent to-primary" />
           </div>
 
-          {/* Botones estilo Pills */}
-          <div className="flex flex-wrap justify-center gap-1.5 md:gap-2">
+          <div className="flex flex-wrap justify-center gap-2">
             {categorias.map(cat => (
               <button
                 key={cat}
                 onClick={() => setFiltro(cat)}
-                className={`px-4 py-1.5 rounded-xl text-[9px] md:text-[10px] font-bold uppercase transition-all duration-300 border ${
+                className={`px-4 py-1.5 rounded-xl text-[10px] font-bold uppercase transition-all border ${
                   filtro === cat 
-                  ? 'bg-[#6B5E70] text-white border-[#6B5E70] shadow-lg shadow-[#6B5E70]/20 scale-105' 
-                  : 'bg-white text-[#6B5E70]/40 border-transparent hover:border-[#6B5E70]/20 hover:text-[#6B5E70]'
+                  ? 'bg-primary text-white border-primary shadow-lg scale-105' 
+                  : 'bg-white/50 text-primary/60 border-transparent hover:border-primary/20 hover:text-primary'
                 }`}
               >
                 {cat}
@@ -88,12 +87,12 @@ export default function Drawings() {
         </div>
       </div>
 
-      {/* GALERÍA CON ANIMACIONES */}
+      {/* GALERÍA */}
       <section className="max-w-[1600px] mx-auto px-4 md:px-8">
         {loading ? (
           <div className="py-20 text-center flex flex-col items-center gap-4">
-            <div className="w-8 h-8 border-3 border-[#6B5E70]/20 border-t-[#6B5E70] rounded-full animate-spin"></div>
-            <p className="text-[#6B5E70]/40 font-black uppercase text-[10px] tracking-[0.3em] animate-pulse">
+            <div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+            <p className="text-primary/40 font-black uppercase text-[10px] tracking-[0.3em] animate-pulse">
               Desplegando Arte
             </p>
           </div>
@@ -107,25 +106,27 @@ export default function Drawings() {
                       <motion.div
                         key={dibujo.id}
                         layout
-                        initial={{ opacity: 0, scale: 0.9 }}
+                        initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
-                        transition={{ duration: 0.4 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.3 }}
                         className="group"
                       >
-                        <div className="relative overflow-hidden rounded-[1.5rem] md:rounded-[2.5rem] transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl bg-white p-1 md:p-2">
+                        {/* Usamos tu nueva clase de tarjeta de personaje para mantener la estética */}
+                        <div className="char-card-base !aspect-auto bg-white p-1 md:p-2">
                            <GalleryItem 
                             src={dibujo.url_imagen}
                             alt={dibujo.titulo}
                             onClick={() => handleOpenLightbox(index)}
-                            className="grayscale-[0.3] group-hover:grayscale-0 transition-all duration-700 rounded-[1rem] md:rounded-[2rem]"
+                            className="rounded-[1rem] md:rounded-[2rem] grayscale-[0.3] group-hover:grayscale-0 transition-all duration-700"
                           />
-                          {/* Label sutil al hacer hover */}
-                          <div className="absolute bottom-6 left-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                            <p className="text-[8px] font-black text-white uppercase tracking-widest drop-shadow-lg">
+                          
+                          {/* Overlay de información (Consistente con las tarjetas del bestiario) */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none flex flex-col justify-end p-6 md:p-8">
+                            <p className="text-[8px] font-black text-white/70 uppercase tracking-[0.2em] mb-1">
                               {dibujo.categoria}
                             </p>
-                            <h3 className="text-sm font-black text-white uppercase italic tracking-tighter drop-shadow-lg">
+                            <h3 className="text-lg font-black text-white uppercase italic tracking-tighter leading-none">
                               {dibujo.titulo}
                             </h3>
                           </div>
@@ -134,7 +135,7 @@ export default function Drawings() {
                     ))
                   ) : (
                     <div className="col-span-full py-20 text-center">
-                      <p className="text-[#6B5E70]/30 font-bold uppercase text-[11px] tracking-[0.4em] italic">
+                      <p className="text-primary/30 font-bold uppercase text-[10px] tracking-[0.4em] italic">
                         Sin registros en esta sección
                       </p>
                     </div>
