@@ -6,13 +6,12 @@ import { X, Music } from 'lucide-react';
 export default function DetalleMaestro({ 
   isOpen, 
   onClose, 
-  data, // Objeto con nombre, descripcion/sobre, imagen_url/img_url
+  data, 
   tags = [], 
   mostrarMusica = false 
 }) {
   if (!data) return null;
 
-  // Normalizamos las propiedades porque a veces usas img_url y otras imagen_url
   const imagen = data.img_url || data.imagen_url;
   const nombre = data.nombre;
   const descripcion = data.sobre || data.descripcion;
@@ -46,9 +45,9 @@ export default function DetalleMaestro({
               />
             </div>
 
-            {/* Contenedor Texto */}
-            <div className="w-full lg:w-1/2 p-10 lg:p-20 flex flex-col justify-center bg-bg-main/5">
-              <div className="flex flex-wrap gap-2 mb-6">
+            {/* Contenedor Texto - Ajustado el padding para mover a la izquierda */}
+            <div className="w-full lg:w-1/2 p-8 lg:pl-10 lg:pr-20 flex flex-col justify-center bg-bg-main/5">
+              <div className="flex flex-wrap gap-2 mb-4">
                 {tags.map((tag, i) => tag && (
                   <span key={i} className="px-3 py-1 bg-primary text-white text-[10px] font-black uppercase rounded-lg tracking-widest">
                     {tag}
@@ -56,15 +55,17 @@ export default function DetalleMaestro({
                 ))}
               </div>
 
-              <h2 className="text-5xl md:text-7xl font-black uppercase italic text-primary leading-none tracking-tighter mb-6">
+              {/* Título más pequeño para evitar desbordes */}
+              <h2 className="text-3xl md:text-5xl font-black uppercase italic text-primary leading-[0.9] tracking-tighter mb-6">
                 {nombre}
               </h2>
               
-              <p className="text-primary/80 text-lg italic leading-relaxed border-l-4 border-primary pl-6 mb-8">
+              {/* Descripción sin borde lateral para ganar espacio a la izquierda */}
+              <p className="text-primary/80 text-base md:text-lg italic leading-snug mb-8">
                 {descripcion}
               </p>
 
-              {/* Sección de Música (Solo si se activa y existen datos) */}
+              {/* Sección de Música */}
               {mostrarMusica && (data.cancion_nombre || data.cancion_url) && (
                 <div className="bg-bg-main/20 p-6 rounded-[2rem] border border-primary/10">
                   <div className="flex items-center gap-3 mb-4 text-primary">
