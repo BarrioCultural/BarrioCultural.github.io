@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Youtube, ExternalLink } from 'lucide-react';
+import { X, Music } from 'lucide-react';
 
 export default function DetalleMaestro({ 
   isOpen, 
@@ -16,8 +16,9 @@ export default function DetalleMaestro({
   const nombre = data.nombre;
   const descripcion = data.sobre || data.descripcion;
   
-  // Obtenemos el link de la columna "canciones"
-  const linkVideo = data.canciones;
+  // Convertimos el contenido de la columna "canciones" en un array
+  // Si hay varios links separados por comas, creará varios botones
+  const listaLinks = data.canciones ? data.canciones.split(',').map(link => link.trim()) : [];
 
   return (
     <AnimatePresence mode="wait">
@@ -68,36 +69,33 @@ export default function DetalleMaestro({
                 {descripcion}
               </p>
 
-              {/* SECCIÓN DE VIDEOS DE YOUTUBE (BOTONES) */}
-              {mostrarMusica && linkVideo && (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3 text-primary/40 mb-2">
-                    <Youtube size={16} />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Contenido Multimedia</span>
+              {/* SECCIÓN DE BOTONES ALINEADOS (LADO A LADO) */}
+              {mostrarMusica && listaLinks.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-primary/30 mb-2">
+                    <Music size={14} />
+                    <span className="text-[10px] font-black uppercase tracking-widest">Temas Musicales</span>
                   </div>
                   
-                  <motion.a
-                    href={linkVideo}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="group flex items-center justify-between bg-primary text-white p-5 rounded-[2rem] shadow-xl hover:bg-primary/90 transition-all border-b-4 border-black/20"
-                  >
-                    <div className="flex flex-col">
-                      <span className="text-[10px] font-black uppercase opacity-60 tracking-tighter">Ver video de:</span>
-                      <span className="text-xl md:text-2xl font-black italic uppercase tracking-tighter">
-                        {nombre}
-                      </span>
-                    </div>
-                    <div className="bg-white/20 p-3 rounded-full group-hover:bg-white group-hover:text-primary transition-colors">
-                      <ExternalLink size={20} />
-                    </div>
-                  </motion.a>
-                  
-                  <p className="text-[9px] text-primary/30 uppercase font-bold text-center tracking-widest">
-                    Este link te llevará a YouTube
-                  </p>
+                  {/* flex-wrap y gap-3 para que se pongan uno al lado del otro */}
+                  <div className="flex flex-wrap gap-3">
+                    {listaLinks.map((link, index) => (
+                      <motion.a
+                        key={index}
+                        href={link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        whileHover={{ y: -3, scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="flex items-center gap-3 bg-white border-2 border-primary/10 px-6 py-3 rounded-2xl hover:border-primary hover:bg-primary/5 transition-all shadow-sm"
+                      >
+                        <span className="text-sm md:text-base font-black italic uppercase text-primary tracking-tighter">
+                          Personaje {index + 1}
+                        </span>
+                        <Music size={16} className="text-primary/40" />
+                      </motion.a>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
