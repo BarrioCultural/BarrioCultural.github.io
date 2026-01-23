@@ -9,21 +9,17 @@ const withPWA = withPWAInit({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    turbopack: {}, 
-  },
+  transpilePackages: ['next-pwa'], 
   images: {
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'ftdxthnizdosaaavjhah.supabase.co',
-        port: '',
         pathname: '/storage/v1/object/public/**',
       },
       {
         protocol: 'https',
         hostname: 'raw.githubusercontent.com',
-        port: '',
         pathname: '/**',
       },
     ],
