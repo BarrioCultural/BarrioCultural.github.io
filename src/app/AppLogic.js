@@ -19,22 +19,42 @@ export default function AppLogic({ children }) {
         closeLightbox();
       }
 
-      // 3. BLOQUEO DE CLIC DERECHO Y ARRASTRE (Protección de dibujos)
-      const bloquearAccion = (e) => e.preventDefault();
-      
-      document.addEventListener("contextmenu", bloquearAccion);
-      document.addEventListener("dragstart", bloquearAccion);
+      // 3. LÓGICA DE PROTECCIÓN TOTAL
+      const manejarEventos = (e) => {
+        // Bloquear Clic Derecho y Arrastre de imágenes
+        if (e.type === 'contextmenu' || e.type === 'dragstart') {
+          e.preventDefault();
+        }
 
-      // Limpieza al desmontar el componente
+        // Bloquear atajos de teclado:
+        // Ctrl+S (Guardar), Ctrl+P (Imprimir), Ctrl+U (Ver código fuente)
+        if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'p' || e.key === 'u')) {
+          e.preventDefault();
+          console.warn("Acción bloqueada por derechos de autor.");
+        }
+
+        // Opcional: Bloquear F12 (Herramientas de desarrollador)
+        if (e.key === 'F12') {
+          e.preventDefault();
+        }
+      };
+
+      // Registrar los eventos
+      document.addEventListener("contextmenu", manejarEventos);
+      document.addEventListener("dragstart", manejarEventos);
+      document.addEventListener("keydown", manejarEventos);
+
+      // Limpieza al desmontar o cambiar de página
       return () => {
-        document.removeEventListener("contextmenu", bloquearAccion);
-        document.removeEventListener("dragstart", bloquearAccion);
+        document.removeEventListener("contextmenu", manejarEventos);
+        document.removeEventListener("dragstart", manejarEventos);
+        document.removeEventListener("keydown", manejarEventos);
       };
     }
   }, [pathname, closeLightbox]); 
 
   return (
-    <div className="app-container">
+    <div className="app-container select-none"> {/* "select-none impide seleccionar texto" */}
       <Navbar />
       <main>{children}</main>
     </div>
