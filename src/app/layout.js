@@ -3,11 +3,11 @@ import { AuthProvider } from "@/components/recursos/control/authContext";
 import AppLogic from "./AppLogic";
 import "@/components/tailwind.css"; 
 import { Montserrat } from 'next/font/google';
-import dynamic from 'next/dynamic'; // "Añadimos esto"
+import dynamic from 'next/dynamic'; // "Importamos la herramienta de carga dinámica"
 
-// "Cargamos el componente de protección de forma dinámica"
+// "Cargamos ControlHooks desactivando el Server-Side Rendering (ssr: false)"
 const ControlHooks = dynamic(() => import("@/components/recursos/control/controlHooks"), {
-  ssr: false, // "Esto es la clave: le dice que NO lo ejecute en el servidor"
+  ssr: false, 
 });
 
 const montserrat = Montserrat({ 
@@ -16,11 +16,13 @@ const montserrat = Montserrat({
   variable: '--font-montserrat',
 });
 
+// "Metadata limpia (sin viewport)"
 export const metadata = {
   title: 'Franilover',
   description: 'Mi Nexus personal',
 };
 
+// "Configuración de Viewport (API oficial de Next.js 16)"
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
@@ -33,7 +35,7 @@ export default function RootLayout({ children }) {
     <html lang="es" className={montserrat.variable}>
       <body className={`${montserrat.className} antialiased bg-[#F0F0F0] min-h-screen flex flex-col`}>
         
-        {/* "Ahora se cargará de forma segura sin romper el build" */}
+        {/* "Ahora se ejecutará de forma segura solo en el navegador" */}
         <ControlHooks /> 
         
         <AuthProvider>
