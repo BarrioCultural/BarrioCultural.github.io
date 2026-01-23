@@ -1,9 +1,14 @@
 import { LightboxProvider } from "@/components/recursos/boxes/lightbox"; 
 import { AuthProvider } from "@/components/recursos/control/authContext"; 
-import ControlHooks from "@/components/recursos/control/controlHooks"; 
 import AppLogic from "./AppLogic";
 import "@/components/tailwind.css"; 
 import { Montserrat } from 'next/font/google';
+import dynamic from 'next/dynamic'; // "Añadimos esto"
+
+// "Cargamos el componente de protección de forma dinámica"
+const ControlHooks = dynamic(() => import("@/components/recursos/control/controlHooks"), {
+  ssr: false, // "Esto es la clave: le dice que NO lo ejecute en el servidor"
+});
 
 const montserrat = Montserrat({ 
   subsets: ['latin'],
@@ -11,13 +16,11 @@ const montserrat = Montserrat({
   variable: '--font-montserrat',
 });
 
-// "Configuración de Metadata (Sin el viewport para evitar errores)"
 export const metadata = {
   title: 'Franilover',
   description: 'Mi Nexus personal',
 };
 
-// "Nueva forma de configurar el Viewport en Next.js 2026"
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
@@ -30,7 +33,7 @@ export default function RootLayout({ children }) {
     <html lang="es" className={montserrat.variable}>
       <body className={`${montserrat.className} antialiased bg-[#F0F0F0] min-h-screen flex flex-col`}>
         
-        {/* "Activamos la protección global" */}
+        {/* "Ahora se cargará de forma segura sin romper el build" */}
         <ControlHooks /> 
         
         <AuthProvider>
@@ -41,7 +44,6 @@ export default function RootLayout({ children }) {
               </AppLogic>
             </div>
             
-            {/* "Pie de página legal para proteger tu autoría" */}
             <footer className="w-full py-6 mt-auto text-center border-t border-gray-300 bg-white/50 backdrop-blur-sm">
               <p className="text-gray-600 text-xs sm:text-sm px-4">
                 "© 2026 Franilover. Todos los derechos reservados. 
@@ -49,7 +51,6 @@ export default function RootLayout({ children }) {
                 para fines comerciales o entrenamiento de modelos de IA sin autorización."
               </p>
             </footer>
-
           </LightboxProvider>
         </AuthProvider>
       </body>
