@@ -7,15 +7,15 @@ import Navbar from "@/components/recursos/navbar/navbar";
 
 export default function AppLogic({ children }) {
   const pathname = usePathname();
-  const { closeLightbox } = useLightbox(); 
+  // "Añadimos un valor por defecto para evitar errores si el context es nulo"
+  const { closeLightbox } = useLightbox() || {}; 
 
   useEffect(() => {
+    // "Solo ejecutamos si estamos en el navegador y useEffect existe"
     if (typeof window !== "undefined") {
-      // 1. Resetear el scroll al cambiar de página
       window.scrollTo(0, 0); 
       
-      // 2. Cerramos el lightbox si estaba abierto
-      if (closeLightbox) {
+      if (closeLightbox && typeof closeLightbox === 'function') {
         closeLightbox();
       }
     }
