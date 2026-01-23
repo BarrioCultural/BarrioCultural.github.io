@@ -1,0 +1,24 @@
+"use client";
+import { useEffect } from 'react';
+
+export default function ProteccionHooks() {
+  useEffect(() => {
+    // Bloquea el menú contextual (clic derecho)
+    const bloquearClick = (e) => e.preventDefault();
+    
+    // Bloquea el arrastre de imágenes (drag and drop)
+    const bloquearArrastre = (e) => {
+      if (e.target.tagName === 'IMG') e.preventDefault();
+    };
+
+    document.addEventListener("contextmenu", bloquearClick);
+    document.addEventListener("dragstart", bloquearArrastre);
+
+    return () => {
+      document.removeEventListener("contextmenu", bloquearClick);
+      document.removeEventListener("dragstart", bloquearArrastre);
+    };
+  }, []);
+
+  return null; 
+}

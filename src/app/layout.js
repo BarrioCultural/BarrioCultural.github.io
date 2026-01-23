@@ -1,5 +1,6 @@
 import { LightboxProvider } from "@/components/recursos/boxes/lightbox"; 
 import { AuthProvider } from "@/components/recursos/control/authContext"; 
+import ControlHooks from "@/components/recursos/control/controlHooks"; 
 import AppLogic from "./AppLogic";
 import "@/components/tailwind.css"; 
 import { Montserrat } from 'next/font/google';
@@ -10,43 +11,43 @@ const montserrat = Montserrat({
   variable: '--font-montserrat',
 });
 
+// "Configuración de Metadata (Sin el viewport para evitar errores)"
 export const metadata = {
   title: 'Franilover',
   description: 'Mi Nexus personal',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1, 
-    userScalable: false,
-  },
+};
+
+// "Nueva forma de configurar el Viewport en Next.js 2026"
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1, 
+  userScalable: false,
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="es" className={montserrat.variable}>
-      <body 
-        className={`${montserrat.className} antialiased bg-[#F0F0F0]`}
-        // "Opcional: Esto evita el clic derecho en TODA la web"
-        onContextMenu={(e) => e.preventDefault()} 
-      >
+      <body className={`${montserrat.className} antialiased bg-[#F0F0F0] min-h-screen flex flex-col`}>
+        
+        {/* "Activamos la protección global" */}
+        <ControlHooks /> 
+        
         <AuthProvider>
           <LightboxProvider>
-            <AppLogic>
-              {children}
-            </AppLogic>
+            <div className="flex-grow">
+              <AppLogic>
+                {children}
+              </AppLogic>
+            </div>
             
-            {/* "AVISO LEGAL AL PIE DE PÁGINA" */}
-            <footer style={{ 
-              textAlign: 'center', 
-              padding: '2rem', 
-              color: '#666', 
-              fontSize: '0.8rem',
-              borderTop: '1px solid #ddd',
-              marginTop: 'auto'
-            }}>
-              "© 2026 Franilover. Todos los derechos reservados. 
-              Queda prohibido el uso de mis ilustraciones para fines comerciales o 
-              entrenamiento de IA sin autorización."
+            {/* "Pie de página legal para proteger tu autoría" */}
+            <footer className="w-full py-6 mt-auto text-center border-t border-gray-300 bg-white/50 backdrop-blur-sm">
+              <p className="text-gray-600 text-xs sm:text-sm px-4">
+                "© 2026 Franilover. Todos los derechos reservados. 
+                Queda estrictamente prohibido el uso o reproducción de las ilustraciones 
+                para fines comerciales o entrenamiento de modelos de IA sin autorización."
+              </p>
             </footer>
 
           </LightboxProvider>
