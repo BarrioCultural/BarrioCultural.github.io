@@ -10,9 +10,16 @@ const montserrat = Montserrat({
   variable: '--font-montserrat',
 });
 
+// AÑADE AQUÍ LOS CAMPOS DE PWA
 export const metadata = {
   title: 'Franilover',
   description: 'Mi Nexus personal',
+  manifest: '/manifest.json', // El archivo que renombraste en public
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Franilover',
+  },
 };
 
 export const viewport = {
@@ -20,6 +27,7 @@ export const viewport = {
   initialScale: 1,
   maximumScale: 1, 
   userScalable: false,
+  themeColor: '#000000', // El color que verán en la barra de estado
 };
 
 export default function RootLayout({ children }) {
