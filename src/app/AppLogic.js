@@ -1,4 +1,3 @@
-// app/AppLogic.js
 "use client";
 
 import React, { useEffect } from 'react';
@@ -12,20 +11,24 @@ export default function AppLogic({ children }) {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // 1. Resetear scroll
+      // 1. Resetear el scroll al cambiar de página
       window.scrollTo(0, 0); 
       
-      // 2. Cerrar lightbox
-      if (closeLightbox) closeLightbox();
+      // 2. Cerrar el lightbox al cambiar de ruta
+      if (closeLightbox && typeof closeLightbox === 'function') {
+        closeLightbox();
+      }
 
-      // 3. PROTECCIÓN DE DIBUJOS (Clic derecho y Arrastre)
-      const bloquear = (e) => e.preventDefault();
-      document.addEventListener("contextmenu", bloquear);
-      document.addEventListener("dragstart", bloquear);
+      // 3. BLOQUEO DE CLIC DERECHO Y ARRASTRE (Protección de dibujos)
+      const bloquearAccion = (e) => e.preventDefault();
+      
+      document.addEventListener("contextmenu", bloquearAccion);
+      document.addEventListener("dragstart", bloquearAccion);
 
+      // Limpieza al desmontar el componente
       return () => {
-        document.removeEventListener("contextmenu", bloquear);
-        document.removeEventListener("dragstart", bloquear);
+        document.removeEventListener("contextmenu", bloquearAccion);
+        document.removeEventListener("dragstart", bloquearAccion);
       };
     }
   }, [pathname, closeLightbox]); 
