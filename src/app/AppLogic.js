@@ -1,3 +1,4 @@
+// app/AppLogic.js
 "use client";
 
 import React, { useEffect } from 'react';
@@ -7,17 +8,25 @@ import Navbar from "@/components/recursos/navbar/navbar";
 
 export default function AppLogic({ children }) {
   const pathname = usePathname();
-  // "Añadimos un valor por defecto para evitar errores si el context es nulo"
   const { closeLightbox } = useLightbox() || {}; 
 
   useEffect(() => {
-    // "Solo ejecutamos si estamos en el navegador y useEffect existe"
     if (typeof window !== "undefined") {
+      // 1. Resetear scroll
       window.scrollTo(0, 0); 
       
-      if (closeLightbox && typeof closeLightbox === 'function') {
-        closeLightbox();
-      }
+      // 2. Cerrar lightbox
+      if (closeLightbox) closeLightbox();
+
+      // 3. PROTECCIÓN DE DIBUJOS (Clic derecho y Arrastre)
+      const bloquear = (e) => e.preventDefault();
+      document.addEventListener("contextmenu", bloquear);
+      document.addEventListener("dragstart", bloquear);
+
+      return () => {
+        document.removeEventListener("contextmenu", bloquear);
+        document.removeEventListener("dragstart", bloquear);
+      };
     }
   }, [pathname, closeLightbox]); 
 
