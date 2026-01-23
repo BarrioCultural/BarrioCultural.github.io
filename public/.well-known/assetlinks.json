@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.vercel.franilover.twa",
+      "sha256_cert_fingerprints": [
+        "87:19:B9:1E:14:2F:A3:26:7D:B6:C1:D8:50:4B:16:D6:55:B9:24:90:1E:50:58:8C:D5:16:2C:AD:92:5A:CF:F9"
+      ]
+    }
+  }
+]
