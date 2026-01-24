@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { X, Bell, BellRing, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Función para convertir la Public Key de VAPID
+// Función para convertir la Public Key (No tocar)
 const urlBase64ToUint8Array = (base64String) => {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
@@ -12,14 +12,16 @@ const urlBase64ToUint8Array = (base64String) => {
   return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
 };
 
-export default function NotificationBadge() {
-  const [status, setStatus] = useState(null); // 'loading', 'success', 'error'
+export default function Newsletter() {
+  const [status, setStatus] = useState(null);
   const [isVisible, setIsVisible] = useState(true);
 
+  // Registrar el Service Worker al abrir la App
   useEffect(() => {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js")
-        .catch((err) => console.error("Error registrando SW:", err));
+        .then(() => console.log("Service Worker activado"))
+        .catch((err) => console.error("Error en SW:", err));
     }
   }, []);
 
@@ -27,33 +29,35 @@ export default function NotificationBadge() {
     setStatus('loading');
 
     try {
-      // 1. Solicitar permiso al sistema (Android/Navegador)
+      // 1. Pedir permiso al usuario
       const permission = await Notification.requestPermission();
       
       if (permission !== 'granted') {
+        alert("¡Necesitas permitir las notificaciones en los ajustes de tu móvil!");
         setStatus('error');
         return;
       }
 
-      // 2. Obtener la suscripción push
+      // 2. Obtener la suscripción push del navegador/APK
       const registration = await navigator.serviceWorker.ready;
       const pushSubscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array("BG-LnxDWcr_4PGYVPdRr_L4qAnvgSGsc18-NAZR23bz4O1MmV8SEsV8ew_RlvEaSKPjN3mS9LI4wa-96-dWPKIY")
       });
 
-      // 3. Guardar en la tabla 'suscriptores' (dejando email como null)
+      // 3. Guardar en Supabase (En tu tabla 'suscriptores')
       const { error } = await supabase
         .from('suscriptores')
         .insert([{ 
-          subscription_data: pushSubscription 
+          subscription_data: pushSubscription,
+          email: `user_${Math.floor(Math.random() * 10000)}@pwa.art` // ID temporal
         }]);
 
       if (error) throw error;
 
       setStatus('success');
     } catch (err) {
-      console.error("Error:", err);
+      console.error("Error al suscribir:", err);
       setStatus('error');
     }
   };
@@ -88,19 +92,13 @@ export default function NotificationBadge() {
                 "¡Avisos Activados!"
               </h3>
               <p className="text-primary/60 text-sm font-medium mb-8 uppercase tracking-widest">
-                "Recibirás una notificación cuando suba arte nuevo."
+                "Te avisaré directo al móvil cuando haya arte nuevo."
               </p>
-              <button 
-                onClick={() => setIsVisible(false)}
-                className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40 hover:text-primary underline decoration-2 underline-offset-4 transition-all"
-              >
-                "Cerrar"
-              </button>
             </motion.div>
           ) : (
             <div className="text-center">
               <h2 className="text-3xl md:text-4xl font-black uppercase italic text-primary tracking-tighter leading-none mb-4">
-                "¿Te aviso cuando <br /> haya dibujos?"
+                "¿Quieres ver <br /> nuevos dibujos?"
               </h2>
               <div className="h-1 w-12 bg-primary/20 mx-auto rounded-full mb-6" />
               <p className="text-primary/50 text-[10px] md:text-xs font-black uppercase tracking-[0.2em] mb-10">
@@ -110,7 +108,7 @@ export default function NotificationBadge() {
               <button 
                 onClick={handleEnableNotifications}
                 disabled={status === 'loading'}
-                className="btn-brand w-full md:w-auto px-16 py-5 flex items-center justify-center gap-3 mx-auto text-lg shadow-xl hover:shadow-primary/20 transition-all"
+                className="btn-brand w-full md:w-auto px-16 py-5 flex items-center justify-center gap-3 mx-auto text-lg"
               >
                 <BellRing size={20} className={status === 'loading' ? 'animate-bounce' : ''} />
                 {status === 'loading' ? 'Configurando...' : 'Activar Notificaciones'}
@@ -120,7 +118,7 @@ export default function NotificationBadge() {
 
           {status === 'error' && (
             <p className="text-center text-red-500 mt-6 text-[10px] font-black uppercase tracking-widest">
-              "❌ Error: Asegúrate de dar permiso en tu navegador o móvil."
+              "❌ Error: Revisa los permisos o intenta de nuevo."
             </p>
           )}
         </div>
