@@ -48,7 +48,7 @@ export default function UploadPage() {
   if (!perfil || (perfil.rol !== 'admin' && perfil.rol !== 'autor')) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#EBEBEB] text-[#6B5E70] font-black uppercase text-xs tracking-widest italic">
-        Acceso restringido
+        "Acceso restringido"
       </div>
     );
   }
@@ -58,14 +58,27 @@ export default function UploadPage() {
     setLoading(true);
     try {
       let finalImageUrl = externalUrl;
+      
+      // 1. Subida de archivo a Storage (si aplica)
       if (uploadMethod === 'file' && file) {
-        const filePath = `${tabla}/${Math.random()}.${file.name.split('.').pop()}`;
-        const { error: storageError } = await supabase.storage.from('galeria').upload(filePath, file);
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${tabla}/${fileName}`;
+
+        const { error: storageError } = await supabase.storage
+          .from('galeria')
+          .upload(filePath, file);
+
         if (storageError) throw storageError;
-        const { data: { publicUrl } } = supabase.storage.from('galeria').getPublicUrl(filePath);
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('galeria')
+          .getPublicUrl(filePath);
+          
         finalImageUrl = publicUrl;
       }
 
+      // 2. Inserción en la base de datos según la sección
       const insertData = seccion === 'personal' 
         ? { titulo: nombreObra, url_imagen: finalImageUrl, categoria }
         : { nombre: nombreObra, imagen_url: finalImageUrl, categoria };
@@ -73,17 +86,26 @@ export default function UploadPage() {
       const { error: dbError } = await supabase.from(tabla).insert([insertData]);
       if (dbError) throw dbError;
 
-      // --- PASO 3: DISPARAR NOTIFICACIÓN ---
+      // 3. DISPARAR NOTIFICACIÓN PUSH (Llamada a tu nueva API)
       try {
-        fetch('/api/notify', { method: 'POST' });
+        const baseUrl = window.location.origin;
+        await fetch(`${baseUrl}/api/notify`, { 
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        console.log("Notificación solicitada correctamente");
       } catch (pushError) {
-        console.error("Error al notificar:", pushError);
+        console.error("Error al conectar con la API de notificaciones:", pushError);
       }
-      // --- FIN PASO 3 ---
 
       alert("¡Publicado con éxito! ✨");
-      setNombreObra(''); setFile(null); setExternalUrl('');
+      
+      // Limpiar formulario
+      setNombreObra(''); 
+      setFile(null); 
+      setExternalUrl('');
       router.refresh(); 
+      
     } catch (error) {
       alert("Error: " + error.message);
     } finally {
@@ -99,14 +121,16 @@ export default function UploadPage() {
         className="w-full max-w-md bg-white border border-zinc-200 p-8 rounded-[3rem] shadow-2xl"
       >
         <header className="text-center mb-8">
-          <h1 className="text-2xl font-black text-[#6B5E70] italic uppercase tracking-tighter">Publicar Contenido</h1>
-          <p className="text-[#6B5E70]/40 text-[9px] font-black uppercase tracking-widest mt-1">Admin Panel</p>
+          <h1 className="text-2xl font-black text-[#6B5E70] italic uppercase tracking-tighter">"Publicar Contenido"</h1>
+          <p className="text-[#6B5E70]/40 text-[9px] font-black uppercase tracking-widest mt-1">"Admin Panel"</p>
         </header>
 
+        {/* Selector de Sección */}
         <div className="flex gap-2 mb-8 bg-[#EBEBEB] p-1.5 rounded-2xl">
           {Object.keys(CONFIG_ESTRUCTURA).map((key) => (
             <button
               key={key}
+              type="button"
               onClick={() => {
                 setSeccion(key);
                 const primeraTabla = Object.keys(CONFIG_ESTRUCTURA[key].tablas)[0];
@@ -121,10 +145,16 @@ export default function UploadPage() {
         </div>
         
         <form onSubmit={handleUpload} className="space-y-6">
+          {/* Selector de Tabla */}
           <div className="grid grid-cols-2 gap-2">
             {Object.entries(CONFIG_ESTRUCTURA[seccion].tablas).map(([key, value]) => (
               <button 
-                key={key} type="button" onClick={() => { setTabla(key); setCategoria(value.categorias[0]); }} 
+                key={key} 
+                type="button" 
+                onClick={() => { 
+                  setTabla(key); 
+                  setCategoria(value.categorias[0]); 
+                }} 
                 className={`py-3 rounded-xl font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 border transition-all ${tabla === key ? 'bg-[#6B5E70] text-white border-[#6B5E70]' : 'bg-transparent text-[#6B5E70]/40 border-zinc-200'}`}
               >
                 {value.icon} {value.label}
@@ -134,14 +164,25 @@ export default function UploadPage() {
 
           <div className="space-y-4">
             <div>
-              <label className="label-franilover">NOMBRE / TÍTULO</label>
-              <input type="text" className="input-franilover" value={nombreObra} onChange={(e) => setNombreObra(e.target.value)} placeholder="Ej: Nueva criatura..." required />
+              <label className="text-[9px] font-black uppercase text-[#6B5E70]/40 tracking-widest ml-4 mb-2 block">"NOMBRE / TÍTULO"</label>
+              <input 
+                type="text" 
+                className="w-full bg-[#EBEBEB] border-none rounded-2xl px-6 py-4 text-[#6B5E70] font-black text-xs outline-none focus:ring-2 ring-[#6B5E70]/10 transition-all" 
+                value={nombreObra} 
+                onChange={(e) => setNombreObra(e.target.value)} 
+                placeholder="Ej: Nueva criatura..." 
+                required 
+              />
             </div>
 
             <div>
-              <label className="label-franilover">CATEGORÍA</label>
+              <label className="text-[9px] font-black uppercase text-[#6B5E70]/40 tracking-widest ml-4 mb-2 block">"CATEGORÍA"</label>
               <div className="relative">
-                <select value={categoria} onChange={(e) => setCategoria(e.target.value)} className="input-franilover appearance-none font-black text-[10px] tracking-widest">
+                <select 
+                  value={categoria} 
+                  onChange={(e) => setCategoria(e.target.value)} 
+                  className="w-full bg-[#EBEBEB] border-none rounded-2xl px-6 py-4 text-[#6B5E70] font-black text-[10px] tracking-widest appearance-none outline-none"
+                >
                   {CONFIG_ESTRUCTURA[seccion].tablas[tabla].categorias.map((cat) => (
                     <option key={cat} value={cat}>{cat.toUpperCase()}</option>
                   ))}
@@ -152,34 +193,58 @@ export default function UploadPage() {
           </div>
 
           <div className="space-y-4 pt-4 border-t border-zinc-100">
+            {/* Método de subida */}
             <div className="flex justify-center gap-6">
-              <button type="button" onClick={() => setUploadMethod('file')} className={`text-[9px] font-black uppercase tracking-[0.2em] flex items-center gap-2 ${uploadMethod === 'file' ? 'text-[#6B5E70]' : 'text-[#6B5E70]/20'}`}>
-                <Upload size={14}/> Archivo Local
+              <button 
+                type="button" 
+                onClick={() => setUploadMethod('file')} 
+                className={`text-[9px] font-black uppercase tracking-[0.2em] flex items-center gap-2 ${uploadMethod === 'file' ? 'text-[#6B5E70]' : 'text-[#6B5E70]/20'}`}
+              >
+                <Upload size={14}/> "Archivo Local"
               </button>
-              <button type="button" onClick={() => setUploadMethod('url')} className={`text-[9px] font-black uppercase tracking-[0.2em] flex items-center gap-2 ${uploadMethod === 'url' ? 'text-[#6B5E70]' : 'text-[#6B5E70]/20'}`}>
-                <LinkIcon size={14}/> URL Externa
+              <button 
+                type="button" 
+                onClick={() => setUploadMethod('url')} 
+                className={`text-[9px] font-black uppercase tracking-[0.2em] flex items-center gap-2 ${uploadMethod === 'url' ? 'text-[#6B5E70]' : 'text-[#6B5E70]/20'}`}
+              >
+                <LinkIcon size={14}/> "URL Externa"
               </button>
             </div>
 
             {uploadMethod === 'file' ? (
               <div className="relative group">
-                <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)} 
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+                />
                 <div className={`w-full py-8 border-2 border-dashed rounded-[2rem] flex flex-col items-center justify-center gap-3 transition-all ${file ? 'border-[#6B5E70] bg-[#6B5E70]/5' : 'border-zinc-200 bg-zinc-50'}`}>
                   {previewUrl ? (
                     <img src={previewUrl} alt="Preview" className="w-24 h-24 object-cover rounded-xl shadow-lg" />
                   ) : (
                     <Upload className="text-zinc-300" size={24} />
                   )}
-                  <span className="text-[#6B5E70]/40 text-[9px] font-black uppercase">Arrastra o haz click</span>
+                  <span className="text-[#6B5E70]/40 text-[9px] font-black uppercase">"Arrastra o haz click"</span>
                 </div>
               </div>
             ) : (
-              <input type="text" placeholder="https://..." className="input-franilover" value={externalUrl} onChange={(e) => setExternalUrl(e.target.value)} />
+              <input 
+                type="text" 
+                placeholder="https://..." 
+                className="w-full bg-[#EBEBEB] border-none rounded-2xl px-6 py-4 text-[#6B5E70] font-black text-xs outline-none" 
+                value={externalUrl} 
+                onChange={(e) => setExternalUrl(e.target.value)} 
+              />
             )}
           </div>
 
-          <button disabled={loading} className="btn-franilover w-full py-5 text-[10px] tracking-[0.3em] uppercase">
-            {loading ? 'Subiendo contenido...' : 'Publicar Ahora'}
+          <button 
+            disabled={loading} 
+            type="submit"
+            className="w-full py-5 rounded-[2rem] bg-[#6B5E70] text-white font-black text-[10px] tracking-[0.3em] uppercase shadow-xl shadow-[#6B5E70]/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
+          >
+            {loading ? '"Subiendo contenido..."' : '"Publicar Ahora"'}
           </button>
         </form>
       </motion.div>
