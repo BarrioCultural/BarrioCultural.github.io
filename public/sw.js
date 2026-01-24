@@ -3,13 +3,11 @@ self.addEventListener('push', function(event) {
   const data = event.data ? event.data.json() : {};
   
   const options = {
-    body: data.body || '¡Mira lo nuevo que he subido!',
-    icon: '/icon.png', // Asegúrate de que esta ruta sea válida
-    badge: '/icon.png', // Icono pequeño en la barra de estado
+    body: data.body || '¡Nueva actualización!',
+    icon: '/icon.png',
+    badge: '/icon.png',
     vibrate: [100, 50, 100],
-    data: {
-      url: '/' // URL a la que irá al hacer clic
-    }
+    data: { url: '/' }
   };
 
   event.waitUntil(
@@ -17,10 +15,7 @@ self.addEventListener('push', function(event) {
   );
 });
 
-// Abrir la app al hacer clic en la notificación
 self.addEventListener('notificationclick', function(event) {
   event.notification.close();
-  event.waitUntil(
-    clients.openWindow(event.notification.data.url)
-  );
+  event.waitUntil(clients.openWindow(event.notification.data.url));
 });
