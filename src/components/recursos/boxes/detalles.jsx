@@ -2,6 +2,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Music } from 'lucide-react';
+import Relaciones from './relaciones'; // Importación añadida
 
 export default function DetalleMaestro({ 
   isOpen, 
@@ -16,7 +17,6 @@ export default function DetalleMaestro({
   const nombre = data.nombre;
   const descripcion = data.sobre || data.descripcion;
   
-  // Procesamos los links: si vienen en array y traen comas, los separamos todos
   const listaLinks = Array.isArray(data.canciones) 
     ? data.canciones.flatMap(item => typeof item === 'string' ? item.split(',') : item)
                    .map(link => link.trim())
@@ -34,7 +34,6 @@ export default function DetalleMaestro({
           className="max-w-7xl mx-auto mb-16 relative pt-4 px-4"
         >
           <div className="bg-white rounded-[3rem] overflow-hidden shadow-2xl flex flex-col lg:flex-row min-h-[500px]">
-            {/* Botón Cerrar */}
             <button 
               onClick={onClose} 
               className="absolute top-10 right-10 p-3 bg-bg-main text-primary rounded-full hover:bg-primary hover:text-white transition-all z-50 shadow-md"
@@ -42,7 +41,6 @@ export default function DetalleMaestro({
               <X size={20} />
             </button>
             
-            {/* SECCIÓN IMAGEN */}
             <div className="w-full lg:w-1/2 bg-gradient-to-br from-white to-primary/5 flex items-center justify-center p-10 lg:p-16 border-b lg:border-b-0 lg:border-r border-primary/5">
               <div className="relative w-full aspect-square max-w-[400px]">
                 <div className="absolute inset-0 bg-primary/5 rounded-[4rem] rotate-3 scale-105" />
@@ -54,7 +52,6 @@ export default function DetalleMaestro({
               </div>
             </div>
 
-            {/* SECCIÓN TEXTO */}
             <div className="w-full lg:w-1/2 p-8 md:p-12 lg:pl-10 lg:pr-16 flex flex-col justify-center bg-bg-main/5">
               <div className="flex flex-wrap gap-2 mb-4">
                 {tags.map((tag, i) => tag && (
@@ -68,12 +65,15 @@ export default function DetalleMaestro({
                 {nombre}
               </h2>
               
-              {/* Se añadió 'whitespace-pre-wrap' para respetar saltos de línea y espacios */}
-              <p className="text-primary/80 text-base md:text-lg italic leading-snug mb-8 whitespace-pre-wrap">
+              <p className="text-primary/80 text-base md:text-lg italic leading-snug mb-4 whitespace-pre-wrap">
                 {descripcion}
               </p>
 
-              {/* BOTONES CON NOMBRE DEL PERSONAJE Y NÚMERO */}
+              {/* COMPONENTE DE RELACIONES AÑADIDO */}
+              <div className="mb-8">
+                <Relaciones nombrePersonaje={nombre} />
+              </div>
+
               {mostrarMusica && listaLinks.length > 0 && (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-primary/30 mb-2">
