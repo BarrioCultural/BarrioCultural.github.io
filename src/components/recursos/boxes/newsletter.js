@@ -16,7 +16,6 @@ export default function Newsletter() {
   const [status, setStatus] = useState(null);
   const [isVisible, setIsVisible] = useState(true);
 
-  // Registrar el Service Worker al abrir la App
   useEffect(() => {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js")
@@ -29,31 +28,40 @@ export default function Newsletter() {
     setStatus('loading');
 
     try {
-      // 1. Pedir permiso al usuario
+      // 1. Permisos
       const permission = await Notification.requestPermission();
-      
       if (permission !== 'granted') {
-        alert("¡Necesitas permitir las notificaciones en los ajustes de tu móvil!");
+        alert("¡Necesitas permitir las notificaciones!");
         setStatus('error');
         return;
       }
 
-      // 2. Obtener la suscripción push del navegador
+      // 2. Suscripción del navegador
       const registration = await navigator.serviceWorker.ready;
-      
-      // Usamos la variable de entorno que ya tienes en Vercel
       const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-      
       const pushSubscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(publicKey)
       });
 
-      // 3. Obtener el usuario actual (opcional) o usar un ID constante
+      // --- CAMBIO AQUÍ: BUSCAR EN TABLA PERFILES ---
+      // 3. Obtener identidad del usuario
       const { data: { user } } = await supabase.auth.getUser();
-      const userIdentifier = user?.email || "usuario_anonimo_pwa";
+      let userIdentifier = "usuario_anonimo_pwa";
 
-      // 4. GUARDAR CON UPSERT (Evita duplicados)
+      if (user) {
+        // Buscamos el email en la tabla 'perfiles' usando el ID del usuario
+        const { data: perfil } = await supabase
+          .from('perfiles')
+          .select('email')
+          .eq('id', user.id)
+          .single();
+
+        // Si existe en perfiles usamos ese, si no, el de su cuenta de Auth
+        userIdentifier = perfil?.email || user.email;
+      }
+
+      // 4. GUARDAR CON UPSERT (Usa el email como clave única)
       const { error } = await supabase
         .from('suscriptores')
         .upsert(
@@ -62,12 +70,12 @@ export default function Newsletter() {
             subscription_data: pushSubscription,
             created_at: new Date()
           }, 
-          { onConflict: 'email' } // Si el email existe, actualiza la suscripción en lugar de crear otra fila
+          { onConflict: 'email' }
         );
 
       if (error) throw error;
-
       setStatus('success');
+
     } catch (err) {
       console.error("Error al suscribir:", err);
       setStatus('error');
@@ -85,7 +93,6 @@ export default function Newsletter() {
         className="max-w-2xl mx-auto mb-20 px-4 relative group"
       >
         <div className="card-main !bg-white/60 backdrop-blur-md p-10 md:p-14 relative overflow-hidden border-primary/10">
-          
           <Bell className="absolute -bottom-4 -right-4 text-primary/5 -rotate-12" size={120} />
           
           <button 
