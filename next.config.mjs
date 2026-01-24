@@ -6,6 +6,8 @@ const withPWA = withPWAInit({
   register: true,
   skipWaiting: true,
   buildExcludes: [/middleware-manifest\.json$/],
+  swSrc: 'public/custom-sw.js', // Tu código base
+  sw: 'sw.js',                // El archivo final que genera la PWA
 });
 
 /** @type {import('next').NextConfig} */

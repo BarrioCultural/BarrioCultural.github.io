@@ -1,10 +1,9 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { X, Bell, BellRing, Sparkles } from 'lucide-react';
+import { X, Bell, BellRing } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Función para convertir la Public Key
 const urlBase64ToUint8Array = (base64String) => {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
@@ -13,44 +12,35 @@ const urlBase64ToUint8Array = (base64String) => {
 };
 
 export default function Newsletter() {
-  const [status, setStatus] = useState(null); // 'loading', 'success', 'error'
+  const [status, setStatus] = useState(null);
   const [isVisible, setIsVisible] = useState(true);
 
-  // 1. Al cargar, verificar si ya está suscrito
+  // 1. Verificar suscripción usando el Service Worker que ya registró next-pwa
   useEffect(() => {
-    const checkStatus = async () => {
-      if ("serviceWorker" in navigator) {
-        try {
-          // Registrar el Service Worker
-          const registration = await navigator.serviceWorker.register("/sw.js");
-          console.log("Service Worker listo");
-
-          // Verificar si ya existe una suscripción activa en este navegador
-          const subscription = await registration.pushManager.getSubscription();
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.ready.then((registration) => {
+        registration.pushManager.getSubscription().then((subscription) => {
           if (subscription) {
-            setStatus('success'); // Si existe, ya no mostramos el botón de activar
+            setStatus('success');
           }
-        } catch (err) {
-          console.error("Error al inicializar SW:", err);
-        }
-      }
-    };
-    checkStatus();
+        });
+      });
+    }
   }, []);
 
   const handleEnableNotifications = async () => {
     setStatus('loading');
 
     try {
-      // 1. Pedir permiso
+      // 1. Pedir permiso al navegador
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') {
-        alert("¡Necesitas permitir las notificaciones en tu navegador!");
+        alert("¡Necesitas permitir las notificaciones!");
         setStatus('error');
         return;
       }
 
-      // 2. Obtener suscripción
+      // 2. Usar el worker listo para suscribirse
       const registration = await navigator.serviceWorker.ready;
       const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
       
@@ -59,9 +49,9 @@ export default function Newsletter() {
         applicationServerKey: urlBase64ToUint8Array(publicKey)
       });
 
-      // 3. Obtener el email real de la tabla 'perfiles'
+      // 3. Identificar al usuario
       const { data: { user } } = await supabase.auth.getUser();
-      let userIdentifier = "visitante_anonimo";
+      let userEmail = user?.email || "visitante_anonimo";
 
       if (user) {
         const { data: perfil } = await supabase
@@ -69,32 +59,27 @@ export default function Newsletter() {
           .select('email')
           .eq('id', user.id)
           .single();
-        
-        userIdentifier = perfil?.email || user.email;
+        userEmail = perfil?.email || userEmail;
       }
 
-      // 4. Guardar en Supabase con UPSERT
+      // 4. Guardar en Supabase
       const { error } = await supabase
         .from('suscriptores')
-        .upsert(
-          { 
-            email: userIdentifier, 
-            subscription_data: pushSubscription,
-            created_at: new Date()
-          }, 
-          { onConflict: 'email' }
-        );
+        .upsert({ 
+          email: userEmail, 
+          subscription_data: pushSubscription,
+          created_at: new Date()
+        }, { onConflict: 'email' });
 
       if (error) throw error;
-
       setStatus('success');
+
     } catch (err) {
-      console.error("Error al suscribir:", err);
+      console.error("Error:", err);
       setStatus('error');
     }
   };
 
-  // Si ya tuvo éxito, o el usuario cerró el banner, no mostramos nada
   if (status === 'success' || !isVisible) return null;
 
   return (
@@ -106,13 +91,9 @@ export default function Newsletter() {
         className="max-w-2xl mx-auto mb-20 px-4 relative group"
       >
         <div className="card-main !bg-white/60 backdrop-blur-md p-10 md:p-14 relative overflow-hidden border-primary/10">
-          
           <Bell className="absolute -bottom-4 -right-4 text-primary/5 -rotate-12" size={120} />
           
-          <button 
-            onClick={() => setIsVisible(false)}
-            className="absolute top-6 right-6 text-primary/30 hover:text-primary transition-all hover:rotate-90"
-          >
+          <button onClick={() => setIsVisible(false)} className="absolute top-6 right-6 text-primary/30 hover:text-primary transition-all">
             <X size={20} /> 
           </button>
 
@@ -120,7 +101,6 @@ export default function Newsletter() {
             <h2 className="text-3xl md:text-4xl font-black uppercase italic text-primary tracking-tighter leading-none mb-4">
               "¿Quieres ver <br /> nuevos dibujos?"
             </h2>
-            <div className="h-1 w-12 bg-primary/20 mx-auto rounded-full mb-6" />
             <p className="text-primary/50 text-[10px] md:text-xs font-black uppercase tracking-[0.2em] mb-10">
               "Activa las notificaciones para no perderte nada del Atelier"
             </p>
@@ -134,12 +114,6 @@ export default function Newsletter() {
               {status === 'loading' ? 'Configurando...' : 'Activar Notificaciones'}
             </button>
           </div>
-
-          {status === 'error' && (
-            <p className="text-center text-red-500 mt-6 text-[10px] font-black uppercase tracking-widest">
-              "❌ Error al configurar. Inténtalo de nuevo."
-            </p>
-          )}
         </div>
       </motion.div>
     </AnimatePresence>

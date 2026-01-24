@@ -2,21 +2,21 @@ import { NextResponse } from 'next/server';
 import webpush from 'web-push';
 import { createClient } from '@supabase/supabase-js';
 
-// Configuración VAPID
 webpush.setVapidDetails(
   'mailto:fran@ateliervirtual.art',
-  'BG-LnxDWcr_4PGYVPdRr_L4qAnvgSGsc18-NAZR23bz4O1MmV8SEsV8ew_RlvEaSKPjN3mS9LI4wa-96-dWPKIY',
-  'mdE23gCH8qrbeZeMYoPKLa0biCZaPFCrNRm0mJgy2kw'
+  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+  process.env.VAPID_PRIVATE_KEY
 );
 
-export async function POST() {
+export async function POST(request) {
   try {
+    const dataReceived = await request.json().catch(() => ({}));
+    
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
       process.env.SUPABASE_SERVICE_ROLE_KEY
     );
 
-    // Obtenemos los tokens de la tabla 'suscriptores'
     const { data: subs, error: dbError } = await supabase
       .from('suscriptores')
       .select('subscription_data')
@@ -25,12 +25,13 @@ export async function POST() {
     if (dbError) throw dbError;
 
     const payload = JSON.stringify({
-      title: "🎨 ¡Nuevo arte!",
-      body: "Hay algo nuevo en el Atelier. ¡Entra a verlo!",
+      title: dataReceived.title || "🎨 ¡Nuevo arte!",
+      body: dataReceived.body || "Hay algo nuevo en el Atelier.",
       icon: "/icon.png",
+      image: dataReceived.image,
+      url: "/" 
     });
 
-    // Envío masivo
     const results = await Promise.all(
       (subs || []).map(sub => 
         webpush.sendNotification(sub.subscription_data, payload)
@@ -42,4 +43,4 @@ export async function POST() {
   } catch (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
-}
+} 
