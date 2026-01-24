@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/components/recursos/control/authContext';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, Image as ImageIcon, Camera, ChevronDown, X, Sparkles, UserCircle, Link as LinkIcon } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Upload, Image as ImageIcon, Camera, ChevronDown, Sparkles, UserCircle, Link as LinkIcon } from 'lucide-react';
 
 const CONFIG_ESTRUCTURA = {
   personal: {
@@ -45,7 +45,6 @@ export default function UploadPage() {
     return () => URL.revokeObjectURL(objectUrl);
   }, [file]);
 
-  // Protección de ruta
   if (!perfil || (perfil.rol !== 'admin' && perfil.rol !== 'autor')) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#EBEBEB] text-[#6B5E70] font-black uppercase text-xs tracking-widest italic">
@@ -74,6 +73,14 @@ export default function UploadPage() {
       const { error: dbError } = await supabase.from(tabla).insert([insertData]);
       if (dbError) throw dbError;
 
+      // --- PASO 3: DISPARAR NOTIFICACIÓN ---
+      try {
+        fetch('/api/notify', { method: 'POST' });
+      } catch (pushError) {
+        console.error("Error al notificar:", pushError);
+      }
+      // --- FIN PASO 3 ---
+
       alert("¡Publicado con éxito! ✨");
       setNombreObra(''); setFile(null); setExternalUrl('');
       router.refresh(); 
@@ -96,7 +103,6 @@ export default function UploadPage() {
           <p className="text-[#6B5E70]/40 text-[9px] font-black uppercase tracking-widest mt-1">Admin Panel</p>
         </header>
 
-        {/* SELECTOR DE SECCIÓN (Estilo Pills) */}
         <div className="flex gap-2 mb-8 bg-[#EBEBEB] p-1.5 rounded-2xl">
           {Object.keys(CONFIG_ESTRUCTURA).map((key) => (
             <button
@@ -115,7 +121,6 @@ export default function UploadPage() {
         </div>
         
         <form onSubmit={handleUpload} className="space-y-6">
-          {/* SELECTOR DE TABLA */}
           <div className="grid grid-cols-2 gap-2">
             {Object.entries(CONFIG_ESTRUCTURA[seccion].tablas).map(([key, value]) => (
               <button 
@@ -127,7 +132,6 @@ export default function UploadPage() {
             ))}
           </div>
 
-          {/* INPUTS ESTANDARIZADOS */}
           <div className="space-y-4">
             <div>
               <label className="label-franilover">NOMBRE / TÍTULO</label>
@@ -138,7 +142,7 @@ export default function UploadPage() {
               <label className="label-franilover">CATEGORÍA</label>
               <div className="relative">
                 <select value={categoria} onChange={(e) => setCategoria(e.target.value)} className="input-franilover appearance-none font-black text-[10px] tracking-widest">
-                  {CONFIG_ESTRUCTURA[seccion].tablas[tabla].categorias.map(cat => (
+                  {CONFIG_ESTRUCTURA[seccion].tablas[tabla].categorias.map((cat) => (
                     <option key={cat} value={cat}>{cat.toUpperCase()}</option>
                   ))}
                 </select>
@@ -147,7 +151,6 @@ export default function UploadPage() {
             </div>
           </div>
 
-          {/* MÉTODO DE SUBIDA */}
           <div className="space-y-4 pt-4 border-t border-zinc-100">
             <div className="flex justify-center gap-6">
               <button type="button" onClick={() => setUploadMethod('file')} className={`text-[9px] font-black uppercase tracking-[0.2em] flex items-center gap-2 ${uploadMethod === 'file' ? 'text-[#6B5E70]' : 'text-[#6B5E70]/20'}`}>
@@ -160,7 +163,7 @@ export default function UploadPage() {
 
             {uploadMethod === 'file' ? (
               <div className="relative group">
-                <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files[0])} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                 <div className={`w-full py-8 border-2 border-dashed rounded-[2rem] flex flex-col items-center justify-center gap-3 transition-all ${file ? 'border-[#6B5E70] bg-[#6B5E70]/5' : 'border-zinc-200 bg-zinc-50'}`}>
                   {previewUrl ? (
                     <img src={previewUrl} alt="Preview" className="w-24 h-24 object-cover rounded-xl shadow-lg" />
