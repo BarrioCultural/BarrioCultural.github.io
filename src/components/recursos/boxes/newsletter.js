@@ -38,20 +38,32 @@ export default function Newsletter() {
         return;
       }
 
-      // 2. Obtener la suscripción push del navegador/APK
+      // 2. Obtener la suscripción push del navegador
       const registration = await navigator.serviceWorker.ready;
+      
+      // Usamos la variable de entorno que ya tienes en Vercel
+      const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+      
       const pushSubscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array("BG-LnxDWcr_4PGYVPdRr_L4qAnvgSGsc18-NAZR23bz4O1MmV8SEsV8ew_RlvEaSKPjN3mS9LI4wa-96-dWPKIY")
+        applicationServerKey: urlBase64ToUint8Array(publicKey)
       });
 
-      // 3. Guardar en Supabase (En tu tabla 'suscriptores')
+      // 3. Obtener el usuario actual (opcional) o usar un ID constante
+      const { data: { user } } = await supabase.auth.getUser();
+      const userIdentifier = user?.email || "usuario_anonimo_pwa";
+
+      // 4. GUARDAR CON UPSERT (Evita duplicados)
       const { error } = await supabase
         .from('suscriptores')
-        .insert([{ 
-          subscription_data: pushSubscription,
-          email: `user_${Math.floor(Math.random() * 10000)}@pwa.art` // ID temporal
-        }]);
+        .upsert(
+          { 
+            email: userIdentifier, 
+            subscription_data: pushSubscription,
+            created_at: new Date()
+          }, 
+          { onConflict: 'email' } // Si el email existe, actualiza la suscripción en lugar de crear otra fila
+        );
 
       if (error) throw error;
 
