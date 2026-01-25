@@ -1,88 +1,123 @@
 "use client";
-import React, { useEffect, useState, useMemo } from 'react';
-import { useLightbox } from "@/components/recursos/boxes/lightbox"; 
-import { GalleryGrid, GalleryItem } from "@/components/recursos/display/gallery";
+import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import Newsletter from "@/components/recursos/boxes/newsletter";
-// Importación desde su nueva ubicación
-import FiltrosMaestros from "@/components/recursos/boxes/Filtros"; 
+import { GalleryGrid, GalleryItem } from "@/components/recursos/display/gallery";
+import DetalleMaestro from "@/components/recursos/boxes/detalles";
+// Importamos el componente unificado
+import FiltrosMaestros from "@/components/recursos/boxes/Filtros";
 
-export default function Drawings() {
-  const { openLightbox } = useLightbox();
-  const [dibujos, setDibujos] = useState([]);
+export default function Criaturas() {
+  const [criaturas, setCriaturas] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filtro, setFiltro] = useState('todos');
+  const [selected, setSelected] = useState(null);
 
-  const categorias = ['todos', 'fanart', 'original', 'bocetos'];
+  const [opcionesFiltros, setOpcionesFiltros] = useState({
+    habitat: ['todos'],
+    pensamiento: ['todos'],
+    alma: ['todos']
+  });
+
+  const [filtros, setFiltros] = useState({
+    habitat: 'todos',
+    pensamiento: 'todos',
+    alma: 'todos'
+  });
 
   useEffect(() => {
-    const fetchDibujos = async () => {
-      setLoading(true);
-      const { data } = await supabase
-        .from('dibujos')
-        .select('id, url_imagen, titulo, categoria') 
-        .order('id', { ascending: false });
-      
-      setDibujos(data || []);
-      setLoading(false);
+    const fetchOpciones = async () => {
+      const { data } = await supabase.from('criaturas').select('habitat, pensamiento, alma');
+      if (data) {
+        const extraerUnicos = (campo) => {
+          const valores = data.map(item => item[campo]).filter(Boolean);
+          return ['todos', ...new Set(valores)].sort();
+        };
+        setOpcionesFiltros({
+          habitat: extraerUnicos('habitat'),
+          pensamiento: extraerUnicos('pensamiento'),
+          alma: extraerUnicos('alma')
+        });
+      }
     };
-    fetchDibujos();
+    fetchOpciones();
   }, []);
 
-  const filtrados = useMemo(() => (
-    filtro === 'todos' ? dibujos : dibujos.filter(d => d.categoria === filtro)
-  ), [dibujos, filtro]);
+  useEffect(() => {
+    const fetchCriaturas = async () => {
+      setLoading(true);
+      let query = supabase.from('criaturas').select('*').order('nombre', { ascending: true });
+      if (filtros.habitat !== 'todos') query = query.eq('habitat', filtros.habitat);
+      if (filtros.pensamiento !== 'todos') query = query.eq('pensamiento', filtros.pensamiento);
+      if (filtros.alma !== 'todos') query = query.eq('alma', filtros.alma);
 
-  const lbData = useMemo(() => (
-    filtrados.map(d => ({ src: d.url_imagen, alt: d.titulo }))
-  ), [filtrados]);
+      const { data } = await query;
+      setCriaturas(data || []);
+      setLoading(false);
+    };
+    fetchCriaturas();
+  }, [filtros]);
 
-  // Menu de cabecera limpio
-  const MiCabecera = (
-    <header className="mb-12 text-center px-4 pt-16">
-      <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter text-primary uppercase leading-none">
-        Galería
-      </h1>
-      <div className="h-1.5 w-24 bg-primary mx-auto mt-4 rounded-full opacity-20 mb-12" />
-      
+  const updateFiltro = (grupo, valor) => setFiltros(prev => ({ ...prev, [grupo]: valor }));
+
+  const handleSelect = (c) => {
+    setSelected(c);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
+  // --- CABECERA Y FILTROS REFACTORIZADOS ---
+  const MiMenuBestiario = (
+    <div className="pt-16">
+      <header className="mb-12 text-center px-4">
+        <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter text-primary uppercase leading-none">
+          "Bestiario"
+        </h1>
+        <div className="h-1.5 w-24 bg-primary mx-auto mt-4 rounded-full opacity-20 mb-8" />
+      </header>
+
+      {/* El componente ahora se encarga de todo el grid de filtros */}
       <FiltrosMaestros 
-        config={{ categorías: categorias }}
-        filtrosActivos={{ categorías: filtro }}
-        onChange={(grupo, valor) => setFiltro(valor)}
+        config={opcionesFiltros} 
+        filtrosActivos={filtros} 
+        onChange={updateFiltro} 
       />
-    </header>
+    </div>
   );
 
   return (
-    <main className="min-h-screen bg-bg-main pb-20 font-sans">
+    <main className="min-h-screen bg-bg-main pb-20 font-sans overflow-x-hidden">
       
+      <DetalleMaestro 
+        isOpen={!!selected}
+        onClose={() => setSelected(null)}
+        data={selected}
+        tags={[selected?.habitat, selected?.alma ? `Alma ${selected.alma}` : null]}
+        mostrarMusica={false} 
+      />
+
       {loading ? (
-        <div className="py-40 text-center text-primary/30 font-black uppercase text-[10px] tracking-widest animate-pulse">
-          "Desplegando Arte..."
+        <div className="py-20 text-center text-primary/30 font-black uppercase text-[10px] tracking-widest animate-pulse">
+          "Sincronizando Archivos..."
         </div>
       ) : (
-        <GalleryGrid headerContent={MiCabecera}>
-          {filtrados.map((dibujo, index) => (
-            <GalleryItem
-              key={dibujo.id}
-              src={dibujo.url_imagen}
-              alt={dibujo.titulo}
-              onClick={() => openLightbox(index, lbData)}
+        <GalleryGrid 
+          isDetailOpen={!!selected} 
+          headerContent={MiMenuBestiario}
+        >
+          {criaturas.map(c => (
+            <GalleryItem 
+              key={c.id} 
+              src={c.imagen_url} 
+              onClick={() => handleSelect(c)}
             >
               <p className="text-[8px] font-black text-white/50 uppercase tracking-[0.2em] mb-1">
-                {dibujo.categoria}
+                {c.habitat} • {c.alma}
               </p>
-              <h3 className="text-lg font-black text-white uppercase italic tracking-tighter leading-none">
-                {dibujo.titulo}
+              <h3 className="text-xl font-black text-white uppercase italic leading-none tracking-tighter">
+                {c.nombre}
               </h3>
             </GalleryItem>
           ))}
         </GalleryGrid>
       )}
-
-      <div className="mt-32">
-        <Newsletter />
-      </div>
     </main>
   );
 }

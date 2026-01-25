@@ -30,7 +30,6 @@ export default function Inventario() {
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
-  // --- CABECERA REFACTORIZADA CON FILTROS MAESTROS ---
   const MiMenuInventario = (
     <header className="mb-16 text-center px-4 pt-10">
       <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter text-primary uppercase leading-none">
