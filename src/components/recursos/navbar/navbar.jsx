@@ -11,7 +11,7 @@ import {
   User, LogOut, Plus, ChevronDown, Smile, 
   ImageIcon, Camera, Sparkles, 
   Users, CircleUser, Flower2, Sword,
-  Footprints, Package, Map, History // <-- Icono History añadido
+  Footprints, Package, Map, History, BookOpen // <-- Nuevo icono: BookOpen
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -50,10 +50,17 @@ const Navbar = () => {
 
   const navContent = useMemo(() => (
     <div className="flex w-full items-center justify-around px-2 h-full">
-      <button onClick={() => setOpenSubmenu(openSubmenu === 'personal_galeria' ? null : 'personal_galeria')} className="flex-1 flex justify-center">
+      {/* SECCIÓN PERSONAL */}
+      <button onClick={() => setOpenSubmenu(openSubmenu === 'personal' ? null : 'personal')} className="flex-1 flex justify-center">
         <Camera size={22} className={['/sobre-mi', '/dibujos', '/fotos'].includes(currentPath) ? "text-[#6B5E70]" : "text-[#6B5E70]/30"} />
       </button>
       
+      {/* SECCIÓN MUNDO 1 (Personajes, etc) */}
+      <button onClick={() => setOpenSubmenu(openSubmenu === 'enciclopedia' ? null : 'enciclopedia')} className="flex-1 flex justify-center">
+        <Sparkles size={22} className={['/personajes', '/items', '/criaturas'].includes(currentPath) ? "text-[#6B5E70]" : "text-[#6B5E70]/30"} />
+      </button>
+
+      {/* CENTRO: SUBIR O LOGO */}
       <div className="flex-1 flex justify-center">
         <Link href={puedeSubir ? "/upload" : "/"} onClick={closeAll} className={cn(
           "p-3 rounded-full transition-all duration-300",
@@ -63,11 +70,12 @@ const Navbar = () => {
         </Link>
       </div>
 
-      <button onClick={() => setOpenSubmenu(openSubmenu === 'gos' ? null : 'gos')} className="flex-1 flex justify-center">
-        {/* Sparkles se activa también con /mapa y /cronologia */}
-        <Sparkles size={22} className={['/personajes', '/items', '/criaturas', '/mapa', '/cronologia'].includes(currentPath) ? "text-[#6B5E70]" : "text-[#6B5E70]/30"} />
+      {/* SECCIÓN MUNDO 2 (Mapa, Cronología, Libros) */}
+      <button onClick={() => setOpenSubmenu(openSubmenu === 'lore' ? null : 'lore')} className="flex-1 flex justify-center">
+        <Map size={22} className={['/mapa', '/cronologia', '/libros'].includes(currentPath) ? "text-[#6B5E70]" : "text-[#6B5E70]/30"} />
       </button>
 
+      {/* CUENTA */}
       <button onClick={() => user ? setUserMenuOpen(!userMenuOpen) : window.location.href="/login"} className="flex-1 flex justify-center">
         <User size={22} className={user || userMenuOpen ? "text-[#6B5E70]" : "text-[#6B5E70]/30"} />
       </button>
@@ -82,8 +90,9 @@ const Navbar = () => {
           <Link href="/" className="text-2xl font-black italic tracking-tighter text-[#6B5E70] flex items-center gap-2">
             <Flower2 size={24} /> <span>FRANI<span className="opacity-40">LOVER</span></span>
           </Link>
+          
           <nav className="flex items-center gap-1 bg-[#6B5E70]/5 p-1 rounded-2xl border border-[#6B5E70]/10">
-            
+            {/* GRUPO PERSONAL */}
             <PCGroup 
               label="Personal" 
               active={['/sobre-mi', '/dibujos', '/fotos'].includes(currentPath)} 
@@ -95,15 +104,26 @@ const Navbar = () => {
               currentPath={currentPath} 
             />
 
+            {/* GRUPO MUNDO 1 */}
             <PCGroup 
-              label="Mundo" 
-              active={['/personajes', '/items', '/criaturas', '/mapa', '/cronologia'].includes(currentPath)} 
+              label="Gremio" 
+              active={['/personajes', '/items', '/criaturas'].includes(currentPath)} 
               items={[
                 { href: '/personajes', label: 'Personajes', icon: <Users size={14}/> }, 
                 { href: '/criaturas', label: 'Criaturas', icon: <Footprints size={14}/> }, 
-                { href: '/items', label: 'Items', icon: <Package size={14}/> },
+                { href: '/items', label: 'Items', icon: <Package size={14}/> }
+              ]} 
+              currentPath={currentPath} 
+            />
+
+            {/* GRUPO MUNDO 2 */}
+            <PCGroup 
+              label="Bitácora" 
+              active={['/mapa', '/cronologia', '/libros'].includes(currentPath)} 
+              items={[
                 { href: '/mapa', label: 'Mapa', icon: <Map size={14}/> },
-                { href: '/cronologia', label: 'Historia', icon: <History size={14}/> } // Item añadido
+                { href: '/cronologia', label: 'Historia', icon: <History size={14}/> },
+                { href: '/libros', label: 'Libros', icon: <BookOpen size={14}/> }
               ]} 
               currentPath={currentPath} 
             />
@@ -117,6 +137,7 @@ const Navbar = () => {
                 <button onClick={() => setUserMenuOpen(!userMenuOpen)}>
                   <CircleUser className={cn("transition-colors", userMenuOpen ? "text-[#6B5E70]" : "text-[#6B5E70]/40")} size={28} />
                 </button>
+                {/* ... (Menú de usuario igual) */}
                 <AnimatePresence>
                   {userMenuOpen && (
                     <motion.div 
@@ -162,21 +183,25 @@ const Navbar = () => {
               initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 15 }}
               className="absolute bottom-20 right-0 w-[calc(100vw-48px)] bg-white border border-[#6B5E70]/10 rounded-[2rem] p-3 shadow-2xl flex flex-col gap-2 z-[1001]"
             >
-              {openSubmenu === 'personal_galeria' && (
+              {openSubmenu === 'personal' && (
                 <div className="grid grid-cols-3 gap-2">
                   <MobileSubItem href="/sobre-mi" label="Bio" active={currentPath === '/sobre-mi'} icon={<Smile size={18}/>} onClick={closeAll} />
                   <MobileSubItem href="/dibujos" label="Dibujos" active={currentPath === '/dibujos'} icon={<ImageIcon size={18}/>} onClick={closeAll} />
                   <MobileSubItem href="/fotos" label="Fotos" active={currentPath === '/fotos'} icon={<Camera size={18}/>} onClick={closeAll} />
                 </div>
               )}
-              {openSubmenu === 'gos' && (
-                <div className="grid grid-cols-2 gap-2"> 
-                  <MobileSubItem href="/personajes" label="Personajes" active={currentPath === '/personajes'} icon={<Users size={18}/>} onClick={closeAll} />
-                  <MobileSubItem href="/criaturas" label="Criaturas" active={currentPath === '/criaturas'} icon={<Footprints size={18}/>} onClick={closeAll} />
+              {openSubmenu === 'enciclopedia' && (
+                <div className="grid grid-cols-3 gap-2"> 
+                  <MobileSubItem href="/personajes" label="Gente" active={currentPath === '/personajes'} icon={<Users size={18}/>} onClick={closeAll} />
+                  <MobileSubItem href="/criaturas" label="Bestias" active={currentPath === '/criaturas'} icon={<Footprints size={18}/>} onClick={closeAll} />
                   <MobileSubItem href="/items" label="Items" active={currentPath === '/items'} icon={<Package size={18}/>} onClick={closeAll} />
+                </div>
+              )}
+              {openSubmenu === 'lore' && (
+                <div className="grid grid-cols-3 gap-2"> 
                   <MobileSubItem href="/mapa" label="Mapa" active={currentPath === '/mapa'} icon={<Map size={18}/>} onClick={closeAll} />
-                  {/* Cronología añadida en Móvil */}
                   <MobileSubItem href="/cronologia" label="Historia" active={currentPath === '/cronologia'} icon={<History size={18}/>} onClick={closeAll} />
+                  <MobileSubItem href="/libros" label="Libros" active={currentPath === '/libros'} icon={<BookOpen size={18}/>} onClick={closeAll} />
                 </div>
               )}
               
@@ -202,6 +227,7 @@ const Navbar = () => {
   );
 };
 
+// Componentes auxiliares (PCGroup y MobileSubItem permanecen igual pero los llamamos con los nuevos datos)
 const PCGroup = ({ label, items, active, currentPath }) => (
   <div className="relative group px-2">
     <button className={cn(
