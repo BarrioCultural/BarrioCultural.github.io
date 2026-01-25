@@ -26,9 +26,7 @@ export default function Criaturas() {
       const { data } = await supabase.from('criaturas').select('habitat, pensamiento, alma');
       if (data) {
         const extraerUnicos = (campo) => {
-          // Primero ordenamos los valores que vienen de la DB
           const valoresDB = [...new Set(data.map(item => item[campo]).filter(Boolean))].sort();
-          // Luego ponemos 'todos' al principio manualmente
           return ['todos', ...valoresDB];
         };
         setOpcionesFiltros({
@@ -82,10 +80,10 @@ export default function Criaturas() {
                   <button
                     key={opt}
                     onClick={() => updateFiltro(grupo, opt)}
-                    className={`px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase transition-all border ${
+                    className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase transition-all duration-300 border ${
                       filtros[grupo] === opt 
-                      ? 'bg-primary text-white shadow-lg scale-105 border-primary' 
-                      : 'bg-white/50 text-primary/60 border-transparent hover:border-primary/20'
+                        ? 'bg-primary text-white border-primary shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] scale-105' 
+                        : 'bg-white/5 text-primary/60 border-white/10 hover:border-primary/30'
                     }`}
                   >
                     {opt}
@@ -107,7 +105,6 @@ export default function Criaturas() {
         onClose={() => setSelected(null)}
         data={selected}
         tags={[selected?.habitat, selected?.alma ? `Alma ${selected.alma}` : null]}
-        // ✅ Preparamos para cuando añadas la columna 'canciones' en Supabase
         mostrarMusica={!!selected?.canciones}
         listaCanciones={selected?.canciones || []}
       />
