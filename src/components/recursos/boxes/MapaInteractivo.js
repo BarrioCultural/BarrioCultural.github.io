@@ -6,26 +6,24 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, MapPin, Loader2, ArrowRight } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
-// Componente del Marcador (El punto en el mapa)
 const Marker = ({ x, y, info, onClick }) => (
   <div 
-    className="absolute group cursor-pointer z-10"
+    className="absolute group z-20"
     style={{ top: `${y}%`, left: `${x}%`, transform: 'translate(-50%, -50%)' }}
-    onClick={(e) => {
-      e.stopPropagation(); // Evita que el clic del marcador active el detector de coordenadas del mapa
-      onClick();
-    }}
   >
-    <div className="relative flex items-center justify-center">
-      {/* Animación de pulso */}
+    <button 
+      onClick={(e) => {
+        e.stopPropagation(); 
+        onClick();
+      }}
+      className="relative flex items-center justify-center cursor-pointer outline-none active:scale-90 transition-transform"
+    >
       <div className="absolute w-8 h-8 bg-[#6B5E70]/30 rounded-full animate-ping" />
       <div className="w-5 h-5 bg-[#6B5E70] rounded-full border-2 border-white shadow-lg group-hover:scale-125 transition-transform flex items-center justify-center">
          <MapPin size={10} className="text-white" />
       </div>
-    </div>
-    
-    {/* Tooltip (Nombre sobre el punto) */}
-    <div className="hidden group-hover:block absolute bottom-8 left-1/2 -translate-x-1/2 bg-[#6B5E70] text-white text-[9px] font-black uppercase px-2 py-1 rounded shadow-xl whitespace-nowrap z-50">
+    </button>
+    <div className="hidden group-hover:block absolute bottom-8 left-1/2 -translate-x-1/2 bg-[#6B5E70] text-white text-[9px] font-black uppercase px-2 py-1 rounded shadow-xl whitespace-nowrap pointer-events-none">
       {info}
     </div>
   </div>
@@ -36,46 +34,35 @@ export default function MapaInteractivo() {
   const [puntoSeleccionado, setPuntoSeleccionado] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 1. Cargar datos desde Supabase
   useEffect(() => {
     async function fetchReinos() {
-      const { data, error } = await supabase
-        .from('reinos')
-        .select('*');
-      
-      if (error) {
-        console.error("Error cargando reinos:", error);
-      } else {
-        setReinos(data);
-      }
+      const { data, error } = await supabase.from('reinos').select('*');
+      if (error) console.error(error);
+      else setReinos(data);
       setLoading(false);
     }
     fetchReinos();
   }, []);
 
-  // 2. Función para detectar coordenadas (Para ayudarte a posicionar en la DB)
   const handleMapClick = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
-    
-    console.log(`📍 Coordenadas para Supabase -> X: ${x.toFixed(2)}, Y: ${y.toFixed(2)}`);
-    // Opcional: Cerrar el modal si haces clic fuera de un punto
-    setPuntoSeleccionado(null);
+    console.log(`📍 Coordenadas -> X: ${x.toFixed(2)}, Y: ${y.toFixed(2)}`);
   };
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center p-20 text-[#6B5E70]">
       <Loader2 className="animate-spin mb-2" />
-      <span className="text-[10px] font-black uppercase tracking-widest opacity-50">Sincronizando Cartografía...</span>
+      <span className="text-[10px] font-black uppercase opacity-50">Cargando Mundo...</span>
     </div>
   );
 
   return (
-    <div className="relative w-full overflow-hidden rounded-[2.5rem] border border-[#6B5E70]/10 shadow-2xl bg-white select-none">
+    <div className="relative w-full overflow-hidden rounded-[2.5rem] border border-[#6B5E70]/10 shadow-2xl bg-white">
+      
+      {/* MAPA Y MARCADORES */}
       <div className="relative w-full h-full cursor-crosshair" onClick={handleMapClick}>
-        
-        {/* IMAGEN DEL MAPA (Tu dibujo principal) */}
         <Image 
           src="/dibujos/fanart/01.jpg" 
           alt="Mapa General"
@@ -83,10 +70,9 @@ export default function MapaInteractivo() {
           height={1080}
           layout="responsive"
           priority
-          className="block pointer-events-none"
+          className="pointer-events-none select-none"
         />
 
-        {/* RENDERIZADO DE MARCADORES */}
         {reinos.map((reino) => (
           <Marker 
             key={reino.id} 
@@ -98,59 +84,61 @@ export default function MapaInteractivo() {
         ))}
       </div>
 
-      {/* MODAL DE INFORMACIÓN (Aparece al tocar un punto) */}
+      {/* MODAL FIJO (Aparece sobre toda la pantalla) */}
       <AnimatePresence>
         {puntoSeleccionado && (
-          <motion.div 
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 100 }}
-            className="absolute bottom-6 left-6 right-6 md:left-8 md:right-8 bg-white/95 backdrop-blur-xl p-6 md:p-8 rounded-[2rem] border border-[#6B5E70]/20 shadow-2xl z-40"
-          >
-            <button 
+          <>
+            {/* Capa oscura de fondo */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               onClick={() => setPuntoSeleccionado(null)}
-              className="absolute top-5 right-5 text-[#6B5E70]/30 hover:text-[#6B5E70] transition-colors"
+              className="fixed inset-0 bg-[#6B5E70]/30 backdrop-blur-sm z-[9998]"
+            />
+
+            {/* Cuadro de Información */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20, x: "-50%", y: "-50%" }}
+              animate={{ opacity: 1, scale: 1, y: "-50%", x: "-50%" }}
+              exit={{ opacity: 0, scale: 0.9, x: "-50%", y: "-50%" }}
+              className="fixed top-1/2 left-1/2 w-[90%] md:w-[600px] bg-white p-6 md:p-10 rounded-[2.5rem] border border-[#6B5E70]/20 shadow-[0_25px_50px_-12px_rgba(107,94,112,0.5)] z-[9999]"
             >
-              <X size={24} />
-            </button>
-            
-            <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
+              <button 
+                onClick={() => setPuntoSeleccionado(null)}
+                className="absolute top-6 right-6 p-2 text-[#6B5E70]/40 hover:text-[#6B5E70] transition-colors"
+              >
+                <X size={24} />
+              </button>
               
-              {/* Espacio para el mini-mapa o dibujo del reino */}
-              <div className="w-full md:w-56 h-40 bg-[#6B5E70]/5 rounded-3xl overflow-hidden border border-[#6B5E70]/10 flex-shrink-0 shadow-inner">
-                 {puntoSeleccionado.mapa_url ? (
-                   <img 
-                    src={puntoSeleccionado.mapa_url} 
-                    alt="Detalle del Reino" 
-                    className="w-full h-full object-cover transition-transform hover:scale-110 duration-700"
-                   />
-                 ) : (
-                   <div className="flex items-center justify-center h-full text-[9px] uppercase font-black opacity-20 text-[#6B5E70] tracking-tighter">Sin Mapa Detallado</div>
-                 )}
-              </div>
-              
-              <div className="flex-1 text-center md:text-left">
-                <div className="flex flex-col md:flex-row items-center gap-2 mb-3">
-                  <h3 className="text-[#6B5E70] font-black uppercase text-xl md:text-2xl tracking-tighter">
-                    {puntoSeleccionado.titulo}
-                  </h3>
-                  <span className="text-[10px] bg-[#6B5E70] text-white px-3 py-1 rounded-full font-bold uppercase tracking-widest">
-                    Región
-                  </span>
+              <div className="flex flex-col md:flex-row gap-8 items-center">
+                {/* Imagen/Mapa del Reino */}
+                <div className="w-full md:w-52 h-40 bg-[#6B5E70]/5 rounded-[2rem] overflow-hidden border border-[#6B5E70]/10 flex-shrink-0 shadow-inner">
+                   {puntoSeleccionado.mapa_url ? (
+                     <img 
+                      src={puntoSeleccionado.mapa_url} 
+                      className="w-full h-full object-cover" 
+                      alt="Mapa Detalle" 
+                     />
+                   ) : (
+                     <div className="flex items-center justify-center h-full text-[8px] font-black opacity-20 text-[#6B5E70]">MAPA NO DISPONIBLE</div>
+                   )}
                 </div>
                 
-                <p className="text-[#6B5E70]/80 text-sm md:text-base leading-relaxed italic font-serif">
-                  "{puntoSeleccionado.descripcion}"
-                </p>
-
-                <div className="mt-6 flex flex-wrap justify-center md:justify-start gap-4">
-                  <button className="group flex items-center gap-2 text-[11px] font-black bg-[#6B5E70] text-white px-6 py-3 rounded-2xl uppercase tracking-widest hover:bg-[#5a4e5f] transition-all shadow-lg active:scale-95">
-                    Explorar Reino <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                <div className="flex-1 text-center md:text-left">
+                  <h3 className="text-[#6B5E70] font-black uppercase text-2xl tracking-tighter mb-2">
+                    {puntoSeleccionado.titulo}
+                  </h3>
+                  <p className="text-[#6B5E70]/80 text-sm md:text-base italic leading-relaxed mb-6">
+                    "{puntoSeleccionado.descripcion}"
+                  </p>
+                  <button className="flex items-center gap-3 text-[11px] font-black bg-[#6B5E70] text-white px-8 py-3.5 rounded-2xl uppercase tracking-widest mx-auto md:mx-0 shadow-lg hover:bg-[#5a4e5f] transition-all active:scale-95">
+                    Explorar Reino <ArrowRight size={16} />
                   </button>
                 </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </div>
