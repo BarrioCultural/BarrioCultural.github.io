@@ -66,34 +66,25 @@ export default function MapaInteractivo() {
   );
 
   return (
-    <div className="relative w-full h-[70vh] md:h-[85vh] overflow-hidden rounded-[3rem] border-4 border-[#6B5E70]/5 shadow-2xl bg-[#f8f5f2]">
+    /* Eliminado rounded, shadow y ajustado el bg para que no cree espacios extra */
+    <div className="relative w-full h-auto min-h-[500px] overflow-hidden border-b border-[#6B5E70]/10 bg-white">
       
-      {/* CONTENEDOR DE ZOOM: 
-          'enforceBounds={false}' permite que el usuario mueva el mapa con más libertad.
-      */}
       <QuickPinchZoom 
         onUpdate={onUpdate} 
         maxZoom={5} 
-        minZoom={0.8}
+        minZoom={0.5}
         enforceBounds={false} 
       >
         <div ref={mapRef} className="w-full h-full origin-top-left">
           <div 
-            className="relative cursor-grab active:cursor-grabbing inline-block" 
+            className="relative cursor-grab active:cursor-grabbing inline-block w-full h-full" 
             onClick={handleMapClick}
-            style={{ width: '100%', height: 'auto' }}
           >
-            {/* Usamos una etiqueta img normal o Image con un wrapper 
-                para asegurar que el contenedor crezca con la imagen.
-            */}
             <img 
               src="/dibujos/fanart/01.jpg" 
               alt="Mapa"
               className="w-full h-auto block pointer-events-none select-none"
-              onLoad={() => {
-                // Esto ayuda a que el componente de zoom recalcule el tamaño al cargar
-                window.dispatchEvent(new Event('resize'));
-              }}
+              onLoad={() => window.dispatchEvent(new Event('resize'))}
             />
 
             {reinos.map((reino) => (
@@ -109,23 +100,23 @@ export default function MapaInteractivo() {
         </div>
       </QuickPinchZoom>
 
-      {/* TARJETA DE REINO (DISEÑO HORIZONTAL) */}
+      {/* TARJETA DE REINO (Bordes rectos o mínimamente suavizados según el mapa) */}
       <AnimatePresence>
         {puntoSeleccionado && (
           <motion.div 
-            initial={{ opacity: 0, scale: 0.9, y: 50 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 50 }}
-            className="absolute bottom-6 left-6 right-6 md:left-1/2 md:-translate-x-1/2 md:w-[680px] bg-white border border-[#6B5E70]/20 rounded-[2.5rem] shadow-[0_25px_60px_-15px_rgba(107,94,112,0.5)] z-50 overflow-hidden"
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 100 }}
+            className="absolute bottom-0 left-0 right-0 md:bottom-10 md:left-1/2 md:-translate-x-1/2 md:w-[680px] bg-white border-t md:border border-[#6B5E70]/20 z-50 overflow-hidden shadow-2xl"
           >
             <div className="flex flex-col md:flex-row min-h-[220px]">
               
               {/* IMAGEN IZQUIERDA */}
-              <div className="w-full md:w-2/5 h-40 md:h-auto bg-[#6B5E70]/10 relative">
+              <div className="w-full md:w-2/5 h-48 md:h-auto bg-[#6B5E70]/5 relative">
                 {puntoSeleccionado.mapa_url ? (
                   <img src={puntoSeleccionado.mapa_url} className="w-full h-full object-cover" alt="Reino" />
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center opacity-20">
+                  <div className="w-full h-full flex flex-col items-center justify-center opacity-20 text-[#6B5E70]">
                     <Compass size={32} />
                   </div>
                 )}
@@ -133,15 +124,19 @@ export default function MapaInteractivo() {
 
               {/* INFO DERECHA */}
               <div className="w-full md:w-3/5 p-8 relative flex flex-col justify-center">
-                <button onClick={() => setPuntoSeleccionado(null)} className="absolute top-4 right-4 text-[#6B5E70]/30 hover:text-[#6B5E70]">
+                <button onClick={() => setPuntoSeleccionado(null)} className="absolute top-4 right-4 text-[#6B5E70]/40 hover:text-[#6B5E70]">
                   <X size={20} />
                 </button>
 
-                <span className="text-[9px] font-black text-[#6B5E70]/40 uppercase tracking-widest mb-1 block">Reino Registrado</span>
-                <h3 className="text-[#6B5E70] font-black text-3xl uppercase tracking-tighter mb-2">{puntoSeleccionado.nombre}</h3>
-                <p className="text-[#6B5E70]/80 text-xs md:text-sm italic leading-relaxed mb-6">"{puntoSeleccionado.descripcion}"</p>
+                <span className="text-[9px] font-black text-[#6B5E70]/40 uppercase tracking-widest mb-1 block">Registro de Exploración</span>
+                <h3 className="text-[#6B5E70] font-black text-3xl uppercase tracking-tighter mb-2 leading-none">
+                  {puntoSeleccionado.nombre}
+                </h3>
+                <p className="text-[#6B5E70]/80 text-xs md:text-sm italic leading-relaxed mb-6">
+                  "{puntoSeleccionado.descripcion}"
+                </p>
                 
-                <button className="w-fit bg-[#6B5E70] text-white text-[10px] font-black uppercase py-3 px-8 rounded-2xl flex items-center gap-3 hover:bg-[#5a4e5f] transition-all active:scale-95 shadow-lg shadow-[#6B5E70]/20">
+                <button className="w-fit bg-[#6B5E70] text-white text-[10px] font-black uppercase py-3 px-8 rounded-none flex items-center gap-3 hover:bg-[#5a4e5f] transition-all active:scale-95 shadow-lg">
                   Explorar Reino <ChevronRight size={14} />
                 </button>
               </div>
@@ -150,12 +145,6 @@ export default function MapaInteractivo() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      <div className="absolute top-6 left-6 pointer-events-none hidden md:block">
-        <div className="bg-[#6B5E70] text-white text-[10px] font-black px-4 py-2 rounded-full shadow-xl opacity-80 uppercase tracking-widest">
-          Modo Exploración
-        </div>
-      </div>
     </div>
   );
 }
