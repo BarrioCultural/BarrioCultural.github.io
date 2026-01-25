@@ -1,5 +1,5 @@
 import Criaturas from "@/components/paginas/criaturas";
-import { createClient } from '@/lib/server'; // Apuntando al nuevo archivo
+import { createClient } from '@/lib/server';
 
 export const metadata = {
   title: 'Bestiario | Franilover',
@@ -9,13 +9,13 @@ export const metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function Page() {
-  const supabaseServer = createClient();
+  const supabase = createClient();
 
-  const { data: iniciales } = await supabaseServer
+  const { data: iniciales } = await supabase
     .from('criaturas')
     .select('*')
     .order('nombre', { ascending: true });
 
-  // Se los pasamos al componente de cliente que ya tienes hecho
+  // Pasamos los datos al componente como "initialData"
   return <Criaturas initialData={iniciales || []} />;
 }
