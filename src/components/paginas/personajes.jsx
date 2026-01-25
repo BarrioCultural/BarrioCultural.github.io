@@ -3,12 +3,15 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { GalleryGrid, GalleryItem } from "@/components/recursos/display/gallery";
 import DetalleMaestro from "@/components/recursos/boxes/detalles";
+// Importación unificada
+import FiltrosMaestros from "@/components/recursos/boxes/Filtros";
 
 export default function PersonajesGrid() {
   const [personajes, setPersonajes] = useState([]);
   const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
   
+  // Mantenemos los estados de filtro individuales
   const [filtroReino, setFiltroReino] = useState('todos');
   const [filtroEspecie, setFiltroEspecie] = useState('todos');
 
@@ -33,47 +36,41 @@ export default function PersonajesGrid() {
     });
   }, [personajes, filtroReino, filtroEspecie]);
 
-  // Función de selección instantánea
   const handleSelect = (p) => {
     setSelected(p);
     window.scrollTo({ top: 0, behavior: 'instant' }); 
   };
 
-  const btnStyle = (isActive) => `
-    px-4 py-1.5 rounded-xl text-[10px] font-bold uppercase transition-all border 
-    ${isActive ? 'bg-primary text-white border-primary shadow-lg' : 'bg-white/50 text-primary/60 border-transparent hover:border-primary/20'}
-  `;
+  // Manejador de cambios para el componente FiltrosMaestros
+  const handleFiltroChange = (grupo, valor) => {
+    if (grupo === 'Reinos') setFiltroReino(valor);
+    if (grupo === 'Especies') setFiltroEspecie(valor);
+  };
 
+  // --- CABECERA REFACTORIZADA ---
   const MiMenuDeFiltros = (
     <header className="mb-16 text-center px-4 pt-10">
       <h1 className="text-5xl md:text-8xl font-black italic tracking-tighter text-primary uppercase leading-none mb-12">
-        Personajes
+        "Personajes"
       </h1>
-      <div className="max-w-4xl mx-auto space-y-8">
-        <div className="flex flex-col items-center space-y-2">
-          <span className="text-[10px] font-black uppercase tracking-widest text-primary/30 italic">Reinos</span>
-          <div className="flex flex-wrap justify-center gap-2">
-            {reinos.map(r => (
-              <button key={r} onClick={() => setFiltroReino(r)} className={btnStyle(filtroReino === r)}>{r}</button>
-            ))}
-          </div>
-        </div>
-        <div className="flex flex-col items-center space-y-2">
-          <span className="text-[10px] font-black uppercase tracking-widest text-primary/30 italic">Especies</span>
-          <div className="flex flex-wrap justify-center gap-2">
-            {especies.map(e => (
-              <button key={e} onClick={() => setFiltroEspecie(e)} className={btnStyle(filtroEspecie === e)}>{e}</button>
-            ))}
-          </div>
-        </div>
-      </div>
+      
+      <FiltrosMaestros 
+        config={{
+          Reinos: reinos,
+          Especies: especies
+        }}
+        filtrosActivos={{
+          Reinos: filtroReino,
+          Especies: filtroEspecie
+        }}
+        onChange={handleFiltroChange}
+      />
     </header>
   );
 
   return (
     <main className="min-h-screen bg-bg-main py-10 px-4 md:px-8">
       
-      {/* AHORA EL DETALLE LO MANEJA EL COMPONENTE EXTERNO */}
       <DetalleMaestro 
         isOpen={!!selected} 
         onClose={() => setSelected(null)} 
@@ -82,9 +79,10 @@ export default function PersonajesGrid() {
         mostrarMusica={true}
       />
 
-      {/* REJILLA UNIFICADA */}
       {loading ? (
-        <div className="text-center font-black uppercase text-[10px] tracking-widest opacity-20 py-40">Indexando...</div>
+        <div className="text-center font-black uppercase text-[10px] tracking-widest opacity-20 py-40 animate-pulse">
+          "Indexando..."
+        </div>
       ) : (
         <GalleryGrid 
           isDetailOpen={!!selected} 
