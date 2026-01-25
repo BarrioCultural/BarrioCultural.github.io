@@ -12,7 +12,7 @@ export default function Relaciones({ nombrePersonaje }) {
       
       const { data, error } = await supabase
         .from('relaciones')
-        .select('su, es') // Usamos tus nuevas columnas
+        .select('sus, son') 
         .eq('personaje', nombrePersonaje); 
 
       if (!error && data) {
@@ -31,17 +31,26 @@ export default function Relaciones({ nombrePersonaje }) {
         <span className="text-[10px] font-black uppercase tracking-widest">Relaciones</span>
       </div>
       
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-3">
         {lista.map((rel, index) => (
-          <div key={index} className="bg-white border-2 border-primary/5 px-4 py-2 rounded-2xl flex flex-col shadow-sm">
-            {/* Primero el Vínculo (Columna 'su') */}
-            <span className="text-[9px] font-bold uppercase text-primary/40 tracking-wider">
-              {rel.su}
+          <div key={index} className="bg-white border-2 border-primary/5 px-4 py-2 rounded-2xl flex flex-col shadow-sm min-w-[80px]">
+            {/* El vínculo (ej: AMIGOS) */}
+            <span className="text-[9px] font-bold uppercase text-primary/40 tracking-wider mb-1">
+              {rel.sus}
             </span>
-            {/* Debajo el Nombre (Columna 'es') */}
-            <span className="text-xs font-black uppercase italic text-primary tracking-tighter">
-              {rel.es} 
-            </span>
+            
+            {/* Recorremos la lista de nombres en 'son' */}
+            <div className="flex flex-col">
+              {Array.isArray(rel.son) ? rel.son.map((nombre, i) => (
+                <span key={i} className="text-xs font-black uppercase italic text-primary tracking-tighter leading-tight">
+                  {nombre}
+                </span>
+              )) : (
+                <span className="text-xs font-black uppercase italic text-primary tracking-tighter">
+                  {rel.son}
+                </span>
+              )}
+            </div>
           </div>
         ))}
       </div>
