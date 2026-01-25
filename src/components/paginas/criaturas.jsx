@@ -4,14 +4,20 @@ import { supabase } from '@/lib/supabase';
 import { GalleryGrid, GalleryItem } from "@/components/recursos/display/gallery";
 import DetalleMaestro from "@/components/recursos/boxes/detalles";
 
-export default function Criaturas({ initialData }) {
-  // ✅ CARGA INSTANTÁNEA: El estado nace con los datos del servidor
+export default function CriaturasContainer({ initialData = [] }) {
   const [criaturas, setCriaturas] = useState(initialData);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(null);
 
-  // Filtros dinámicos basados en lo que existe en la DB
-  const [opcionesFiltros] = useState(() => {
+  // Estado para los filtros actuales
+  const [filtros, setFiltros] = useState({
+    habitat: 'todos',
+    pensamiento: 'todos',
+    alma: 'todos'
+  });
+
+  // Generamos las opciones de filtros basadas en los datos iniciales del servidor
+  const opcionesFiltros = React.useMemo(() => {
     const extraerUnicos = (campo) => {
       const valores = initialData.map(item => item[campo]).filter(Boolean);
       return ['todos', ...new Set(valores)].sort();
@@ -21,15 +27,9 @@ export default function Criaturas({ initialData }) {
       pensamiento: extraerUnicos('pensamiento'),
       alma: extraerUnicos('alma')
     };
-  });
+  }, [initialData]);
 
-  const [filtros, setFiltros] = useState({
-    habitat: 'todos',
-    pensamiento: 'todos',
-    alma: 'todos'
-  });
-
-  // ✅ OPTIMIZACIÓN: Solo pedimos a la DB si el usuario cambia un filtro
+  // Lógica de filtrado: Si es 'todos', usa initialData. Si no, consulta Supabase.
   useEffect(() => {
     const fetchFiltrado = async () => {
       if (filtros.habitat === 'todos' && filtros.pensamiento === 'todos' && filtros.alma === 'todos') {
@@ -45,7 +45,7 @@ export default function Criaturas({ initialData }) {
       if (filtros.alma !== 'todos') query = query.eq('alma', filtros.alma);
 
       const { data } = await query;
-      setCriaturas(data || []);
+      if (data) setCriaturas(data);
       setLoading(false);
     };
 
@@ -56,11 +56,10 @@ export default function Criaturas({ initialData }) {
 
   const handleSelect = (c) => {
     setSelected(c);
-    // Un toque sutil para la experiencia de usuario
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // ✅ INTERFAZ DE USUARIO (UI)
+  // UI del Menú de Filtros
   const MiMenuBestiario = (
     <div className="pt-16 px-4">
       <header className="mb-12 text-center">
@@ -84,7 +83,7 @@ export default function Criaturas({ initialData }) {
                     onClick={() => updateFiltro(grupo, opt)}
                     className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase transition-all duration-300 border ${
                       filtros[grupo] === opt 
-                        ? 'bg-primary text-white shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] scale-105 border-primary' 
+                        ? 'bg-primary text-white shadow-lg scale-105 border-primary' 
                         : 'bg-black/20 text-primary/60 border-white/5 hover:border-primary/40'
                     }`}
                   >
@@ -101,19 +100,17 @@ export default function Criaturas({ initialData }) {
 
   return (
     <main className="min-h-screen bg-bg-main pb-20 font-sans overflow-x-hidden">
-      {/* El detalle se superpone elegantemente */}
       <DetalleMaestro 
         isOpen={!!selected}
         onClose={() => setSelected(null)}
         data={selected}
-        // Pasamos tags dinámicos basados en la criatura
         tags={selected ? [selected.habitat, `Alma ${selected.alma}`] : []}
         mostrarMusica={false}
       />
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-40 space-y-4">
-          <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+        <div className="flex flex-col items-center justify-center py-40">
+          <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4" />
           <span className="text-primary/30 font-black uppercase text-[10px] tracking-widest animate-pulse">
             Sincronizando Archivos...
           </span>
