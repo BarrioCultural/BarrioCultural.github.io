@@ -15,7 +15,8 @@ export default async function Page() {
     .from('criaturas')
     .select('*')
     .order('nombre', { ascending: true });
-
-  // Pasamos los datos al componente como "initialData"
-  return <Criaturas initialData={iniciales || []} />;
+    
+// En tu return actual:
+return <Criaturas initialData={iniciales ?? []} />;
 }
+
