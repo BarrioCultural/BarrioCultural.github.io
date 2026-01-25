@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { ChevronLeft, ChevronRight, BookOpen, Settings, AlertCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, BookOpen, AlertCircle } from 'lucide-react';
 import { cn } from "@/lib/utils"; 
 
 export default function Lector() {
@@ -11,7 +11,7 @@ export default function Lector() {
   const router = useRouter();
   
   const [capitulo, setCapitulo] = useState(null);
-  const [listaCapitulos, setListaCapitulos] = useState([]); // Guardamos todos los caps del libro
+  const [listaCapitulos, setListaCapitulos] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -21,7 +21,6 @@ export default function Lector() {
         setLoading(true);
         setError(null);
 
-        // 1. Traer el capítulo actual
         const { data: capData, error: capError } = await supabase
           .from('capitulos')
           .select('*, libros ( titulo )')
@@ -35,7 +34,6 @@ export default function Lector() {
         }
         setCapitulo(capData);
 
-        // 2. Traer los IDs y orden de todos los capítulos de este libro para la navegación
         const { data: todosCaps, error: listaError } = await supabase
           .from('capitulos')
           .select('id, orden')
@@ -56,18 +54,14 @@ export default function Lector() {
     if (capId && id) fetchDatos();
   }, [capId, id]);
 
-  // Lógica para el botón siguiente
+  // LÓGICA DE NAVEGACIÓN
   const indiceActual = listaCapitulos.findIndex(c => c.id === capId);
+  
+  const anteriorCap = listaCapitulos[indiceActual - 1];
   const siguienteCap = listaCapitulos[indiceActual + 1];
+  
+  const esPrimero = indiceActual === 0;
   const esUltimo = indiceActual === listaCapitulos.length - 1;
-
-  const irAlSiguiente = () => {
-    if (siguienteCap) {
-      router.push(`/libros/${id}/leer/${siguienteCap.id}`);
-    } else {
-      router.push(`/libros/${id}`); // Si es el último, volvemos al índice
-    }
-  };
 
   if (loading) return (
     <div className="h-screen flex items-center justify-center bg-[#FDFCFD]">
@@ -93,7 +87,7 @@ export default function Lector() {
       {/* Navbar Superior */}
       <nav className="sticky top-0 z-50 bg-[#FDFCFD]/80 backdrop-blur-md border-b border-[#6B5E70]/5 px-6 py-4">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <button onClick={() => router.push(`/libros/${id}`)} className="text-[#6B5E70]/40 hover:text-[#6B5E70]">
+          <button onClick={() => router.push(`/libros/${id}`)} className="text-[#6B5E70]/40 hover:text-[#6B5E70] transition-transform hover:-translate-x-1">
             <ChevronLeft size={20} />
           </button>
           <div className="text-center">
@@ -101,14 +95,14 @@ export default function Lector() {
               {capitulo.libros?.titulo}
             </h2>
             <p className="text-[11px] font-bold text-[#6B5E70] uppercase">
-              Capítulo {capitulo.orden}: {capitulo.titulo_capitulo}
+              Capítulo {capitulo.orden}
             </p>
           </div>
           <div className="w-5" /> 
         </div>
       </nav>
 
-      {/* Lectura */}
+      {/* Contenido */}
       <article className="max-w-2xl mx-auto px-6 py-16 md:py-24">
         <header className="mb-16 text-center">
           <span className="text-[#6B5E70]/20 font-serif italic text-4xl block mb-4">§ {capitulo.orden}</span>
@@ -124,31 +118,46 @@ export default function Lector() {
           </p>
         </div>
 
-        {/* Navegación Inferior */}
+        {/* NAVEGACIÓN INFERIOR MEJORADA */}
         <footer className="mt-24 pt-12 border-t border-[#6B5E70]/10">
-          <div className="flex flex-col items-center gap-8">
+          <div className="flex flex-col items-center gap-10">
             <BookOpen size={20} className="text-[#6B5E70]/20" />
             
-            <div className="flex gap-4 w-full max-w-md">
+            <div className="grid grid-cols-2 gap-4 w-full max-w-md">
+              {/* Botón Anterior */}
               <button 
-                onClick={() => router.push(`/libros/${id}`)}
-                className="flex-1 p-5 rounded-2xl border border-[#6B5E70]/10 text-[#6B5E70]/40 font-black uppercase text-[10px] tracking-widest hover:bg-[#6B5E70]/5 transition-all"
-              >
-                Índice
-              </button>
-              
-              <button 
-                onClick={irAlSiguiente}
+                onClick={() => anteriorCap && router.push(`/libros/${id}/leer/${anteriorCap.id}`)}
+                disabled={esPrimero}
                 className={cn(
-                  "flex-1 p-5 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all flex items-center justify-center gap-2",
-                  esUltimo 
-                    ? "bg-[#6B5E70]/5 text-[#6B5E70]/30 cursor-not-allowed" 
-                    : "bg-[#6B5E70] text-white hover:opacity-90 shadow-lg shadow-[#6B5E70]/20"
+                  "p-5 rounded-2xl border font-black uppercase text-[10px] tracking-widest transition-all flex items-center justify-center gap-2",
+                  esPrimero 
+                    ? "border-transparent text-[#6B5E70]/10 cursor-not-allowed" 
+                    : "border-[#6B5E70]/10 text-[#6B5E70]/60 hover:bg-[#6B5E70]/5 active:scale-95"
                 )}
               >
-                {esUltimo ? "Fin del Libro" : "Siguiente"} <ChevronRight size={14} />
+                <ChevronLeft size={14} /> Anterior
+              </button>
+
+              {/* Botón Siguiente */}
+              <button 
+                onClick={() => siguienteCap ? router.push(`/libros/${id}/leer/${siguienteCap.id}`) : router.push(`/libros/${id}`)}
+                className={cn(
+                  "p-5 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#6B5E70]/10",
+                  esUltimo 
+                    ? "bg-[#6B5E70]/10 text-[#6B5E70]/40" 
+                    : "bg-[#6B5E70] text-white hover:opacity-90 active:scale-95"
+                )}
+              >
+                {esUltimo ? "Finalizar" : "Siguiente"} <ChevronRight size={14} />
               </button>
             </div>
+
+            <button 
+              onClick={() => router.push(`/libros/${id}`)}
+              className="text-[9px] font-black uppercase tracking-[0.3em] text-[#6B5E70]/30 hover:text-[#6B5E70] transition-colors"
+            >
+              Volver al Índice
+            </button>
           </div>
         </footer>
       </article>
