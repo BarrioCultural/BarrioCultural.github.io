@@ -30,7 +30,7 @@ export default function Cronologia() {
     <div className="flex flex-col items-center justify-center p-20 text-[#6B5E70]">
       <Loader2 className="animate-spin mb-2" />
       <span className="text-[10px] font-black uppercase tracking-widest opacity-40 italic">
-        "Consultando los Anales..."
+        "Consultando..."
       </span>
     </div>
   );
@@ -50,7 +50,7 @@ export default function Cronologia() {
             <div className="h-[1px] w-8 md:w-10 bg-[#6B5E70]/20" />
           </div>
           <h1 className="text-[#6B5E70] font-black text-3xl md:text-6xl uppercase tracking-tighter leading-tight">
-            "Crónicas de Omnisia"
+            "Crónicas del Jardin"
           </h1>
         </div>
 
