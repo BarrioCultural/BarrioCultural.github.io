@@ -206,8 +206,8 @@ const Navbar = () => {
 
               {openSubmenu === 'enciclopedia' && (
                 <div className="grid grid-cols-3 gap-2"> 
-                  <MobileSubItem href="/personajes" label="Gente" active={currentPath === '/personajes'} icon={<Users size={18}/>} onClick={closeAll} />
-                  <MobileSubItem href="/criaturas" label="Bestias" active={currentPath === '/criaturas'} icon={<Footprints size={18}/>} onClick={closeAll} />
+                  <MobileSubItem href="/personajes" label="Personajes" active={currentPath === '/personajes'} icon={<Users size={18}/>} onClick={closeAll} />
+                  <MobileSubItem href="/criaturas" label="Criaturas" active={currentPath === '/criaturas'} icon={<Footprints size={18}/>} onClick={closeAll} />
                   <MobileSubItem href="/items" label="Items" active={currentPath === '/items'} icon={<Package size={18}/>} onClick={closeAll} />
                 </div>
               )}
@@ -215,7 +215,7 @@ const Navbar = () => {
               {openSubmenu === 'lore' && (
                 <div className="grid grid-cols-3 gap-2"> 
                   <MobileSubItem href="/mapa" label="Mapa" active={currentPath === '/mapa'} icon={<Map size={18}/>} onClick={closeAll} />
-                  <MobileSubItem href="/cronologia" label="Historia" active={currentPath === '/cronologia'} icon={<History size={18}/>} onClick={closeAll} />
+                  <MobileSubItem href="/cronologia" label="Cronologia" active={currentPath === '/cronologia'} icon={<History size={18}/>} onClick={closeAll} />
                   <MobileSubItem href="/libros" label="Libros" active={currentPath === '/libros'} icon={<BookOpen size={18}/>} onClick={closeAll} />
                 </div>
               )}
