@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -10,7 +11,7 @@ import {
   User, LogOut, Plus, ChevronDown, Smile, 
   ImageIcon, Camera, Sparkles, 
   Users, CircleUser, Flower2, Sword,
-  Footprints, Package, Map // <-- Icono Map añadido
+  Footprints, Package, Map, History // <-- Icono History añadido
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -63,8 +64,8 @@ const Navbar = () => {
       </div>
 
       <button onClick={() => setOpenSubmenu(openSubmenu === 'gos' ? null : 'gos')} className="flex-1 flex justify-center">
-        {/* Sparkles se activa también con /mapa */}
-        <Sparkles size={22} className={['/personajes', '/items', '/criaturas', '/mapa'].includes(currentPath) ? "text-[#6B5E70]" : "text-[#6B5E70]/30"} />
+        {/* Sparkles se activa también con /mapa y /cronologia */}
+        <Sparkles size={22} className={['/personajes', '/items', '/criaturas', '/mapa', '/cronologia'].includes(currentPath) ? "text-[#6B5E70]" : "text-[#6B5E70]/30"} />
       </button>
 
       <button onClick={() => user ? setUserMenuOpen(!userMenuOpen) : window.location.href="/login"} className="flex-1 flex justify-center">
@@ -96,12 +97,13 @@ const Navbar = () => {
 
             <PCGroup 
               label="Mundo" 
-              active={['/personajes', '/items', '/criaturas', '/mapa'].includes(currentPath)} 
+              active={['/personajes', '/items', '/criaturas', '/mapa', '/cronologia'].includes(currentPath)} 
               items={[
                 { href: '/personajes', label: 'Personajes', icon: <Users size={14}/> }, 
                 { href: '/criaturas', label: 'Criaturas', icon: <Footprints size={14}/> }, 
                 { href: '/items', label: 'Items', icon: <Package size={14}/> },
-                { href: '/mapa', label: 'Mapa', icon: <Map size={14}/> } // Item añadido
+                { href: '/mapa', label: 'Mapa', icon: <Map size={14}/> },
+                { href: '/cronologia', label: 'Historia', icon: <History size={14}/> } // Item añadido
               ]} 
               currentPath={currentPath} 
             />
@@ -168,11 +170,13 @@ const Navbar = () => {
                 </div>
               )}
               {openSubmenu === 'gos' && (
-                <div className="grid grid-cols-2 gap-2"> {/* grid-cols-2 para que los 4 queden simétricos */}
+                <div className="grid grid-cols-2 gap-2"> 
                   <MobileSubItem href="/personajes" label="Personajes" active={currentPath === '/personajes'} icon={<Users size={18}/>} onClick={closeAll} />
                   <MobileSubItem href="/criaturas" label="Criaturas" active={currentPath === '/criaturas'} icon={<Footprints size={18}/>} onClick={closeAll} />
                   <MobileSubItem href="/items" label="Items" active={currentPath === '/items'} icon={<Package size={18}/>} onClick={closeAll} />
                   <MobileSubItem href="/mapa" label="Mapa" active={currentPath === '/mapa'} icon={<Map size={18}/>} onClick={closeAll} />
+                  {/* Cronología añadida en Móvil */}
+                  <MobileSubItem href="/cronologia" label="Historia" active={currentPath === '/cronologia'} icon={<History size={18}/>} onClick={closeAll} />
                 </div>
               )}
               
