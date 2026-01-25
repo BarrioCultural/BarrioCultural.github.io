@@ -31,8 +31,8 @@ export default function MapaInteractivo() {
 
   // Datos de ejemplo (Luego los traeremos de Supabase)
   const puntos = [
-    { id: 1, x: 45, y: 30, titulo: "Bosque Encantado", lore: "Un lugar lleno de magia y misterio donde habitan las hadas.", imagen: "/dibujo-bosque.jpg" },
-    { id: 2, x: 70, y: 55, titulo: "Ciudad de Cristal", lore: "La capital del reino, famosa por sus torres transparentes.", imagen: "/dibujo-ciudad.jpg" }
+    { id: 1, x: 45, y: 30, titulo: "Omnisia", lore: "asd.", imagen: "/dibujo-bosque.jpg" },
+    { id: 2, x: 70, y: 55, titulo: "Caelistan", lore: "a.", imagen: "/dibujo-ciudad.jpg" }
   ];
 
   return (
