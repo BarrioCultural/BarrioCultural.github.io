@@ -26,8 +26,8 @@ export default function Criaturas() {
       const { data } = await supabase.from('criaturas').select('habitat, pensamiento, alma');
       if (data) {
         const extraerUnicos = (campo) => {
-          const valoresDB = [...new Set(data.map(item => item[campo]).filter(Boolean))].sort();
-          return ['todos', ...valoresDB];
+          const valores = data.map(item => item[campo]).filter(Boolean);
+          return ['todos', ...new Set(valores)].sort();
         };
         setOpcionesFiltros({
           habitat: extraerUnicos('habitat'),
@@ -56,11 +56,13 @@ export default function Criaturas() {
 
   const updateFiltro = (grupo, valor) => setFiltros(prev => ({ ...prev, [grupo]: valor }));
 
+  // Selección optimizada
   const handleSelect = (c) => {
     setSelected(c);
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
+  // --- CABECERA Y FILTROS ---
   const MiMenuBestiario = (
     <div className="pt-16">
       <header className="mb-12 text-center px-4">
@@ -80,10 +82,8 @@ export default function Criaturas() {
                   <button
                     key={opt}
                     onClick={() => updateFiltro(grupo, opt)}
-                    className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase transition-all duration-300 border ${
-                      filtros[grupo] === opt 
-                        ? 'bg-primary text-white border-primary shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] scale-105' 
-                        : 'bg-white/5 text-primary/60 border-white/10 hover:border-primary/30'
+                    className={`px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase transition-all border ${
+                      filtros[grupo] === opt ? 'bg-primary text-white shadow-lg scale-105' : 'bg-white/50 text-primary/60 border-transparent hover:border-primary/20'
                     }`}
                   >
                     {opt}
@@ -100,15 +100,16 @@ export default function Criaturas() {
   return (
     <main className="min-h-screen bg-bg-main pb-20 font-sans overflow-x-hidden">
       
+      {/* EL NUEVO DETALLE UNIFICADO */}
       <DetalleMaestro 
         isOpen={!!selected}
         onClose={() => setSelected(null)}
         data={selected}
         tags={[selected?.habitat, selected?.alma ? `Alma ${selected.alma}` : null]}
-        mostrarMusica={!!selected?.canciones}
-        listaCanciones={selected?.canciones || []}
+        mostrarMusica={false} // Las criaturas no tienen música por ahora
       />
 
+      {/* GRID MAESTRO */}
       {loading ? (
         <div className="py-20 text-center text-primary/30 font-black uppercase text-[10px] tracking-widest animate-pulse">
           Sincronizando Archivos...
@@ -124,14 +125,12 @@ export default function Criaturas() {
               src={c.imagen_url} 
               onClick={() => handleSelect(c)}
             >
-              <div className="p-4 bg-gradient-to-t from-black/80 to-transparent w-full">
-                <p className="text-[8px] font-black text-white/50 uppercase tracking-[0.2em] mb-1">
-                  {c.habitat} • {c.alma}
-                </p>
-                <h3 className="text-xl font-black text-white uppercase italic leading-none tracking-tighter">
-                  {c.nombre}
-                </h3>
-              </div>
+              <p className="text-[8px] font-black text-white/50 uppercase tracking-[0.2em] mb-1">
+                {c.habitat} • {c.alma}
+              </p>
+              <h3 className="text-xl font-black text-white uppercase italic leading-none tracking-tighter">
+                {c.nombre}
+              </h3>
             </GalleryItem>
           ))}
         </GalleryGrid>
