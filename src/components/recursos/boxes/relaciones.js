@@ -13,42 +13,18 @@ export default function Relaciones({ nombrePersonaje }) {
       const { data, error } = await supabase
         .from('relaciones')
         .select('*')
-        .or(`personaje_1.eq."${nombrePersonaje}",personaje_2.eq."${nombrePersonaje}"`);
+        // Buscamos donde el personaje abierto sea el "personaje_1"
+        // para que el "tipo_vinculo" sea el que le corresponde al otro.
+        .eq('personaje_1', nombrePersonaje);
 
       if (!error && data) {
-        const unicos = [];
-        const nombresVistos = new Set();
-
-        data.forEach(rel => {
-          // Determinamos quién es la otra persona
-          const esPersonaje1 = rel.personaje_1 === nombrePersonaje;
-          const vinculadoCon = esPersonaje1 ? rel.personaje_2 : rel.personaje_1;
-
-          /* LÓGICA NUEVA:
-             Si tenemos dos filas, priorizamos la fila donde el personaje abierto 
-             es el 'personaje_1', porque así el 'tipo_vinculo' describe al otro.
-          */
-          if (!nombresVistos.has(vinculadoCon) || esPersonaje1) {
-            // Si ya lo vimos pero esta fila es la "correcta" (esPersonaje1), reemplazamos
-            const index = unicos.findIndex(item => item.nombre === vinculadoCon);
-            
-            const nuevoDato = {
-              id: rel.id,
-              nombre: vinculadoCon,
-              vinculo: rel.tipo_vinculo
-            };
-
-            if (index === -1) {
-              unicos.push(nuevoDato);
-              nombresVistos.add(vinculadoCon);
-            } else if (esPersonaje1) {
-              // Si ya existía pero esta fila es la que define al personaje 2, la actualizamos
-              unicos[index] = nuevoDato;
-            }
-          }
-        });
+        const formateados = data.map(rel => ({
+          id: rel.id,
+          nombre: rel.personaje_2,
+          vinculo: rel.tipo_vinculo
+        }));
         
-        setLista(unicos);
+        setLista(formateados);
       }
     }
     cargarRelaciones();
