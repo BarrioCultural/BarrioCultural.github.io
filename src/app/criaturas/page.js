@@ -1,21 +1,24 @@
 import Criaturas from "@/components/paginas/criaturas";
-import { createClient } from '@/utils/supabase/server';
+import { createClient } from '@/lib/server'; // Apuntando al nuevo archivo
 
 export const metadata = {
   title: 'Bestiario | Franilover',
   description: 'Colección de criaturas y entidades descubiertas.',
 };
 
+// ESTA LÍNEA ES TU MEJOR AMIGA: 
+// Obliga a la página a pedir datos nuevos a Supabase en cada visita.
 export const dynamic = 'force-dynamic';
 
 export default async function Page() {
-  const supabase = createClient();
+  const supabaseServer = createClient();
 
-  // Traemos todo de un solo golpe en el servidor
-  const { data: iniciales } = await supabase
+  // Traemos los datos en el servidor
+  const { data: iniciales } = await supabaseServer
     .from('criaturas')
     .select('*')
     .order('nombre', { ascending: true });
 
+  // Se los pasamos al componente de cliente que ya tienes hecho
   return <Criaturas initialData={iniciales || []} />;
 }
