@@ -9,12 +9,33 @@ export default function Relaciones({ nombrePersonaje }) {
   useEffect(() => {
     async function cargarRelaciones() {
       if (!nombrePersonaje) return;
+      
       const { data, error } = await supabase
         .from('relaciones')
         .select('*')
         .or(`personaje_1.eq."${nombrePersonaje}",personaje_2.eq."${nombrePersonaje}"`);
 
-      if (!error) setLista(data);
+      if (!error && data) {
+        // --- FILTRO MÁGICO PARA DUPLICADOS ---
+        const unicos = [];
+        const nombresVistos = new Set();
+
+        data.forEach(rel => {
+          const vinculadoCon = rel.personaje_1 === nombrePersonaje ? rel.personaje_2 : rel.personaje_1;
+          
+          // Solo lo añadimos si no hemos procesado a este personaje todavía
+          if (!nombresVistos.has(vinculadoCon)) {
+            nombresVistos.add(vinculadoCon);
+            unicos.push({
+              id: rel.id,
+              nombre: vinculadoCon,
+              vinculo: rel.tipo_vinculo
+            });
+          }
+        });
+        
+        setLista(unicos);
+      }
     }
     cargarRelaciones();
   }, [nombrePersonaje]);
@@ -29,30 +50,19 @@ export default function Relaciones({ nombrePersonaje }) {
       </div>
       
       <div className="flex flex-wrap gap-2">
-        {lista.map((rel) => {
-          // 1. Identificamos quién es el 'otro'
-          const esPersonaje1 = rel.personaje_1 === nombrePersonaje;
-          const vinculadoCon = esPersonaje1 ? rel.personaje_2 : rel.personaje_1;
-          
-          // 2. Lógica para el texto del vínculo:
-          // Si el vínculo es 'Hermanos' o 'Amigos', se queda igual.
-          // Pero si es algo como 'Madre', hay que pensar: ¿Es Danny la madre de Dorian?
-          let textoMostrar = rel.tipo_vinculo;
-
-          return (
-            <div 
-              key={rel.id} 
-              className="bg-white border-2 border-primary/5 px-4 py-2 rounded-2xl flex flex-col shadow-sm"
-            >
-              <span className="text-xs font-black uppercase italic text-primary tracking-tighter">
-                {vinculadoCon}
-              </span>
-              <span className="text-[9px] font-bold uppercase text-primary/40 tracking-wider">
-                {textoMostrar}
-              </span>
-            </div>
-          );
-        })}
+        {lista.map((rel) => (
+          <div 
+            key={rel.id} 
+            className="bg-white border-2 border-primary/5 px-4 py-2 rounded-2xl flex flex-col shadow-sm"
+          >
+            <span className="text-xs font-black uppercase italic text-primary tracking-tighter">
+              {rel.nombre}
+            </span>
+            <span className="text-[9px] font-bold uppercase text-primary/40 tracking-wider">
+              {rel.vinculo}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );
