@@ -1,18 +1,26 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase'; // Cliente normal para filtros
 import { GalleryGrid, GalleryItem } from "@/components/recursos/display/gallery";
 import DetalleMaestro from "@/components/recursos/boxes/detalles";
 
-export default function Criaturas() {
-  const [criaturas, setCriaturas] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function Criaturas({ initialData }) {
+  // Iniciamos con los datos que mandó el servidor
+  const [criaturas, setCriaturas] = useState(initialData);
+  const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(null);
 
-  const [opcionesFiltros, setOpcionesFiltros] = useState({
-    habitat: ['todos'],
-    pensamiento: ['todos'],
-    alma: ['todos']
+  // Generamos las opciones de filtros basadas en los datos iniciales
+  const [opcionesFiltros] = useState(() => {
+    const extraerUnicos = (campo) => {
+      const valores = initialData.map(item => item[campo]).filter(Boolean);
+      return ['todos', ...new Set(valores)].sort();
+    };
+    return {
+      habitat: extraerUnicos('habitat'),
+      pensamiento: extraerUnicos('pensamiento'),
+      alma: extraerUnicos('alma')
+    };
   });
 
   const [filtros, setFiltros] = useState({
@@ -21,28 +29,18 @@ export default function Criaturas() {
     alma: 'todos'
   });
 
+  // Este efecto solo corre cuando el usuario cambia un filtro manualmente
   useEffect(() => {
-    const fetchOpciones = async () => {
-      const { data } = await supabase.from('criaturas').select('habitat, pensamiento, alma');
-      if (data) {
-        const extraerUnicos = (campo) => {
-          const valores = data.map(item => item[campo]).filter(Boolean);
-          return ['todos', ...new Set(valores)].sort();
-        };
-        setOpcionesFiltros({
-          habitat: extraerUnicos('habitat'),
-          pensamiento: extraerUnicos('pensamiento'),
-          alma: extraerUnicos('alma')
-        });
+    const fetchFiltrado = async () => {
+      // Si todos están en 'todos', volvemos a los datos iniciales sin llamar a la DB
+      if (filtros.habitat === 'todos' && filtros.pensamiento === 'todos' && filtros.alma === 'todos') {
+        setCriaturas(initialData);
+        return;
       }
-    };
-    fetchOpciones();
-  }, []);
 
-  useEffect(() => {
-    const fetchCriaturas = async () => {
       setLoading(true);
       let query = supabase.from('criaturas').select('*').order('nombre', { ascending: true });
+      
       if (filtros.habitat !== 'todos') query = query.eq('habitat', filtros.habitat);
       if (filtros.pensamiento !== 'todos') query = query.eq('pensamiento', filtros.pensamiento);
       if (filtros.alma !== 'todos') query = query.eq('alma', filtros.alma);
@@ -51,18 +49,17 @@ export default function Criaturas() {
       setCriaturas(data || []);
       setLoading(false);
     };
-    fetchCriaturas();
-  }, [filtros]);
+
+    fetchFiltrado();
+  }, [filtros, initialData]);
 
   const updateFiltro = (grupo, valor) => setFiltros(prev => ({ ...prev, [grupo]: valor }));
 
-  // Selección optimizada
   const handleSelect = (c) => {
     setSelected(c);
     window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
-  // --- CABECERA Y FILTROS ---
   const MiMenuBestiario = (
     <div className="pt-16">
       <header className="mb-12 text-center px-4">
@@ -99,32 +96,22 @@ export default function Criaturas() {
 
   return (
     <main className="min-h-screen bg-bg-main pb-20 font-sans overflow-x-hidden">
-      
-      {/* EL NUEVO DETALLE UNIFICADO */}
       <DetalleMaestro 
         isOpen={!!selected}
         onClose={() => setSelected(null)}
         data={selected}
         tags={[selected?.habitat, selected?.alma ? `Alma ${selected.alma}` : null]}
-        mostrarMusica={false} // Las criaturas no tienen música por ahora
+        mostrarMusica={false}
       />
 
-      {/* GRID MAESTRO */}
       {loading ? (
         <div className="py-20 text-center text-primary/30 font-black uppercase text-[10px] tracking-widest animate-pulse">
           Sincronizando Archivos...
         </div>
       ) : (
-        <GalleryGrid 
-          isDetailOpen={!!selected} 
-          headerContent={MiMenuBestiario}
-        >
+        <GalleryGrid isDetailOpen={!!selected} headerContent={MiMenuBestiario}>
           {criaturas.map(c => (
-            <GalleryItem 
-              key={c.id} 
-              src={c.imagen_url} 
-              onClick={() => handleSelect(c)}
-            >
+            <GalleryItem key={c.id} src={c.imagen_url} onClick={() => handleSelect(c)}>
               <p className="text-[8px] font-black text-white/50 uppercase tracking-[0.2em] mb-1">
                 {c.habitat} • {c.alma}
               </p>
