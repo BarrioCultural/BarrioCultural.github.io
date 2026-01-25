@@ -1,3 +1,5 @@
+"use client"; // <--- ESTA LÍNEA ES LA QUE FALTA
+
 import Image from 'next/image';
 import { useState } from 'react';
 
