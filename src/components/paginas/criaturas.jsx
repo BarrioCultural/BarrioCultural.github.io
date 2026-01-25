@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { GalleryGrid } from "@/components/recursos/display/gallery";
-import { ArtCard } from "@/components/recursos/boxes/ArtCard"; // <--- Ruta actualizada
+import { ArtCard } from "@/components/recursos/boxes/ArtCard";
 import DetalleMaestro from "@/components/recursos/boxes/detalles";
 
 export default function Criaturas() {
@@ -12,7 +12,6 @@ export default function Criaturas() {
   const [filtros, setFiltros] = useState({ habitat: "todos", pensamiento: "todos", alma: "todos" });
   const [opcionesFiltros, setOpcionesFiltros] = useState({ habitat: ["todos"], pensamiento: ["todos"], alma: ["todos"] });
 
-  // 1. Carga de opciones para los botones de filtro
   useEffect(() => {
     const fetchOpciones = async () => {
       const { data } = await supabase.from("criaturas").select("habitat, pensamiento, alma");
@@ -28,7 +27,6 @@ export default function Criaturas() {
     fetchOpciones();
   }, []);
 
-  // 2. Carga de criaturas filtradas
   useEffect(() => {
     const fetchCriaturas = async () => {
       setLoading(true);
@@ -62,9 +60,7 @@ export default function Criaturas() {
                   key={opt}
                   onClick={() => setFiltros(prev => ({ ...prev, [grupo]: opt }))}
                   className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase transition-all border ${
-                    filtros[grupo] === opt 
-                      ? "bg-primary text-white border-primary shadow-lg scale-105" 
-                      : "bg-white/5 text-primary/60 border-white/10 hover:border-primary/30"
+                    filtros[grupo] === opt ? "bg-primary text-white" : "bg-white/5 text-primary/60"
                   }`}
                 >
                   {opt}
@@ -89,7 +85,7 @@ export default function Criaturas() {
       />
 
       {loading ? (
-        <div className="py-20 text-center text-primary/30 font-black uppercase text-[10px] tracking-widest animate-pulse">
+        <div className="py-20 text-center text-primary/30 font-black uppercase text-[10px] animate-pulse">
           "Sincronizando Archivos..."
         </div>
       ) : (
