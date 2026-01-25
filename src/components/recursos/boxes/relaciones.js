@@ -16,21 +16,35 @@ export default function Relaciones({ nombrePersonaje }) {
         .or(`personaje_1.eq."${nombrePersonaje}",personaje_2.eq."${nombrePersonaje}"`);
 
       if (!error && data) {
-        // --- FILTRO MÁGICO PARA DUPLICADOS ---
         const unicos = [];
         const nombresVistos = new Set();
 
         data.forEach(rel => {
-          const vinculadoCon = rel.personaje_1 === nombrePersonaje ? rel.personaje_2 : rel.personaje_1;
-          
-          // Solo lo añadimos si no hemos procesado a este personaje todavía
-          if (!nombresVistos.has(vinculadoCon)) {
-            nombresVistos.add(vinculadoCon);
-            unicos.push({
+          // Determinamos quién es la otra persona
+          const esPersonaje1 = rel.personaje_1 === nombrePersonaje;
+          const vinculadoCon = esPersonaje1 ? rel.personaje_2 : rel.personaje_1;
+
+          /* LÓGICA NUEVA:
+             Si tenemos dos filas, priorizamos la fila donde el personaje abierto 
+             es el 'personaje_1', porque así el 'tipo_vinculo' describe al otro.
+          */
+          if (!nombresVistos.has(vinculadoCon) || esPersonaje1) {
+            // Si ya lo vimos pero esta fila es la "correcta" (esPersonaje1), reemplazamos
+            const index = unicos.findIndex(item => item.nombre === vinculadoCon);
+            
+            const nuevoDato = {
               id: rel.id,
               nombre: vinculadoCon,
               vinculo: rel.tipo_vinculo
-            });
+            };
+
+            if (index === -1) {
+              unicos.push(nuevoDato);
+              nombresVistos.add(vinculadoCon);
+            } else if (esPersonaje1) {
+              // Si ya existía pero esta fila es la que define al personaje 2, la actualizamos
+              unicos[index] = nuevoDato;
+            }
           }
         });
         
