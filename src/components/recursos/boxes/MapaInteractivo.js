@@ -39,7 +39,7 @@ export default function MapaInteractivo() {
     <div className="relative w-full overflow-hidden rounded-[2rem] border border-[#6B5E70]/10 shadow-2xl bg-white">
       <div className="relative w-full h-full">
         <Image 
-          src="/tu-mapa-dibujado.jpg" 
+          src="/dibujos/fanart/01.jpg" 
           alt="Mapa"
           width={1920}
           height={1080}
