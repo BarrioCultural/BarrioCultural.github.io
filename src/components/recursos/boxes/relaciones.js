@@ -12,8 +12,8 @@ export default function Relaciones({ nombrePersonaje }) {
       
       const { data, error } = await supabase
         .from('relaciones')
-        .select('es, de') 
-        .eq('este', nombrePersonaje); 
+        .select('su, es') // Usamos tus nuevas columnas
+        .eq('personaje', nombrePersonaje); 
 
       if (!error && data) {
         setLista(data);
@@ -28,19 +28,19 @@ export default function Relaciones({ nombrePersonaje }) {
     <div className="mt-6">
       <div className="flex items-center gap-2 text-primary/30 mb-3">
         <Users size={14} />
-        <span className="text-[10px] font-black uppercase tracking-widest">Vínculos</span>
+        <span className="text-[10px] font-black uppercase tracking-widest">Relaciones</span>
       </div>
       
       <div className="flex flex-wrap gap-2">
         {lista.map((rel, index) => (
           <div key={index} className="bg-white border-2 border-primary/5 px-4 py-2 rounded-2xl flex flex-col shadow-sm">
-            {/* Primero mostramos la relación (ej: Hermano) */}
+            {/* Primero el Vínculo (Columna 'su') */}
             <span className="text-[9px] font-bold uppercase text-primary/40 tracking-wider">
-              {rel.es}
+              {rel.su}
             </span>
-            {/* Debajo el nombre (ej: Dorian) */}
+            {/* Debajo el Nombre (Columna 'es') */}
             <span className="text-xs font-black uppercase italic text-primary tracking-tighter">
-              {rel.de} 
+              {rel.es} 
             </span>
           </div>
         ))}
