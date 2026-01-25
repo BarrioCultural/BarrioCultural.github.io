@@ -9,7 +9,6 @@ export default function Relaciones({ nombrePersonaje }) {
   useEffect(() => {
     async function cargarRelaciones() {
       if (!nombrePersonaje) return;
-      // Buscamos en ambas columnas por el nombre del personaje
       const { data, error } = await supabase
         .from('relaciones')
         .select('*')
@@ -31,9 +30,15 @@ export default function Relaciones({ nombrePersonaje }) {
       
       <div className="flex flex-wrap gap-2">
         {lista.map((rel) => {
-          const esOrigen = rel.personaje_1 === nombrePersonaje;
-          const vinculadoCon = esOrigen ? rel.personaje_2 : rel.personaje_1;
+          // 1. Identificamos quién es el 'otro'
+          const esPersonaje1 = rel.personaje_1 === nombrePersonaje;
+          const vinculadoCon = esPersonaje1 ? rel.personaje_2 : rel.personaje_1;
           
+          // 2. Lógica para el texto del vínculo:
+          // Si el vínculo es 'Hermanos' o 'Amigos', se queda igual.
+          // Pero si es algo como 'Madre', hay que pensar: ¿Es Danny la madre de Dorian?
+          let textoMostrar = rel.tipo_vinculo;
+
           return (
             <div 
               key={rel.id} 
@@ -43,7 +48,7 @@ export default function Relaciones({ nombrePersonaje }) {
                 {vinculadoCon}
               </span>
               <span className="text-[9px] font-bold uppercase text-primary/40 tracking-wider">
-                {rel.tipo_vinculo}
+                {textoMostrar}
               </span>
             </div>
           );
