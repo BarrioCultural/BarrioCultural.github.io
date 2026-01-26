@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { ChevronLeft, Play, ListOrdered, Plus, Trash2, X, Edit3, Save } from 'lucide-react';
+import { ChevronLeft, Play, ListOrdered, Plus, Trash2, X, Edit3, Save, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function LibroDetalle() {
@@ -23,8 +23,10 @@ export default function LibroDetalle() {
   
   // Estados de inputs
   const [nuevoTitulo, setNuevoTitulo] = useState("");
+  const [nuevaFecha, setNuevaFecha] = useState(new Date().toISOString().split('T')[0]); // Fecha actual por defecto
   const [selectedCap, setSelectedCap] = useState(null);
   const [editCapTitle, setEditCapTitle] = useState("");
+  const [editCapFecha, setEditCapFecha] = useState("");
   const [procesando, setProcesando] = useState(false);
 
   useEffect(() => {
@@ -39,7 +41,11 @@ export default function LibroDetalle() {
         if (libroError || !libroData?.length) throw new Error("Archivo no encontrado.");
         setLibro(libroData[0]);
 
-        const { data: capsData } = await supabase.from('capitulos').select('id, titulo_capitulo, orden').eq('libro_id', id).order('orden', { ascending: true });
+        // Seleccionamos también la nueva columna fecha_publicacion
+        const { data: capsData } = await supabase.from('capitulos')
+          .select('id, titulo_capitulo, orden, fecha_publicacion')
+          .eq('libro_id', id)
+          .order('orden', { ascending: true });
         setCapitulos(capsData || []);
       } catch (err) {
         setError(err.message);
@@ -56,25 +62,32 @@ export default function LibroDetalle() {
     if (!nuevoTitulo.trim() || procesando) return;
     setProcesando(true);
     const { error } = await supabase.from('capitulos').insert([{ 
-      libro_id: id, titulo_capitulo: nuevoTitulo.toUpperCase(), orden: capitulos.length + 1, contenido: "Nueva crónica..." 
+      libro_id: id, 
+      titulo_capitulo: nuevoTitulo.toUpperCase(), 
+      orden: capitulos.length + 1, 
+      contenido: "Nueva crónica...",
+      fecha_publicacion: nuevaFecha // Guardamos la fecha
     }]);
     if (!error) window.location.reload();
     setProcesando(false);
   };
 
-  // EDITAR CAPÍTULO (Nombre)
+  // EDITAR CAPÍTULO
   const handleUpdateCapitulo = async (e) => {
     e.preventDefault();
     if (!editCapTitle.trim() || procesando) return;
     setProcesando(true);
-    const { error } = await supabase.from('capitulos').update({ titulo_capitulo: editCapTitle.toUpperCase() }).eq('id', selectedCap.id);
+    const { error } = await supabase.from('capitulos').update({ 
+        titulo_capitulo: editCapTitle.toUpperCase(),
+        fecha_publicacion: editCapFecha 
+    }).eq('id', selectedCap.id);
     if (!error) window.location.reload();
     setProcesando(false);
   };
 
-  // BORRAR CAPÍTULO (Dentro del modal de edición)
+  // BORRAR CAPÍTULO
   const deleteCapitulo = async () => {
-    if (!confirm("¿Deseas eliminar permanentemente este capítulo de los registros?")) return;
+    if (!confirm("¿Deseas eliminar permanentemente este capítulo?")) return;
     setProcesando(true);
     const { error } = await supabase.from('capitulos').delete().eq('id', selectedCap.id);
     if (!error) window.location.reload();
@@ -85,6 +98,7 @@ export default function LibroDetalle() {
     e.stopPropagation();
     setSelectedCap(cap);
     setEditCapTitle(cap.titulo_capitulo);
+    setEditCapFecha(cap.fecha_publicacion || "");
     setShowEditCapModal(true);
   };
 
@@ -103,6 +117,10 @@ export default function LibroDetalle() {
               <h3 className="text-[#6B5E70] font-black uppercase text-[10px] tracking-[0.3em] mb-8">"Nuevo Capítulo"</h3>
               <form onSubmit={handleCrearCapitulo} className="space-y-6">
                 <input autoFocus type="text" placeholder="TÍTULO..." value={nuevoTitulo} onChange={(e) => setNuevoTitulo(e.target.value)} className="w-full bg-[#FDFCFD] border-b-2 border-[#6B5E70]/10 py-4 text-center text-sm font-black text-[#6B5E70] outline-none focus:border-[#6B5E70] uppercase" />
+                <div className="text-left">
+                    <label className="text-[9px] font-black text-[#6B5E70]/40 uppercase ml-2">Fecha de estreno</label>
+                    <input type="date" value={nuevaFecha} onChange={(e) => setNuevaFecha(e.target.value)} className="w-full bg-[#FDFCFD] border-b-2 border-[#6B5E70]/10 py-3 text-center text-sm font-black text-[#6B5E70] outline-none" />
+                </div>
                 <button type="submit" className="w-full bg-[#6B5E70] text-white py-4 rounded-2xl font-black uppercase text-[10px]">{procesando ? "Sellando..." : "Revelar"}</button>
               </form>
             </motion.div>
@@ -122,6 +140,8 @@ export default function LibroDetalle() {
               </div>
               <form onSubmit={handleUpdateCapitulo} className="space-y-6">
                 <input autoFocus type="text" value={editCapTitle} onChange={(e) => setEditCapTitle(e.target.value)} className="w-full bg-[#FDFCFD] border-b-2 border-[#6B5E70]/10 py-4 text-center text-sm font-black text-[#6B5E70] outline-none focus:border-[#6B5E70] uppercase" />
+                <input type="date" value={editCapFecha} onChange={(e) => setEditCapFecha(e.target.value)} className="w-full bg-[#FDFCFD] border-b-2 border-[#6B5E70]/10 py-3 text-center text-sm font-black text-[#6B5E70] outline-none" />
+                
                 <div className="grid grid-cols-2 gap-3">
                   <button type="submit" className="bg-[#6B5E70] text-white py-4 rounded-2xl font-black uppercase text-[9px] flex items-center justify-center gap-2">
                     <Save size={14} /> Guardar
@@ -145,6 +165,18 @@ export default function LibroDetalle() {
           <div className="aspect-[3/4] rounded-[2.5rem] overflow-hidden shadow-2xl border border-[#6B5E70]/10 bg-white">
             <img src={libro?.portada_url || "/placeholder-cover.jpg"} alt={libro?.titulo} className="w-full h-full object-cover" />
           </div>
+          
+          {/* COMPONENTE: PRÓXIMO CAPÍTULO */}
+          {libro?.fecha_proximo_capitulo && (
+            <div className="mt-8 p-6 bg-[#6B5E70]/5 rounded-[2rem] border border-[#6B5E70]/10">
+               <h4 className="text-[#6B5E70] font-black uppercase text-[9px] tracking-[0.2em] mb-2 flex items-center gap-2">
+                 <Calendar size={12} /> Próximo Estreno
+               </h4>
+               <p className="text-[#6B5E70] font-bold text-sm">
+                 {new Date(libro.fecha_proximo_capitulo).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}
+               </p>
+            </div>
+          )}
         </aside>
 
         <main>
@@ -168,9 +200,14 @@ export default function LibroDetalle() {
                     onClick={() => router.push(`/libros/${id}/leer/${cap.id}`)}
                     className="w-full flex items-center justify-between p-6 bg-white border border-[#6B5E70]/5 rounded-3xl hover:border-[#6B5E70]/20 transition-all text-left"
                   >
-                    <span className="text-[#6B5E70] font-black uppercase text-[12px]">{cap.orden}. {cap.titulo_capitulo}</span>
+                    <div className="flex flex-col gap-1">
+                        <span className="text-[#6B5E70] font-black uppercase text-[12px]">{cap.orden}. {cap.titulo_capitulo}</span>
+                        {/* FECHA DE PUBLICACIÓN DEL CAPÍTULO */}
+                        <span className="text-[#6B5E70]/40 font-bold text-[9px] uppercase tracking-wider">
+                           Publicado el {new Date(cap.fecha_publicacion).toLocaleDateString('es-ES')}
+                        </span>
+                    </div>
                     
-                    {/* BOTÓN DINÁMICO: EDITAR PARA ADMIN, PLAY PARA USUARIO */}
                     {isAdmin ? (
                       <div 
                         onClick={(e) => openEditCap(e, cap)}
