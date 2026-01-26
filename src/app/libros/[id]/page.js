@@ -3,12 +3,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { ChevronLeft, Play, ListOrdered, BookText, Plus, Trash2, X, Send } from 'lucide-react';
+import { ChevronLeft, Play, ListOrdered, Plus, Trash2, X, Edit3, Save } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function LibroDetalle() {
   const params = useParams();
-  const id = params?.id; // Acceso más seguro al ID
+  const id = params?.id;
   const router = useRouter();
   
   const [libro, setLibro] = useState(null);
@@ -17,170 +17,131 @@ export default function LibroDetalle() {
   const [error, setError] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const [showModal, setShowModal] = useState(false);
+  // Modales
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditCapModal, setShowEditCapModal] = useState(false);
+  
+  // Estados de inputs
   const [nuevoTitulo, setNuevoTitulo] = useState("");
-  const [creando, setCreando] = useState(false);
+  const [selectedCap, setSelectedCap] = useState(null);
+  const [editCapTitle, setEditCapTitle] = useState("");
+  const [procesando, setProcesando] = useState(false);
 
   useEffect(() => {
     const fetchDatosLibro = async () => {
       if (!id) return;
-
       try {
         setLoading(true);
-        setError(null);
-
-        // 1. Verificar Usuario
         const { data: { session } } = await supabase.auth.getSession();
         if (session) setIsAdmin(true);
 
-        // 2. Cargar Libro
-        // Cambiamos select('*') por campos específicos si prefieres, 
-        // pero lo importante es el .eq() y manejar el resultado.
-        const { data: libroData, error: libroError } = await supabase
-          .from('libros')
-          .select('*')
-          .eq('id', id);
-
-        if (libroError) throw libroError;
-
-        if (!libroData || libroData.length === 0) {
-          setError("El libro que buscas no existe en nuestros archivos.");
-          setLoading(false);
-          return;
-        }
-
+        const { data: libroData, error: libroError } = await supabase.from('libros').select('*').eq('id', id);
+        if (libroError || !libroData?.length) throw new Error("Archivo no encontrado.");
         setLibro(libroData[0]);
 
-        // 3. Cargar Capítulos
-        const { data: capsData, error: capsError } = await supabase
-          .from('capitulos')
-          .select('id, titulo_capitulo, orden')
-          .eq('libro_id', id)
-          .order('orden', { ascending: true });
-
-        if (capsError) throw capsError;
+        const { data: capsData } = await supabase.from('capitulos').select('id, titulo_capitulo, orden').eq('libro_id', id).order('orden', { ascending: true });
         setCapitulos(capsData || []);
-
       } catch (err) {
-        console.error("Error crítico en LibroDetalle:", err);
-        setError("Error de conexión con la biblioteca digital.");
+        setError(err.message);
       } finally {
-        setLoading(false); // ESTO GARANTIZA QUE PARE EL LOADING
+        setLoading(false);
       }
     };
-
     fetchDatosLibro();
   }, [id]);
 
-  // FUNCIÓN PARA CREAR CAPÍTULO
+  // CREAR CAPÍTULO
   const handleCrearCapitulo = async (e) => {
     e.preventDefault();
-    if (!nuevoTitulo.trim() || creando) return;
-    
-    setCreando(true);
-    const orden = capitulos.length + 1;
-
-    try {
-      const { error } = await supabase
-        .from('capitulos')
-        .insert([{ 
-          libro_id: id, 
-          titulo_capitulo: nuevoTitulo.toUpperCase(), 
-          orden: orden,
-          contenido: "Comienza a escribir esta nueva crónica..." 
-        }]);
-
-      if (error) throw error;
-      
-      setShowModal(false);
-      setNuevoTitulo("");
-      // Recarga suave: En lugar de reload completo, podrías re-ejecutar el fetch.
-      window.location.reload();
-    } catch (err) {
-      alert("No se pudo crear el capítulo: " + err.message);
-    } finally {
-      setCreando(false);
-    }
+    if (!nuevoTitulo.trim() || procesando) return;
+    setProcesando(true);
+    const { error } = await supabase.from('capitulos').insert([{ 
+      libro_id: id, titulo_capitulo: nuevoTitulo.toUpperCase(), orden: capitulos.length + 1, contenido: "Nueva crónica..." 
+    }]);
+    if (!error) window.location.reload();
+    setProcesando(false);
   };
 
-  const deleteCapitulo = async (e, capId) => {
+  // EDITAR CAPÍTULO (Nombre)
+  const handleUpdateCapitulo = async (e) => {
+    e.preventDefault();
+    if (!editCapTitle.trim() || procesando) return;
+    setProcesando(true);
+    const { error } = await supabase.from('capitulos').update({ titulo_capitulo: editCapTitle.toUpperCase() }).eq('id', selectedCap.id);
+    if (!error) window.location.reload();
+    setProcesando(false);
+  };
+
+  // BORRAR CAPÍTULO (Dentro del modal de edición)
+  const deleteCapitulo = async () => {
+    if (!confirm("¿Deseas eliminar permanentemente este capítulo de los registros?")) return;
+    setProcesando(true);
+    const { error } = await supabase.from('capitulos').delete().eq('id', selectedCap.id);
+    if (!error) window.location.reload();
+    setProcesando(false);
+  };
+
+  const openEditCap = (e, cap) => {
     e.stopPropagation();
-    if (!confirm("¿Seguro que quieres borrar este capítulo?")) return;
-
-    try {
-      const { error } = await supabase
-        .from('capitulos')
-        .delete()
-        .eq('id', capId);
-
-      if (error) throw error;
-      window.location.reload();
-    } catch (err) {
-      alert("Error al borrar: " + err.message);
-    }
+    setSelectedCap(cap);
+    setEditCapTitle(cap.titulo_capitulo);
+    setShowEditCapModal(true);
   };
 
-  // VISTA DE ERROR
-  if (error) return (
-    <div className="h-screen flex flex-col items-center justify-center bg-[#FDFCFD] p-6 text-center">
-      <h2 className="text-[#6B5E70] font-black uppercase tracking-widest mb-4">"Error de Acceso"</h2>
-      <p className="text-[#6B5E70]/50 italic mb-8">{error}</p>
-      <button onClick={() => router.push('/libros')} className="text-[10px] font-black uppercase underline tracking-widest text-[#6B5E70]">
-        Regresar
-      </button>
-    </div>
-  );
-
-  if (loading) return (
-    <div className="h-screen flex items-center justify-center bg-[#FDFCFD]">
-      <div className="animate-pulse text-[#6B5E70] font-black uppercase text-[10px] tracking-[0.3em]">
-        "Consultando archivos..."
-      </div>
-    </div>
-  );
+  if (loading) return <div className="h-screen flex items-center justify-center bg-[#FDFCFD] text-[#6B5E70] font-black uppercase text-[10px] tracking-[0.3em]">"Consultando archivos..."</div>;
 
   return (
     <div className="min-h-screen bg-[#FDFCFD] pb-20 relative">
-      {/* ... (Resto de tu JSX se mantiene igual) ... */}
+      
+      {/* MODAL: NUEVO CAPÍTULO */}
       <AnimatePresence>
-        {showModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-            <motion.div 
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setShowModal(false)}
-              className="absolute inset-0 bg-[#6B5E70]/20 backdrop-blur-sm"
-            />
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="bg-white w-full max-w-sm rounded-[3rem] p-10 shadow-2xl border border-[#6B5E70]/10 relative z-10"
-            >
-              <button onClick={() => setShowModal(false)} className="absolute top-8 right-8 text-[#6B5E70]/20 hover:text-[#6B5E70]">
-                <X size={20} />
-              </button>
-              <div className="text-center mb-8">
-                <h3 className="text-[#6B5E70] font-black uppercase text-[10px] tracking-[0.3em]">"Nuevo Capítulo"</h3>
-              </div>
+        {showAddModal && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-6">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowAddModal(false)} className="absolute inset-0 bg-[#6B5E70]/20 backdrop-blur-sm" />
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-white w-full max-w-sm rounded-[3rem] p-10 shadow-2xl relative z-10 border border-[#6B5E70]/10 text-center">
+              <button onClick={() => setShowAddModal(false)} className="absolute top-8 right-8 text-[#6B5E70]/20 hover:text-[#6B5E70]"><X size={20} /></button>
+              <h3 className="text-[#6B5E70] font-black uppercase text-[10px] tracking-[0.3em] mb-8">"Nuevo Capítulo"</h3>
               <form onSubmit={handleCrearCapitulo} className="space-y-6">
-                <input 
-                  autoFocus type="text" placeholder="TÍTULO..." value={nuevoTitulo}
-                  onChange={(e) => setNuevoTitulo(e.target.value)}
-                  className="w-full bg-[#FDFCFD] border-b-2 border-[#6B5E70]/10 py-4 text-center text-sm font-black text-[#6B5E70] outline-none focus:border-[#6B5E70] uppercase"
-                />
-                <button disabled={creando} type="submit" className="w-full bg-[#6B5E70] text-white py-4 rounded-2xl font-black uppercase text-[10px]">
-                  {creando ? "Sellando..." : "Revelar Capítulo"}
-                </button>
+                <input autoFocus type="text" placeholder="TÍTULO..." value={nuevoTitulo} onChange={(e) => setNuevoTitulo(e.target.value)} className="w-full bg-[#FDFCFD] border-b-2 border-[#6B5E70]/10 py-4 text-center text-sm font-black text-[#6B5E70] outline-none focus:border-[#6B5E70] uppercase" />
+                <button type="submit" className="w-full bg-[#6B5E70] text-white py-4 rounded-2xl font-black uppercase text-[10px]">{procesando ? "Sellando..." : "Revelar"}</button>
               </form>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
 
-      <button onClick={() => router.push('/libros')} className="p-8 text-[#6B5E70]/40 hover:text-[#6B5E70] flex items-center gap-2 font-black text-[10px] uppercase transition-all group">
-        <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> "Volver a la Biblioteca"
+      {/* MODAL: EDITAR / BORRAR CAPÍTULO */}
+      <AnimatePresence>
+        {showEditCapModal && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-6">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowEditCapModal(false)} className="absolute inset-0 bg-[#6B5E70]/20 backdrop-blur-sm" />
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }} className="bg-white w-full max-w-sm rounded-[3rem] p-10 shadow-2xl relative z-10 border border-[#6B5E70]/10">
+              <button onClick={() => setShowEditCapModal(false)} className="absolute top-8 right-8 text-[#6B5E70]/20 hover:text-[#6B5E70]"><X size={20} /></button>
+              <div className="text-center mb-8">
+                <h3 className="text-[#6B5E70] font-black uppercase text-[10px] tracking-[0.3em]">"Gestionar Capítulo"</h3>
+              </div>
+              <form onSubmit={handleUpdateCapitulo} className="space-y-6">
+                <input autoFocus type="text" value={editCapTitle} onChange={(e) => setEditCapTitle(e.target.value)} className="w-full bg-[#FDFCFD] border-b-2 border-[#6B5E70]/10 py-4 text-center text-sm font-black text-[#6B5E70] outline-none focus:border-[#6B5E70] uppercase" />
+                <div className="grid grid-cols-2 gap-3">
+                  <button type="submit" className="bg-[#6B5E70] text-white py-4 rounded-2xl font-black uppercase text-[9px] flex items-center justify-center gap-2">
+                    <Save size={14} /> Guardar
+                  </button>
+                  <button type="button" onClick={deleteCapitulo} className="bg-red-50 text-red-400 py-4 rounded-2xl font-black uppercase text-[9px] flex items-center justify-center gap-2 border border-red-100">
+                    <Trash2 size={14} /> Borrar
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <button onClick={() => router.push('/libros')} className="p-8 text-[#6B5E70]/40 hover:text-[#6B5E70] flex items-center gap-2 font-black text-[10px] uppercase group">
+        <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> "Volver"
       </button>
 
       <div className="max-w-5xl mx-auto px-6 grid md:grid-cols-[320px_1fr] gap-16 mt-4">
-        <aside className="flex flex-col gap-8">
+        <aside>
           <div className="aspect-[3/4] rounded-[2.5rem] overflow-hidden shadow-2xl border border-[#6B5E70]/10 bg-white">
             <img src={libro?.portada_url || "/placeholder-cover.jpg"} alt={libro?.titulo} className="w-full h-full object-cover" />
           </div>
@@ -194,13 +155,9 @@ export default function LibroDetalle() {
 
           <div className="space-y-4">
             <div className="flex items-center justify-between mb-8 border-b border-[#6B5E70]/10 pb-4">
-              <h3 className="text-[#6B5E70] font-black uppercase text-[10px] tracking-[0.2em] flex items-center gap-2">
-                <ListOrdered size={16} /> Índice
-              </h3>
+              <h3 className="text-[#6B5E70] font-black uppercase text-[10px] tracking-[0.2em] flex items-center gap-2"><ListOrdered size={16} /> Índice</h3>
               {isAdmin && (
-                <button onClick={() => setShowModal(true)} className="bg-[#6B5E70] text-white p-2 rounded-full shadow-lg">
-                  <Plus size={16} />
-                </button>
+                <button onClick={() => setShowAddModal(true)} className="bg-[#6B5E70] text-white p-2 rounded-full shadow-lg hover:scale-110 transition-transform"><Plus size={18} /></button>
               )}
             </div>
             
@@ -209,16 +166,22 @@ export default function LibroDetalle() {
                 <div key={cap.id} className="relative group">
                   <button 
                     onClick={() => router.push(`/libros/${id}/leer/${cap.id}`)}
-                    className="w-full flex items-center justify-between p-6 bg-white border border-[#6B5E70]/5 rounded-3xl hover:border-[#6B5E70]/20 transition-all"
+                    className="w-full flex items-center justify-between p-6 bg-white border border-[#6B5E70]/5 rounded-3xl hover:border-[#6B5E70]/20 transition-all text-left"
                   >
                     <span className="text-[#6B5E70] font-black uppercase text-[12px]">{cap.orden}. {cap.titulo_capitulo}</span>
-                    <Play size={14} fill="currentColor" className="text-[#6B5E70]" />
+                    
+                    {/* BOTÓN DINÁMICO: EDITAR PARA ADMIN, PLAY PARA USUARIO */}
+                    {isAdmin ? (
+                      <div 
+                        onClick={(e) => openEditCap(e, cap)}
+                        className="bg-[#6B5E70]/5 p-2 rounded-xl text-[#6B5E70] hover:bg-[#6B5E70] hover:text-white transition-colors"
+                      >
+                        <Edit3 size={16} />
+                      </div>
+                    ) : (
+                      <Play size={14} fill="currentColor" className="text-[#6B5E70]" />
+                    )}
                   </button>
-                  {isAdmin && (
-                    <button onClick={(e) => deleteCapitulo(e, cap.id)} className="absolute right-16 top-1/2 -translate-y-1/2 p-2 text-red-300">
-                      <Trash2 size={16} />
-                    </button>
-                  )}
                 </div>
               ))}
             </div>
