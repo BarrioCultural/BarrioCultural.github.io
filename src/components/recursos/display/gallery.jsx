@@ -1,42 +1,73 @@
 "use client";
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from "@/lib/utils";
-import { Sparkles } from 'lucide-react'; // Icono que sugiere algo especial o mágico
+import { Sparkles } from 'lucide-react'; 
 
-export const GalleryGrid = ({ children, isDetailOpen, headerContent, className }) => (
-  <div className="w-full">
-    <AnimatePresence>
-      {!isDetailOpen && (
-        <motion.div 
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
-          exit={{ opacity: 0, height: 0 }}
-          className="overflow-hidden"
+export const GalleryGrid = ({ children, headerContent, className }) => {
+  // Estado para controlar si el menú/cabecera debe desaparecer
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+
+  // Clonamos los hijos para pasarles la función que cierra la cabecera
+  const childrenWithProps = React.Children.map(children, child => {
+    if (React.isValidElement(child)) {
+      return React.cloneElement(child, { 
+        onExpand: () => setIsDetailOpen(true) 
+      });
+    }
+    return child;
+  });
+
+  return (
+    <div className="w-full">
+      <AnimatePresence mode="wait">
+        {!isDetailOpen && (
+          <motion.div 
+            key="header-gallery"
+            initial={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20, height: 0 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            {headerContent}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <section className={cn(
+        "mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 p-4 md:p-8 max-w-[1600px]",
+        className
+      )}>
+        {childrenWithProps}
+      </section>
+
+      {/* Botón opcional para restaurar el menú si fuera necesario */}
+      {isDetailOpen && (
+        <button 
+          onClick={() => setIsDetailOpen(false)}
+          className="fixed top-8 right-8 z-50 bg-primary text-white p-2 rounded-full uppercase text-[10px] font-black tracking-widest"
         >
-          {headerContent}
-        </motion.div>
+          "Volver"
+        </button>
       )}
-    </AnimatePresence>
+    </div>
+  );
+};
 
-    <section className={cn(
-      "mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 p-4 md:p-8 max-w-[1600px]",
-      className
-    )}>
-      {children}
-    </section>
-  </div>
-);
-
-export const GalleryItem = ({ src, alt, children, onClick, color, contain }) => {
-  // Validación: si no hay URL, activamos el modo "Intriga"
+export const GalleryItem = ({ src, alt, children, onClick, onExpand, color, contain }) => {
   const tieneImagen = src && src.trim() !== "";
+
+  const handleInteraction = () => {
+    if (onExpand) onExpand(); // Oculta el menú superior
+    if (onClick) onClick();   // Abre el Lightbox o canción
+  };
 
   return (
     <motion.div 
       layout
-      onClick={onClick}
+      onClick={handleInteraction}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
@@ -54,37 +85,20 @@ export const GalleryItem = ({ src, alt, children, onClick, color, contain }) => 
           )}
         />
       ) : (
-        /* ESTADO INTRIGANTE: Se muestra cuando no hay imagen */
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#050505] border border-white/5 rounded-[2rem]">
-          {/* Animación de destello sutil */}
+        /* FONDO MORADO OSCURO DE TU PÁGINA */
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#1a0b2e] border border-primary/10 rounded-[2rem]">
           <div className="relative mb-4">
-            <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping opacity-30 scale-150" />
-            <div className="w-16 h-16 rounded-full bg-gradient-to-t from-neutral-900 to-transparent flex items-center justify-center border border-white/10 group-hover:border-primary/50 transition-colors duration-500">
-              <Sparkles className="w-6 h-6 text-white/20 group-hover:text-primary group-hover:scale-110 transition-all duration-500" />
+            <div className="absolute inset-0 rounded-full bg-primary/30 animate-ping opacity-40 scale-150" />
+            <div className="w-16 h-16 rounded-full bg-gradient-to-t from-[#2d1b4d] to-transparent flex items-center justify-center border border-primary/20 group-hover:border-primary transition-colors duration-500">
+              <Sparkles className="w-6 h-6 text-primary/40 group-hover:text-primary transition-all duration-500" />
             </div>
           </div>
-          
-          <div className="text-center">
-            <p className="text-[8px] font-black text-white/30 uppercase tracking-[0.5em] mb-1">
-              "Expediente Oculto"
-            </p>
-            <div className="h-px w-8 bg-primary/30 mx-auto scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
-          </div>
+          <p className="text-[8px] font-black text-primary/40 uppercase tracking-[0.5em]">"Archivo Reservado"</p>
         </div>
       )}
 
-      {/* Degradado inferior para legibilidad de textos (Se mantiene siempre) */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-transparent opacity-70 group-hover:opacity-90 transition-opacity duration-500" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0d041a] via-transparent to-transparent opacity-80" />
       
-      {/* Detalle de color superior */}
-      {color && (
-        <div 
-          className="absolute top-0 w-full h-1.5 opacity-50 group-hover:opacity-100 transition-opacity" 
-          style={{ backgroundColor: color }} 
-        />
-      )}
-
-      {/* Título y Categoría (Los "children" que vienen de Drawings) */}
       <div className="absolute bottom-6 left-6 right-6 translate-y-2 group-hover:translate-y-0 transition-all duration-500">
         {children}
       </div>
