@@ -27,11 +27,9 @@ export default function Lector() {
         setLoading(true);
         setError(null);
 
-        // 1. Verificar Admin
         const { data: { user } } = await supabase.auth.getUser();
         if (user) setIsAdmin(true);
 
-        // 2. Traer capítulo
         const { data: capData, error: capError } = await supabase
           .from('capitulos')
           .select('*, libros ( titulo )')
@@ -46,7 +44,6 @@ export default function Lector() {
         setCapitulo(capData);
         setNuevoContenido(capData.contenido || ""); 
 
-        // 3. Lista para navegación
         const { data: todosCaps, error: listaError } = await supabase
           .from('capitulos')
           .select('id, orden')
@@ -118,14 +115,14 @@ export default function Lector() {
             <>
               <button 
                 onClick={() => { setEditMode(false); setNuevoContenido(capitulo.contenido); }}
-                className="bg-red-500 text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-all"
+                className="bg-red-500 text-white p-4 rounded-full shadow-2xl active:scale-90 transition-all"
               >
                 <X size={24} />
               </button>
               <button 
                 onClick={handleSave}
                 disabled={saving}
-                className="bg-green-500 text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-all flex items-center gap-2"
+                className="bg-green-500 text-white p-4 rounded-full shadow-2xl active:scale-90 transition-all flex items-center gap-2"
               >
                 <Save size={24} />
                 <span className="font-black text-[10px] uppercase pr-2">{saving ? '...' : 'Guardar'}</span>
@@ -134,7 +131,7 @@ export default function Lector() {
           ) : (
             <button 
               onClick={() => setEditMode(true)}
-              className="bg-[#6B5E70] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-all"
+              className="bg-[#6B5E70] text-white p-4 rounded-full shadow-2xl active:scale-90 transition-all"
             >
               <Edit3 size={24} />
             </button>
@@ -145,11 +142,11 @@ export default function Lector() {
       {/* Navbar Superior */}
       <nav className="sticky top-0 z-50 bg-[#FDFCFD]/80 backdrop-blur-md border-b border-[#6B5E70]/5 px-6 py-4">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <button onClick={() => router.push(`/libros/${id}`)} className="text-[#6B5E70]/40 hover:text-[#6B5E70] transition-transform">
+          <button onClick={() => router.push(`/libros/${id}`)} className="text-[#6B5E70]/40 hover:text-[#6B5E70]">
             <ChevronLeft size={20} />
           </button>
           <div className="text-center">
-            <h2 className="text-[9px] font-black uppercase tracking-[0.2em] text-[#6B5E70]/40 leading-none mb-1 uppercase">
+            <h2 className="text-[9px] font-black uppercase tracking-[0.2em] text-[#6B5E70]/40 leading-none mb-1">
               {capitulo.libros?.titulo}
             </h2>
             <p className="text-[11px] font-bold text-[#6B5E70] uppercase">
@@ -169,17 +166,20 @@ export default function Lector() {
           <div className="w-12 h-[1px] bg-[#6B5E70]/20 mx-auto mt-8" />
         </header>
 
-        <div className="prose prose-stone lg:prose-xl mx-auto">
+        {/* CONTENEDOR DE TEXTO / EDITOR */}
+        <div className="relative min-h-[500px]">
           {editMode ? (
             <textarea
               value={nuevoContenido}
               onChange={(e) => setNuevoContenido(e.target.value)}
-              className="w-full min-h-[60vh] bg-white/50 p-4 rounded-2xl border border-[#6B5E70]/10 font-serif text-lg md:text-xl leading-[1.9] text-[#2C262E] focus:ring-2 focus:ring-[#6B5E70]/20 resize-none transition-all"
+              className="w-full min-h-[60vh] p-6 bg-white border-2 border-[#6B5E70]/20 rounded-3xl font-serif text-lg md:text-xl leading-[1.9] text-[#2C262E] focus:outline-none focus:border-[#6B5E70] transition-all z-10 relative"
               placeholder="Escribe tu historia aquí..."
               autoFocus
             />
           ) : (
-            <div className="text-lg md:text-xl leading-[1.9] text-[#2C262E]/90 font-serif whitespace-pre-line first-letter:text-6xl first-letter:font-bold first-letter:text-[#6B5E70] first-letter:mr-3 first-letter:float-left first-letter:mt-2">
+            <div 
+              className="text-lg md:text-xl leading-[1.9] text-[#2C262E]/90 font-serif whitespace-pre-line first-letter:text-6xl first-letter:font-bold first-letter:text-[#6B5E70] first-letter:mr-3 first-letter:float-left first-letter:mt-2"
+            >
               {capitulo.contenido}
             </div>
           )}
@@ -194,8 +194,8 @@ export default function Lector() {
                   onClick={() => anteriorCap && router.push(`/libros/${id}/leer/${anteriorCap.id}`)}
                   disabled={esPrimero}
                   className={cn(
-                    "p-5 rounded-2xl border font-black uppercase text-[10px] tracking-widest transition-all flex items-center justify-center gap-2",
-                    esPrimero ? "opacity-20 cursor-not-allowed" : "border-[#6B5E70]/10 text-[#6B5E70]/60"
+                    "p-5 rounded-2xl border font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-2 transition-all",
+                    esPrimero ? "opacity-20 cursor-not-allowed" : "border-[#6B5E70]/10 text-[#6B5E70]/60 active:bg-[#6B5E70]/5"
                   )}
                 >
                   <ChevronLeft size={14} /> "Anterior"
@@ -203,7 +203,7 @@ export default function Lector() {
 
                 <button 
                   onClick={() => siguienteCap ? router.push(`/libros/${id}/leer/${siguienteCap.id}`) : router.push(`/libros/${id}`)}
-                  className="p-5 rounded-2xl bg-[#6B5E70] text-white font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-2"
+                  className="p-5 rounded-2xl bg-[#6B5E70] text-white font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-2 active:opacity-80 transition-all shadow-lg shadow-[#6B5E70]/10"
                 >
                   {esUltimo ? "Finalizar" : "Siguiente"} <ChevronRight size={14} />
                 </button>
