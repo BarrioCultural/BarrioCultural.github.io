@@ -46,7 +46,7 @@ export const GalleryGrid = ({ children, headerContent, className }) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           onClick={() => setIsDetailOpen(false)}
-          className="fixed top-6 right-6 z-[60] bg-white/10 backdrop-blur-md text-white/70 px-5 py-2 rounded-full uppercase text-[9px] font-black tracking-widest border border-white/10 hover:bg-white hover:text-black transition-all"
+          className="fixed top-6 right-6 z-[60] bg-[#2a1b3d] text-[#f3e8ff] px-5 py-2 rounded-full uppercase text-[9px] font-black tracking-widest border border-white/10 hover:bg-[#4b3061] transition-all shadow-xl"
         >
           "Mostrar Filtros"
         </motion.button>
@@ -70,45 +70,61 @@ export const GalleryItem = ({ src, alt, children, onClick, onExpand, color, cont
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="relative aspect-[3/4] overflow-hidden rounded-[2rem] cursor-pointer bg-[#2a2438] shadow-sm transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl group"
+      className={cn(
+        "relative aspect-[3/4] overflow-hidden rounded-[2.5rem] cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl group",
+        tieneImagen ? "bg-neutral-900" : "bg-[#e9d5ff]" // Morado pastel claro si no hay imagen
+      )}
     >
       {tieneImagen ? (
-        <Image 
-          src={src} 
-          alt={alt || "Archivo Visual"} 
-          fill 
-          sizes="(max-width: 768px) 50vw, 20vw"
-          className={cn(
-            "transition-all duration-700 group-hover:scale-110",
-            contain ? "object-contain p-8 mix-blend-multiply" : "object-cover grayscale-[0.3] group-hover:grayscale-0"
-          )}
-        />
+        <>
+          <Image 
+            src={src} 
+            alt={alt || "Archivo Visual"} 
+            fill 
+            sizes="(max-width: 768px) 50vw, 20vw"
+            className={cn(
+              "transition-all duration-700 group-hover:scale-110",
+              contain ? "object-contain p-8 mix-blend-multiply" : "object-cover grayscale-[0.2] group-hover:grayscale-0"
+            )}
+          />
+          {/* Degradado oscuro solo para fotos, para que el texto blanco se lea */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90" />
+        </>
       ) : (
-        /* FONDO MORADO PASTEL OSCURO (Muted Purple) */
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#352f44]">
-          <div className="relative mb-4 flex items-center justify-center">
-            {/* Brillo sutil lila suave */}
-            <div className="absolute w-20 h-20 rounded-full bg-[#5c5470]/30 blur-2xl animate-pulse" />
-            <div className="w-14 h-14 rounded-full bg-[#2a2438]/40 flex items-center justify-center border border-white/5 relative z-10 shadow-2xl">
-              <Sparkles className="w-5 h-5 text-[#b2a4ff]/40 group-hover:text-[#b2a4ff] transition-colors duration-500" />
+        /* ESTADO VACÍO: FONDO CLARO, ICONO Y TEXTO OSCURO */
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-[#2a1b3d]">
+          <div className="relative mb-6">
+            <div className="absolute inset-0 rounded-full bg-[#c084fc]/20 animate-ping opacity-50" />
+            <div className="w-16 h-16 rounded-full bg-white/40 backdrop-blur-sm flex items-center justify-center border-2 border-[#2a1b3d]/10 relative z-10 shadow-sm">
+              <Sparkles className="w-7 h-7 text-[#2a1b3d]" />
             </div>
           </div>
-          <span className="text-[7px] font-black text-[#b2a4ff]/30 uppercase tracking-[0.5em] text-center">
-            "Clasificado"
-          </span>
+          <div className="text-center">
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] mb-1">
+              "Inédito"
+            </p>
+            <div className="h-0.5 w-6 bg-[#2a1b3d]/20 mx-auto rounded-full" />
+          </div>
         </div>
       )}
 
-      {/* GRADIENTE NEGRO DE LEGIBILIDAD (Se mantiene siempre para el texto blanco) */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-500" />
-      
-      {/* Detalle de color superior opcional */}
-      {color && <div className="absolute top-0 w-full h-1.5 opacity-40 group-hover:opacity-100 transition-opacity" style={{ backgroundColor: color }} />}
-
-      {/* TEXTOS (Categoría y Título) */}
-      <div className="absolute bottom-6 left-6 right-6 translate-y-2 group-hover:translate-y-0 transition-all duration-500 z-30">
-        {children}
+      {/* Contenedor de textos (hijos) */}
+      <div className={cn(
+        "absolute bottom-8 left-8 right-8 transition-all duration-500 z-30",
+        tieneImagen ? "text-white" : "text-[#2a1b3d]" // Texto oscuro si el fondo es claro
+      )}>
+        {/* Aquí es donde el CSS de los 'children' en Drawings podría necesitar ajuste si es hardcoded blanco */}
+        <div className="group-hover:translate-y-[-4px] transition-transform duration-500">
+          {children}
+        </div>
       </div>
+
+      {color && (
+        <div 
+          className="absolute top-0 w-full h-2 opacity-60" 
+          style={{ backgroundColor: color }} 
+        />
+      )}
     </motion.div>
   );
 };
