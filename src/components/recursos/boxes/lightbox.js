@@ -47,16 +47,19 @@ const LightboxVisual = () => {
   const [nuevoTitulo, setNuevoTitulo] = useState("");
   const [saving, setSaving] = useState(false);
 
-  // Verificar admin
+  // --- REFUERZO DE ADMIN ---
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) setIsAdmin(true);
+      // Usamos getSession para una respuesta más inmediata
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        console.log("Admin detectado en Lightbox");
+        setIsAdmin(true);
+      }
     };
     checkUser();
-  }, []);
+  }, [selectedImg]); // Re-verificar cada vez que abrimos una imagen
 
-  // Sincronizar el input cuando cambia la imagen seleccionada
   useEffect(() => {
     if (selectedImg) {
       setNuevoTitulo(selectedImg.alt || "");
@@ -67,21 +70,24 @@ const LightboxVisual = () => {
   if (!selectedImg) return null;
 
   const handleUpdateTitle = async () => {
+    if (!nuevoTitulo.trim()) return;
     setSaving(true);
+    
     try {
-      // Intentamos actualizar en la tabla 'dibujos' (ajusta el nombre si es diferente)
+      // IMPORTANTE: Cambia 'dibujos' por el nombre real de tu tabla si es distinto
       const { error } = await supabase
         .from('dibujos') 
-        .update({ titulo: nuevoTitulo }) // 'alt' suele venir del campo 'titulo'
+        .update({ titulo: nuevoTitulo }) 
         .eq('id', selectedImg.id);
 
       if (error) throw error;
 
-      // Actualizar el estado local en el Provider para que el cambio se vea de inmediato
       updateGalleryItem(currentIndex, nuevoTitulo);
       setEditMode(false);
+      console.log("Título actualizado correctamente");
     } catch (err) {
-      alert("Error al actualizar título: " + err.message);
+      console.error("Error Supabase:", err);
+      alert("No se pudo guardar. Revisa si la tabla se llama 'dibujos' y tienes permisos RLS.");
     } finally {
       setSaving(false);
     }
@@ -98,7 +104,6 @@ const LightboxVisual = () => {
     <div className="fixed inset-0 z-[9999] flex flex-col bg-black selection:bg-white selection:text-black overflow-y-auto no-scrollbar">
       <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl -z-10" />
 
-      {/* HEADER CON EDICIÓN */}
       <header className="sticky top-0 w-full p-6 md:px-10 flex justify-between items-center z-[110] bg-black/80 backdrop-blur-md border-b border-white/5">
         <div className="flex flex-col flex-1 mr-4">
           {editMode ? (
@@ -107,24 +112,27 @@ const LightboxVisual = () => {
                 value={nuevoTitulo}
                 onChange={(e) => setNuevoTitulo(e.target.value)}
                 autoFocus
-                className="bg-white/10 border border-white/20 rounded-md px-2 py-1 text-white text-[10px] font-black uppercase tracking-[0.4em] w-full max-w-sm outline-none focus:border-white/50"
+                onKeyDown={(e) => e.key === 'Enter' && handleUpdateTitle()}
+                className="bg-white/10 border border-white/20 rounded-md px-3 py-1 text-white text-[10px] font-black uppercase tracking-[0.4em] w-full max-w-sm outline-none focus:border-white/50"
               />
-              <button onClick={handleUpdateTitle} disabled={saving} className="text-green-400 hover:text-green-300">
+              <button onClick={handleUpdateTitle} disabled={saving} className="text-green-400 p-2 hover:bg-white/10 rounded-full">
                 {saving ? "..." : <Save size={18} />}
               </button>
-              <button onClick={() => setEditMode(false)} className="text-red-400">
+              <button onClick={() => setEditMode(false)} className="text-red-400 p-2 hover:bg-white/10 rounded-full">
                 <X size={18} />
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-3 group">
+            <div className="flex items-center gap-3 group cursor-default">
               <h2 className="text-white text-[10px] font-black uppercase tracking-[0.4em] truncate max-w-[140px] md:max-w-md">
                 {selectedImg.alt || "Archivo Visual"}
               </h2>
+              {/* Forzamos que se vea si es admin */}
               {isAdmin && (
                 <button 
                   onClick={() => setEditMode(true)}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity text-white/40 hover:text-white"
+                  className="p-2 bg-white/5 hover:bg-white/20 rounded-lg transition-all text-white/60 hover:text-white"
+                  title="Editar Título"
                 >
                   <Edit3 size={14} />
                 </button>
@@ -157,18 +165,8 @@ const LightboxVisual = () => {
               <ChevronRight size={80} strokeWidth={1} />
             </button>
           </div>
-          {/* Miniaturas Móvil */}
-          <div className="lg:hidden w-full px-6 mb-12">
-            <div className="flex gap-4 overflow-x-auto no-scrollbar py-6 border-t border-white/5">
-              {gallery.map((img, idx) => (
-                <button key={idx} onClick={() => setCurrentIndex(idx)} className={cn("h-20 w-20 min-w-[80px]", thumbClass(idx))}>
-                  <img src={img.src} className="h-full w-full object-cover" alt="thumb" />
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
-        {/* Barra Lateral Desktop */}
+
         <aside className="hidden lg:flex flex-col items-center gap-5 p-6 bg-white/[0.02] sticky top-[96px] h-[calc(100vh-96px)] overflow-y-auto no-scrollbar w-[140px]">
           {gallery.map((img, idx) => (
             <button key={idx} onClick={() => setCurrentIndex(idx)} className={cn("h-24 w-24 min-h-[96px]", thumbClass(idx))}>
@@ -181,7 +179,7 @@ const LightboxVisual = () => {
   );
 };
 
-// --- PROVIDER ---
+// --- PROVIDER (Asegúrate de copiarlo también) ---
 export const LightboxProvider = ({ children }) => {
   const [gallery, setGallery] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
@@ -198,7 +196,6 @@ export const LightboxProvider = ({ children }) => {
     if (typeof window !== 'undefined') document.body.style.overflow = 'auto';
   }, []);
 
-  // Función para actualizar el título en el estado global del Lightbox
   const updateGalleryItem = useCallback((index, newTitle) => {
     setGallery(prev => {
       const newGallery = [...prev];
