@@ -137,7 +137,7 @@ const Biblioteca = () => {
             <Book size={32} /> "BIBLIOTECA"
           </h1>
           <p className="text-[#6B5E70]/50 text-xs font-bold uppercase tracking-widest mt-2">
-            "Explora las crónicas y relatos del mundo"
+            Explora los relatos del mundo
           </p>
         </div>
         {isAdmin && (

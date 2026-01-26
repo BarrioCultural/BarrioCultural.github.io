@@ -170,7 +170,7 @@ export default function LibroDetalle() {
           {libro?.fecha_proximo_capitulo && (
             <div className="mt-8 p-6 bg-[#6B5E70]/5 rounded-[2rem] border border-[#6B5E70]/10">
                <h4 className="text-[#6B5E70] font-black uppercase text-[9px] tracking-[0.2em] mb-2 flex items-center gap-2">
-                 <Calendar size={12} /> Próximo Estreno
+                 <Calendar size={12} /> Próximo Capitulo
                </h4>
                <p className="text-[#6B5E70] font-bold text-sm">
                  {new Date(libro.fecha_proximo_capitulo).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}
