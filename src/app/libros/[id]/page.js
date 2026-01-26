@@ -3,217 +3,215 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { ChevronLeft, Play, ListOrdered, BookText, AlertCircle, Plus, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, BookOpen, AlertCircle, Save, Edit3, X } from 'lucide-react';
+import { cn } from "@/lib/utils"; 
 
-export default function LibroDetalle() {
-  const { id } = useParams();
+export default function Lector() {
+  const { id, capId } = useParams(); 
   const router = useRouter();
   
-  const [libro, setLibro] = useState(null);
-  const [capitulos, setCapitulos] = useState([]);
+  const [capitulo, setCapitulo] = useState(null);
+  const [listaCapitulos, setListaCapitulos] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false); // Estado para Admin
+
+  // Estados de edición
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [nuevoContenido, setNuevoContenido] = useState("");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    const fetchDatosLibro = async () => {
+    const fetchDatos = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        // Verificamos si eres Admin
+        // 1. Verificar Admin
         const { data: { user } } = await supabase.auth.getUser();
         if (user) setIsAdmin(true);
 
-        const { data: libroData, error: libroError } = await supabase
-          .from('libros')
-          .select('*')
-          .eq('id', id)
+        // 2. Traer capítulo
+        const { data: capData, error: capError } = await supabase
+          .from('capitulos')
+          .select('*, libros ( titulo )')
+          .eq('id', capId)
           .maybeSingle();
 
-        if (libroError) throw libroError;
-        if (!libroData) {
-          setError("El libro que buscas no existe.");
+        if (capError) throw capError;
+        if (!capData) {
+          setError("Capítulo no encontrado");
           return;
         }
-        setLibro(libroData);
+        setCapitulo(capData);
+        setNuevoContenido(capData.contenido || ""); 
 
-        const { data: capsData, error: capsError } = await supabase
+        // 3. Lista para navegación
+        const { data: todosCaps, error: listaError } = await supabase
           .from('capitulos')
-          .select('id, titulo_capitulo, orden')
+          .select('id, orden')
           .eq('libro_id', id)
           .order('orden', { ascending: true });
 
-        if (capsError) throw capsError;
-        setCapitulos(capsData || []);
+        if (listaError) throw listaError;
+        setListaCapitulos(todosCaps || []);
 
       } catch (err) {
-        console.error("Error cargando detalle:", err);
-        setError("Hubo un problema al cargar la información.");
+        console.error("Error en el lector:", err);
+        setError("Hubo un error al cargar la historia");
       } finally {
         setLoading(false);
       }
     };
 
-    if (id) fetchDatosLibro();
-  }, [id]);
+    if (capId && id) fetchDatos();
+  }, [capId, id]);
 
-  // FUNCIÓN PARA AÑADIR CAPÍTULO (Rápida para celular)
-  const addCapitulo = async () => {
-    const titulo = prompt("Título del nuevo capítulo:");
-    if (!titulo) return;
-    
-    const orden = capitulos.length + 1;
-
+  const handleSave = async () => {
+    setSaving(true);
     const { error } = await supabase
       .from('capitulos')
-      .insert([{ 
-        libro_id: id, 
-        titulo_capitulo: titulo, 
-        orden: orden,
-        contenido: "Escribe aquí el contenido..." 
-      }]);
-
-    if (error) alert(error.message);
-    else window.location.reload();
-  };
-
-  // FUNCIÓN PARA BORRAR CAPÍTULO
-  const deleteCapitulo = async (e, capId) => {
-    e.stopPropagation(); // Evita que el botón de borrar active el router.push
-    if (!confirm("¿Seguro que quieres borrar este capítulo?")) return;
-
-    const { error } = await supabase
-      .from('capitulos')
-      .delete()
+      .update({ contenido: nuevoContenido })
       .eq('id', capId);
 
-    if (error) alert(error.message);
-    else window.location.reload();
+    if (error) {
+      alert("Error al guardar: " + error.message);
+    } else {
+      setCapitulo({ ...capitulo, contenido: nuevoContenido });
+      setEditMode(false);
+      alert("¡Manuscrito guardado!");
+    }
+    setSaving(false);
   };
+
+  const indiceActual = listaCapitulos.findIndex(c => c.id === capId);
+  const anteriorCap = listaCapitulos[indiceActual - 1];
+  const siguienteCap = listaCapitulos[indiceActual + 1];
+  const esPrimero = indiceActual === 0;
+  const esUltimo = indiceActual === listaCapitulos.length - 1;
 
   if (loading) return (
     <div className="h-screen flex items-center justify-center bg-[#FDFCFD]">
       <div className="animate-pulse text-[#6B5E70] font-black uppercase text-[10px] tracking-[0.3em]">
-        "Consultando archivos..."
+        "Desenrollando pergamino..."
       </div>
     </div>
   );
 
-  if (error) return (
+  if (error || !capitulo) return (
     <div className="h-screen flex flex-col items-center justify-center bg-[#FDFCFD] text-center p-6">
-      <AlertCircle className="text-red-400 mb-4" size={40} />
-      <h2 className="text-[#6B5E70] font-black uppercase text-xs mb-4">"{error}"</h2>
-      <button onClick={() => router.push('/libros')} className="btn-brand px-8 py-3 bg-[#6B5E70] text-white rounded-full font-black text-[10px] uppercase">
-        Volver a la Biblioteca
+      <AlertCircle className="text-red-400 mb-4" size={32} />
+      <h2 className="text-[#6B5E70] font-black uppercase text-xs">"{error}"</h2>
+      <button onClick={() => router.push(`/libros/${id}`)} className="mt-6 px-6 py-3 bg-[#6B5E70] text-white rounded-full font-black text-[10px] uppercase">
+        Volver al índice
       </button>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#FDFCFD] pb-20">
+    <div className="min-h-screen bg-[#FDFCFD] text-[#2C262E]">
       
-      <button 
-        onClick={() => router.push('/libros')} 
-        className="p-8 text-[#6B5E70]/40 hover:text-[#6B5E70] flex items-center gap-2 font-black text-[10px] uppercase transition-all group"
-      >
-        <ChevronLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> 
-        "Volver a la Biblioteca"
-      </button>
+      {/* Botones Flotantes de Admin */}
+      {isAdmin && (
+        <div className="fixed bottom-8 right-8 z-[100] flex flex-col gap-4">
+          {editMode ? (
+            <>
+              <button 
+                onClick={() => { setEditMode(false); setNuevoContenido(capitulo.contenido); }}
+                className="bg-red-500 text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-all"
+              >
+                <X size={24} />
+              </button>
+              <button 
+                onClick={handleSave}
+                disabled={saving}
+                className="bg-green-500 text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-all flex items-center gap-2"
+              >
+                <Save size={24} />
+                <span className="font-black text-[10px] uppercase pr-2">{saving ? '...' : 'Guardar'}</span>
+              </button>
+            </>
+          ) : (
+            <button 
+              onClick={() => setEditMode(true)}
+              className="bg-[#6B5E70] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-all"
+            >
+              <Edit3 size={24} />
+            </button>
+          )}
+        </div>
+      )}
 
-      <div className="max-w-5xl mx-auto px-6 grid md:grid-cols-[320px_1fr] gap-16 mt-4">
-        
-        <aside className="flex flex-col gap-8">
-          <div className="aspect-[3/4] rounded-[2.5rem] overflow-hidden shadow-2xl border border-[#6B5E70]/10 bg-white group">
-            <img 
-              src={libro.portada_url || "/placeholder-cover.jpg"} 
-              alt={libro.titulo} 
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+      {/* Navbar Superior */}
+      <nav className="sticky top-0 z-50 bg-[#FDFCFD]/80 backdrop-blur-md border-b border-[#6B5E70]/5 px-6 py-4">
+        <div className="max-w-3xl mx-auto flex items-center justify-between">
+          <button onClick={() => router.push(`/libros/${id}`)} className="text-[#6B5E70]/40 hover:text-[#6B5E70] transition-transform">
+            <ChevronLeft size={20} />
+          </button>
+          <div className="text-center">
+            <h2 className="text-[9px] font-black uppercase tracking-[0.2em] text-[#6B5E70]/40 leading-none mb-1 uppercase">
+              {capitulo.libros?.titulo}
+            </h2>
+            <p className="text-[11px] font-bold text-[#6B5E70] uppercase">
+              Capítulo {capitulo.orden}
+            </p>
+          </div>
+          <div className="w-5" /> 
+        </div>
+      </nav>
+
+      <article className="max-w-2xl mx-auto px-6 py-16 md:py-24">
+        <header className="mb-16 text-center">
+          <span className="text-[#6B5E70]/20 font-serif italic text-4xl block mb-4">§ {capitulo.orden}</span>
+          <h1 className="text-3xl md:text-4xl font-serif font-bold text-[#6B5E70] leading-tight uppercase">
+            {capitulo.titulo_capitulo}
+          </h1>
+          <div className="w-12 h-[1px] bg-[#6B5E70]/20 mx-auto mt-8" />
+        </header>
+
+        <div className="prose prose-stone lg:prose-xl mx-auto">
+          {editMode ? (
+            <textarea
+              value={nuevoContenido}
+              onChange={(e) => setNuevoContenido(e.target.value)}
+              className="w-full min-h-[60vh] bg-white/50 p-4 rounded-2xl border border-[#6B5E70]/10 font-serif text-lg md:text-xl leading-[1.9] text-[#2C262E] focus:ring-2 focus:ring-[#6B5E70]/20 resize-none transition-all"
+              placeholder="Escribe tu historia aquí..."
+              autoFocus
             />
-          </div>
-          
-          <div className="bg-white p-6 rounded-[2rem] border border-[#6B5E70]/5 shadow-sm">
-            <span className="text-[9px] font-black text-[#6B5E70]/30 uppercase tracking-[0.2em] block mb-2">Estado de Obra</span>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-              <p className="text-[#6B5E70] font-black uppercase text-[11px] tracking-tighter">{libro.estado || "En curso"}</p>
+          ) : (
+            <div className="text-lg md:text-xl leading-[1.9] text-[#2C262E]/90 font-serif whitespace-pre-line first-letter:text-6xl first-letter:font-bold first-letter:text-[#6B5E70] first-letter:mr-3 first-letter:float-left first-letter:mt-2">
+              {capitulo.contenido}
             </div>
-          </div>
-        </aside>
+          )}
+        </div>
 
-        <main>
-          <div className="mb-12">
-            <h1 className="text-5xl font-black text-[#6B5E70] italic tracking-tighter leading-[0.9] mb-6 uppercase">
-              {libro.titulo}
-            </h1>
-            <div className="prose prose-stone">
-              <p className="text-[#6B5E70]/70 leading-relaxed text-lg font-medium italic">
-                "{libro.sinopsis}"
-              </p>
-            </div>
-          </div>
+        {!editMode && (
+          <footer className="mt-24 pt-12 border-t border-[#6B5E70]/10">
+            <div className="flex flex-col items-center gap-10">
+              <BookOpen size={20} className="text-[#6B5E70]/20" />
+              <div className="grid grid-cols-2 gap-4 w-full max-w-md">
+                <button 
+                  onClick={() => anteriorCap && router.push(`/libros/${id}/leer/${anteriorCap.id}`)}
+                  disabled={esPrimero}
+                  className={cn(
+                    "p-5 rounded-2xl border font-black uppercase text-[10px] tracking-widest transition-all flex items-center justify-center gap-2",
+                    esPrimero ? "opacity-20 cursor-not-allowed" : "border-[#6B5E70]/10 text-[#6B5E70]/60"
+                  )}
+                >
+                  <ChevronLeft size={14} /> "Anterior"
+                </button>
 
-          <div className="space-y-4">
-            <div className="flex items-center justify-between mb-8 border-b border-[#6B5E70]/10 pb-4">
-              <h3 className="flex items-center gap-3 text-[#6B5E70] font-black uppercase text-[10px] tracking-[0.2em]">
-                <ListOrdered size={16} /> Índice de Capítulos
-              </h3>
-              <div className="flex items-center gap-4">
-                <span className="text-[10px] font-black text-[#6B5E70]/30 uppercase">{capitulos.length} Capítulos</span>
-                {isAdmin && (
-                  <button 
-                    onClick={addCapitulo}
-                    className="bg-[#6B5E70] text-white p-2 rounded-full hover:scale-110 transition-transform shadow-lg"
-                  >
-                    <Plus size={16} />
-                  </button>
-                )}
+                <button 
+                  onClick={() => siguienteCap ? router.push(`/libros/${id}/leer/${siguienteCap.id}`) : router.push(`/libros/${id}`)}
+                  className="p-5 rounded-2xl bg-[#6B5E70] text-white font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-2"
+                >
+                  {esUltimo ? "Finalizar" : "Siguiente"} <ChevronRight size={14} />
+                </button>
               </div>
             </div>
-            
-            <div className="grid gap-3">
-              {capitulos.length > 0 ? (
-                capitulos.map((cap) => (
-                  <div key={cap.id} className="relative group">
-                    <button 
-                      onClick={() => router.push(`/libros/${id}/leer/${cap.id}`)}
-                      className="w-full flex items-center justify-between p-6 bg-white border border-[#6B5E70]/5 rounded-3xl hover:border-[#6B5E70]/20 hover:shadow-xl transition-all duration-300 pr-16"
-                    >
-                      <div className="flex items-center gap-5">
-                        <span className="text-2xl font-black italic text-[#6B5E70]/10 group-hover:text-[#6B5E70]/20 transition-colors w-8">
-                          {cap.orden}
-                        </span>
-                        <div className="text-left">
-                          <span className="text-[#6B5E70] font-black uppercase text-[12px] tracking-tight block group-hover:translate-x-1 transition-transform">
-                            {cap.titulo_capitulo}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="bg-[#6B5E70]/5 p-2 rounded-full group-hover:bg-[#6B5E70] group-hover:text-white transition-all">
-                        <Play size={14} fill="currentColor" />
-                      </div>
-                    </button>
-
-                    {isAdmin && (
-                      <button 
-                        onClick={(e) => deleteCapitulo(e, cap.id)}
-                        className="absolute right-16 top-1/2 -translate-y-1/2 p-2 text-red-300 hover:text-red-500 transition-colors"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    )}
-                  </div>
-                ))
-              ) : (
-                <div className="py-20 border-2 border-dashed border-[#6B5E70]/10 rounded-[3rem] text-center">
-                  <BookText className="mx-auto text-[#6B5E70]/10 mb-4" size={48} />
-                  <p className="text-[#6B5E70]/30 font-black uppercase text-[10px] tracking-widest">"Aún no se han revelado capítulos"</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </main>
-      </div>
+          </footer>
+        )}
+      </article>
     </div>
   );
 }
