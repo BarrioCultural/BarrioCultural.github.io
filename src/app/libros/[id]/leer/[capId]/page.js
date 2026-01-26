@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { ChevronLeft, ChevronRight, BookOpen, AlertCircle, Save, Edit3, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, BookOpen, AlertCircle, Save, Edit3, X, List } from 'lucide-react';
 import { cn } from "@/lib/utils"; 
 
 export default function Lector() {
@@ -15,7 +15,6 @@ export default function Lector() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Estados de edición
   const [isAdmin, setIsAdmin] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [nuevoContenido, setNuevoContenido] = useState("");
@@ -115,14 +114,14 @@ export default function Lector() {
             <>
               <button 
                 onClick={() => { setEditMode(false); setNuevoContenido(capitulo.contenido); }}
-                className="bg-red-500 text-white p-4 rounded-full shadow-2xl active:scale-90 transition-all"
+                className="bg-red-500 text-white p-4 rounded-full shadow-2xl active:scale-95 transition-all"
               >
                 <X size={24} />
               </button>
               <button 
                 onClick={handleSave}
                 disabled={saving}
-                className="bg-green-500 text-white p-4 rounded-full shadow-2xl active:scale-90 transition-all flex items-center gap-2"
+                className="bg-green-500 text-white p-4 rounded-full shadow-2xl active:scale-95 transition-all flex items-center gap-2"
               >
                 <Save size={24} />
                 <span className="font-black text-[10px] uppercase pr-2">{saving ? '...' : 'Guardar'}</span>
@@ -131,7 +130,7 @@ export default function Lector() {
           ) : (
             <button 
               onClick={() => setEditMode(true)}
-              className="bg-[#6B5E70] text-white p-4 rounded-full shadow-2xl active:scale-90 transition-all"
+              className="bg-[#6B5E70] text-white p-4 rounded-full shadow-2xl active:scale-95 transition-all"
             >
               <Edit3 size={24} />
             </button>
@@ -142,9 +141,11 @@ export default function Lector() {
       {/* Navbar Superior */}
       <nav className="sticky top-0 z-50 bg-[#FDFCFD]/80 backdrop-blur-md border-b border-[#6B5E70]/5 px-6 py-4">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <button onClick={() => router.push(`/libros/${id}`)} className="text-[#6B5E70]/40 hover:text-[#6B5E70]">
+          <button onClick={() => router.push(`/libros/${id}`)} className="text-[#6B5E70]/40 hover:text-[#6B5E70] flex items-center gap-1">
             <ChevronLeft size={20} />
+            <span className="hidden md:inline font-black text-[9px] uppercase tracking-widest">Atrás</span>
           </button>
+          
           <div className="text-center">
             <h2 className="text-[9px] font-black uppercase tracking-[0.2em] text-[#6B5E70]/40 leading-none mb-1">
               {capitulo.libros?.titulo}
@@ -153,7 +154,10 @@ export default function Lector() {
               Capítulo {capitulo.orden}
             </p>
           </div>
-          <div className="w-5" /> 
+
+          <button onClick={() => router.push(`/libros/${id}`)} className="text-[#6B5E70]/40 hover:text-[#6B5E70]">
+            <List size={20} />
+          </button>
         </div>
       </nav>
 
@@ -172,7 +176,7 @@ export default function Lector() {
             <textarea
               value={nuevoContenido}
               onChange={(e) => setNuevoContenido(e.target.value)}
-              className="w-full min-h-[60vh] p-6 bg-white border-2 border-[#6B5E70]/20 rounded-3xl font-serif text-lg md:text-xl leading-[1.9] text-[#2C262E] focus:outline-none focus:border-[#6B5E70] transition-all z-10 relative"
+              className="w-full min-h-[70vh] p-6 bg-white border-2 border-[#6B5E70]/20 rounded-3xl font-serif text-lg md:text-xl leading-[1.9] text-[#2C262E] focus:ring-0 focus:outline-none focus:border-[#6B5E70] transition-all relative block appearance-none"
               placeholder="Escribe tu historia aquí..."
               autoFocus
             />
@@ -188,7 +192,14 @@ export default function Lector() {
         {!editMode && (
           <footer className="mt-24 pt-12 border-t border-[#6B5E70]/10">
             <div className="flex flex-col items-center gap-10">
-              <BookOpen size={20} className="text-[#6B5E70]/20" />
+              <button 
+                onClick={() => router.push(`/libros/${id}`)}
+                className="flex items-center gap-2 text-[#6B5E70]/40 hover:text-[#6B5E70] transition-colors"
+              >
+                <List size={16} />
+                <span className="font-black text-[10px] uppercase tracking-[0.2em]">Volver al índice</span>
+              </button>
+              
               <div className="grid grid-cols-2 gap-4 w-full max-w-md">
                 <button 
                   onClick={() => anteriorCap && router.push(`/libros/${id}/leer/${anteriorCap.id}`)}
