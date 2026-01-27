@@ -3,8 +3,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { GalleryGrid, GalleryItem } from "@/components/recursos/display/gallery";
 import DetalleMaestro from "@/components/recursos/boxes/detalles";
-// Importamos ChevronDown para los menús
-import { ChevronDown, Filter } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 
 export default function LugaresHistoricos() {
   const [lugares, setLugares] = useState([]);
@@ -72,39 +71,54 @@ export default function LugaresHistoricos() {
       />
 
       <header className="pt-16 pb-10 px-6 max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
           <div>
-            <span className="text-primary/50 font-black text-[10px] tracking-[0.3em] uppercase mb-2 block">
-              "Patrimonio y Cultura"
+            <span className="text-[#6B5E70]/50 font-black text-[10px] tracking-[0.3em] uppercase mb-2 block">
+              "Patrimonio Regional"
             </span>
-            <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter text-primary uppercase leading-none">
-              Lugares<br/>Historicos
+            <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter text-[#6B5E70] uppercase leading-none">
+              Lugares<br/>Históricos
             </h1>
           </div>
           
-          {/* Contenedor de Dropdowns */}
-          <div className="grid grid-cols-2 md:flex flex-wrap gap-2">
-            {configFiltros.map((filtro) => (
-              <div key={filtro.id} className="relative group">
-                <select 
-                  className="w-full appearance-none bg-white/5 border border-primary/10 rounded-full px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-primary cursor-pointer hover:bg-white/10 transition-all outline-none pr-10"
-                  value={filtrosActivos[filtro.id]}
-                  onChange={(e) => setFiltrosActivos(prev => ({ ...prev, [filtro.id]: e.target.value }))}
-                >
-                  <option value="Todos">{filtro.label}: Todos</option>
-                  {filtro.opciones.filter(opt => opt !== 'Todos').map(opt => (
-                    <option key={opt} value={opt} className="bg-bg-main text-black">{opt}</option>
-                  ))}
-                </select>
-                <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none opacity-40" />
-              </div>
-            ))}
+          {/* Contenedor de Dropdowns con el color morado anterior */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 lg:flex lg:flex-wrap lg:justify-end">
+            {configFiltros.map((filtro) => {
+              const isActive = filtrosActivos[filtro.id] !== 'Todos';
+              return (
+                <div key={filtro.id} className="relative group min-w-[140px]">
+                  <select 
+                    className={`
+                      w-full appearance-none rounded-full px-5 py-3 text-[9px] font-black uppercase tracking-widest transition-all outline-none pr-10 cursor-pointer
+                      ${isActive 
+                        ? "bg-[#6B5E70] text-white border-[#6B5E70]" 
+                        : "bg-[#6B5E70]/5 text-[#6B5E70]/40 border-[#6B5E70]/10 hover:bg-[#6B5E70]/10"
+                      }
+                      border
+                    `}
+                    value={filtrosActivos[filtro.id]}
+                    onChange={(e) => setFiltrosActivos(prev => ({ ...prev, [filtro.id]: e.target.value }))}
+                  >
+                    <option value="Todos">{filtro.label}</option>
+                    {filtro.opciones.filter(opt => opt !== 'Todos').map(opt => (
+                      <option key={opt} value={opt} className="bg-white text-[#6B5E70] font-sans">
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown 
+                    size={12} 
+                    className={`absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none ${isActive ? "text-white" : "text-[#6B5E70]/30"}`} 
+                  />
+                </div>
+              );
+            })}
           </div>
         </div>
       </header>
 
       {loading ? (
-        <div className="py-40 text-center opacity-40 font-black uppercase text-xs tracking-widest animate-pulse">
+        <div className="py-40 text-center opacity-40 font-black uppercase text-xs tracking-widest animate-pulse text-[#6B5E70]">
           "Sincronizando Archivos..."
         </div>
       ) : (
@@ -120,7 +134,7 @@ export default function LugaresHistoricos() {
             >
               <div className="flex flex-col h-full justify-end p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent">
                 <div className="flex gap-2 mb-2">
-                   <span className="text-[7px] font-black bg-primary px-2 py-0.5 text-white uppercase rounded-sm">
+                   <span className="text-[7px] font-black bg-[#6B5E70] px-2 py-0.5 text-white uppercase rounded-sm">
                      {lugar.Estado}
                    </span>
                 </div>
@@ -135,7 +149,7 @@ export default function LugaresHistoricos() {
           ))}
           
           {filtrados.length === 0 && (
-            <div className="col-span-full py-32 text-center text-primary/20 font-black uppercase text-xs tracking-[0.3em]">
+            <div className="col-span-full py-32 text-center text-[#6B5E70]/20 font-black uppercase text-xs tracking-[0.3em]">
               "No se encontraron registros"
             </div>
           )}
