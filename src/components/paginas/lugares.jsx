@@ -27,7 +27,7 @@ export default function LugaresHistoricos() {
 
   // Cambiamos 'categoria' por 'epoca' o 'tipo' para darle el toque histórico
   const epocas = useMemo(() => 
-    ['TODAS LAS ÉPOCAS', ...new Set(lugares.map(l => l.epoca))], 
+    ['Todos', ...new Set(lugares.map(l => l.epoca))], 
     [lugares]
   );
 
@@ -75,7 +75,7 @@ export default function LugaresHistoricos() {
 
       {loading ? (
         <div className="py-40 text-center opacity-40 font-black uppercase text-xs tracking-widest animate-pulse">
-          "Recuperando Archivos Históricos..."
+          "Cargando Archivos Históricos..."
         </div>
       ) : (
         <GalleryGrid 
