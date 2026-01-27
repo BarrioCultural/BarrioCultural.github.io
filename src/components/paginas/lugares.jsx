@@ -125,20 +125,20 @@ export default function LugaresHistoricos() {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
             >
-              {/* Overlay de degradado para asegurar contraste */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
+              {/* Degradado aplicado a TODO el bloque */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20 opacity-70 group-hover:opacity-90 transition-opacity duration-300" />
 
-              {/* Contenido del Item */}
+              {/* Contenido sobre el degradado */}
               <div className="relative flex flex-col h-full justify-end p-6 z-10">
                 <div className="flex gap-2 mb-2">
                    <span className="text-[7px] font-black bg-[#6B5E70] px-2 py-0.5 text-white uppercase rounded-sm">
                      {lugar.Estado}
                    </span>
                 </div>
-                <h3 className="text-xl font-black text-white uppercase italic leading-none tracking-tighter drop-shadow-sm">
+                <h3 className="text-xl font-black text-white uppercase italic leading-none tracking-tighter">
                   {lugar.Nombre}
                 </h3>
-                <p className="text-[10px] text-white/70 font-bold uppercase mt-1 tracking-wider">
+                <p className="text-[10px] text-white/80 font-bold uppercase mt-1 tracking-wider">
                   {lugar.Comuna} • {lugar.Tipo}
                 </p>
               </div>
