@@ -74,8 +74,8 @@ export default function SobreMi() {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
-                "a",
-                "e",
+                "Divulgación: Espacios, dias y artistas",
+                "Actualizaciones: Musica, libros, pelícuas, cortometrajes, y obras de teatro",
                 "i"
               ].map((item, i) => (
                 <div key={i} className="flex flex-col gap-4 p-8 bg-white border border-primary/5 rounded-[2rem] shadow-sm hover:shadow-md transition-shadow">
