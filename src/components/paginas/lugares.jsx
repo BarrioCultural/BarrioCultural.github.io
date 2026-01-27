@@ -32,7 +32,7 @@ export default function LugaresHistoricos() {
   );
 
   const filtrados = useMemo(() => 
-    filtroEpoca === 'TODAS LAS ÉPOCAS' 
+    filtroEpoca === 'Todos' 
       ? lugares 
       : lugares.filter(l => l.epoca === filtroEpoca), 
     [lugares, filtroEpoca]
@@ -49,7 +49,7 @@ export default function LugaresHistoricos() {
         "Explora el Patrimonio"
       </span>
       <h1 className="text-5xl md:text-8xl font-black italic tracking-tighter text-primary uppercase leading-none">
-        "Crónicas Urbanas"
+        Lugares Históricos
       </h1>
       <div className="h-2 w-32 bg-primary mx-auto mt-6 mb-12" />
       

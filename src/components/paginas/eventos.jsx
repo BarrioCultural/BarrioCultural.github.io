@@ -9,11 +9,11 @@ export default function RadarEventos() {
   const { openLightbox } = useLightbox();
   const [eventos, setEventos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filtroComuna, setFiltroComuna] = useState('todas');
+  const [filtroComuna, setFiltroComuna] = useState('Todos');
 
   // Configuración de usuario
   const COMUNA_USUARIO = "Maipú"; 
-  const comunasMenu = ['todas', 'Maipú', 'Santiago', 'Providencia', 'Ñuñoa'];
+  const comunasMenu = ['Todos', 'San Vicente', 'Rancagua', 'REQUEGUA YORK', 'San Fernando'];
 
   useEffect(() => {
     const fetchEventos = async () => {
@@ -79,10 +79,10 @@ export default function RadarEventos() {
   const Cabecera = (
     <header className="mb-16 text-center pt-10">
       <h1 className="text-6xl md:text-8xl font-black italic tracking-tighter text-primary uppercase leading-none">
-        "Radar"
+        "Eventos"
       </h1>
       <p className="text-[10px] font-bold text-primary/50 uppercase tracking-[0.3em] mt-2">
-        Cultura cerca de ti
+        "frase aestehic o bonita"
       </p>
       <div className="h-1.5 w-24 bg-primary mx-auto mt-6 rounded-full opacity-20 mb-12" />
       
@@ -98,7 +98,7 @@ export default function RadarEventos() {
     <main className="min-h-screen bg-bg-main py-10 px-4 md:px-8">
       {loading ? (
         <div className="py-40 text-center text-primary/30 font-black uppercase text-[10px] tracking-widest animate-pulse">
-          "Escaneando Barrio..."
+          "Revizando..."
         </div>
       ) : (
         <GalleryGrid headerContent={Cabecera}>

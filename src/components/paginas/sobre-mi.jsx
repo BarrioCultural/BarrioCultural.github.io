@@ -48,7 +48,7 @@ export default function SobreMi() {
             animate={{ opacity: 1, y: 0 }}
             className="text-5xl md:text-8xl font-black italic tracking-tighter uppercase leading-none"
           >
-            Sobre <span className="font-serif font-light text-primary/60">Mi</span>
+            Sobre <span className="font-serif font-light text-primary/60">Nosotros</span>
           </motion.h1>
           <div className="h-1.5 w-20 bg-primary mt-8 opacity-20 rounded-full" />
         </header>
