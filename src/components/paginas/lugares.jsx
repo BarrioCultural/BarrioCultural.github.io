@@ -46,7 +46,7 @@ export default function LugaresHistoricos() {
   const HeaderCultural = (
     <header className="mb-16 text-center px-4 pt-10">
       <span className="text-primary/60 font-black text-[10px] tracking-[0.3em] uppercase mb-2 block">
-        "Explora el Patrimonio"
+        "Frase aestetic"
       </span>
       <h1 className="text-5xl md:text-8xl font-black italic tracking-tighter text-primary uppercase leading-none">
         Lugares Históricos
