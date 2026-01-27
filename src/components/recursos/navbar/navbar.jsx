@@ -44,7 +44,7 @@ const Navbar = () => {
 
   // Definición de los links principales para evitar repetición
   const navLinks = [
-    { href: '/sobre-mi', label: 'Sobre Mí', icon: <Smile size={20}/> },
+    { href: '/sobre-mi', label: '¿Que somos?', icon: <Smile size={20}/> },
     { href: '/lugares', label: 'Lugares', icon: <MapPin size={20}/> },
     { href: '/eventos', label: 'Eventos', icon: <Calendar size={20}/> },
   ];
