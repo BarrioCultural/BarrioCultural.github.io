@@ -79,11 +79,9 @@ export default function RadarEventos() {
   const Cabecera = (
     <header className="mb-16 text-center pt-10">
       <h1 className="text-6xl md:text-8xl font-black italic tracking-tighter text-primary uppercase leading-none">
-        "Eventos"
+        Eventos
       </h1>
-      <p className="text-[10px] font-bold text-primary/50 uppercase tracking-[0.3em] mt-2">
-        "frase aestehic o bonita"
-      </p>
+
       <div className="h-1.5 w-24 bg-primary mx-auto mt-6 rounded-full opacity-20 mb-12" />
       
       <FiltrosMaestros 
