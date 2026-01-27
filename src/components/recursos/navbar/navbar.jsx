@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,7 +9,7 @@ import { useAuth } from '@/components/recursos/control/authContext';
 import { supabase } from '@/lib/supabase';
 import { 
   User, LogOut, Smile, 
-  MapPin, Calendar, CircleUser, Flower2
+  MapPin, Calendar, CircleUser, Landmark // Cambiado: Landmark en lugar de Flower2
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -42,7 +42,6 @@ const Navbar = () => {
 
   const closeAll = () => setUserMenuOpen(false);
 
-  // Definición de los links principales para evitar repetición
   const navLinks = [
     { href: '/sobre-mi', label: '¿Que somos?', icon: <Smile size={20}/> },
     { href: '/lugares', label: 'Lugares', icon: <MapPin size={20}/> },
@@ -55,8 +54,10 @@ const Navbar = () => {
       <header className="hidden md:block sticky top-0 w-full z-[1000] bg-[#E2D8E6]/80 backdrop-blur-md border-b border-[#6B5E70]/10">
         <div className="max-w-7xl mx-auto h-20 flex items-center justify-between px-8">
           
+          {/* Logo actualizado con Landmark */}
           <Link href="/" className="text-xl font-black italic tracking-tighter text-[#6B5E70] flex items-center gap-2">
-            <Flower2 size={20} /> <span>Barrio<span className="opacity-40">Cultural</span></span>
+            <Landmark size={22} strokeWidth={2.5} /> 
+            <span>Barrio<span className="opacity-40">Cultural</span></span>
           </Link>
 
           <nav className="flex items-center gap-2 bg-[#6B5E70]/5 p-1 rounded-2xl border border-[#6B5E70]/10">
