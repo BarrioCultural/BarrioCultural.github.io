@@ -10,8 +10,8 @@ export default function LugaresHistoricos() {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
   
+  // 1. Eliminado 'epoca' del estado inicial
   const [filtrosActivos, setFiltrosActivos] = useState({
-    epoca: 'Todos',
     comuna: 'Todos',
     tipo: 'Todos',
     gestion: 'Todos',
@@ -32,6 +32,7 @@ export default function LugaresHistoricos() {
     fetchLugares();
   }, []);
 
+  // 2. Eliminado 'epoca' de la configuración de dropdowns
   const configFiltros = useMemo(() => {
     const obtenerUnicos = (campo) => [
       'Todos', 
@@ -39,7 +40,6 @@ export default function LugaresHistoricos() {
     ];
 
     return [
-      { id: 'epoca', label: 'Época', opciones: obtenerUnicos('Epoca') },
       { id: 'comuna', label: 'Comuna', opciones: obtenerUnicos('Comuna') },
       { id: 'tipo', label: 'Tipo', opciones: obtenerUnicos('Tipo') },
       { id: 'gestion', label: 'Gestión', opciones: obtenerUnicos('Gestión') },
@@ -48,9 +48,9 @@ export default function LugaresHistoricos() {
     ];
   }, [lugares]);
 
+  // 3. Eliminada la condición de 'epoca' en el filtrado
   const filtrados = useMemo(() => {
     return lugares.filter(lugar => (
-      (filtrosActivos.epoca === 'Todos' || lugar.Epoca === filtrosActivos.epoca) &&
       (filtrosActivos.comuna === 'Todos' || lugar.Comuna === filtrosActivos.comuna) &&
       (filtrosActivos.tipo === 'Todos' || lugar.Tipo === filtrosActivos.tipo) &&
       (filtrosActivos.gestion === 'Todos' || lugar.Gestión === filtrosActivos.gestion) &&
@@ -74,11 +74,10 @@ export default function LugaresHistoricos() {
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
           <div>
             <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter text-[#6B5E70] uppercase leading-none">
-              Lugares
+              Lugares<br/>Históricos
             </h1>
           </div>
           
-          {/* Contenedor de Dropdowns con el color morado anterior */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2 lg:flex lg:flex-wrap lg:justify-end">
             {configFiltros.map((filtro) => {
               const isActive = filtrosActivos[filtro.id] !== 'Todos';
@@ -129,7 +128,7 @@ export default function LugaresHistoricos() {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
             >
-              <div className="flex flex-col h-full justify-end p-4 bg-gradient-to-t from-black/90 via-black/20 to-transparent">
+              <div className="flex flex-col h-full justify-end p-4">
                 <div className="flex gap-2 mb-2">
                    <span className="text-[7px] font-black bg-[#6B5E70] px-2 py-0.5 text-white uppercase rounded-sm">
                      {lugar.Estado}
@@ -144,12 +143,6 @@ export default function LugaresHistoricos() {
               </div>
             </GalleryItem>
           ))}
-          
-          {filtrados.length === 0 && (
-            <div className="col-span-full py-32 text-center text-[#6B5E70]/20 font-black uppercase text-xs tracking-[0.3em]">
-              "No se encontraron registros"
-            </div>
-          )}
         </GalleryGrid>
       )}
     </main>
