@@ -56,7 +56,7 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto h-20 flex items-center justify-between px-8">
           
           <Link href="/" className="text-xl font-black italic tracking-tighter text-[#6B5E70] flex items-center gap-2">
-            <Flower2 size={20} /> <span>FRANI<span className="opacity-40">LOVER</span></span>
+            <Flower2 size={20} /> <span>Barrio<span className="opacity-40">Cultural</span></span>
           </Link>
 
           <nav className="flex items-center gap-2 bg-[#6B5E70]/5 p-1 rounded-2xl border border-[#6B5E70]/10">
