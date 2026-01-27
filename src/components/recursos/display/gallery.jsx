@@ -1,147 +1,146 @@
 "use client";
-import React, { useEffect, useState, useMemo } from 'react';
-import { supabase } from '@/lib/supabase';
-// Asegúrate de que estas rutas sean correctas
-import { GalleryGrid, GalleryItem } from "@/components/recursos/display/gallery";
-import DetalleMaestro from "@/components/recursos/boxes/detalles";
-import { ChevronDown } from 'lucide-react';
+import React, { useState } from 'react';
+import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from "@/lib/utils";
+import { Sparkles } from 'lucide-react'; 
 
-export default function LugaresHistoricos() {
-  const [lugares, setLugares] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selected, setSelected] = useState(null);
-  
-  const [filtrosActivos, setFiltrosActivos] = useState({
-    comuna: 'Todos',
-    tipo: 'Todos',
-    gestion: 'Todos',
-    accesibilidad: 'Todos',
-    estado: 'Todos'
+/* ─────────────────────────────
+   GALLERY GRID
+───────────────────────────── */
+
+export const GalleryGrid = ({ children, headerContent, className }) => {
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+
+  const childrenWithProps = React.Children.map(children, child => {
+    if (React.isValidElement(child)) {
+      return React.cloneElement(child, { 
+        onExpand: () => setIsDetailOpen(true) 
+      });
+    }
+    return child;
   });
 
-  useEffect(() => {
-    const fetchLugares = async () => {
-      try {
-        setLoading(true);
-        const { data, error } = await supabase
-          .from('lugares') 
-          .select('*')
-          .order('Nombre', { ascending: true });
-        
-        if (error) throw error;
-        setLugares(data || []);
-      } catch (err) {
-        console.error("Error cargando lugares:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchLugares();
-  }, []);
+  return (
+    <div className="w-full">
+      <AnimatePresence mode="wait">
+        {!isDetailOpen && (
+          <motion.div 
+            key="header-section"
+            initial={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20, height: 0 }}
+            transition={{ duration: 0.4, ease: "circOut" }}
+            className="overflow-hidden"
+          >
+            {headerContent}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-  const configFiltros = useMemo(() => {
-    const obtenerUnicos = (campo) => [
-      'Todos', 
-      ...new Set(lugares.map(l => l[campo]).filter(Boolean))
-    ];
+      <section
+        className={cn(
+          "mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 p-4 md:p-8 max-w-[1600px]",
+          className
+        )}
+      >
+        {childrenWithProps}
+      </section>
 
-    return [
-      { id: 'comuna', label: 'Comuna', opciones: obtenerUnicos('Comuna') },
-      { id: 'tipo', label: 'Tipo', opciones: obtenerUnicos('Tipo') },
-      { id: 'gestion', label: 'Gestión', opciones: obtenerUnicos('Gestión') },
-      { id: 'accesibilidad', label: 'Acceso', opciones: obtenerUnicos('Accesibilidad') },
-      { id: 'estado', label: 'Disponibilidad', opciones: obtenerUnicos('Estado') },
-    ];
-  }, [lugares]);
+      {isDetailOpen && (
+        <motion.button 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          onClick={() => setIsDetailOpen(false)}
+          className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[60] bg-primary text-bg-main px-8 py-3 rounded-full uppercase text-[10px] font-black tracking-widest shadow-2xl hover:scale-105 transition-transform"
+        >
+          Mostrar Filtros
+        </motion.button>
+      )}
+    </div>
+  );
+};
 
-  const filtrados = useMemo(() => {
-    return lugares.filter(lugar => (
-      (filtrosActivos.comuna === 'Todos' || lugar.Comuna === filtrosActivos.comuna) &&
-      (filtrosActivos.tipo === 'Todos' || lugar.Tipo === filtrosActivos.tipo) &&
-      (filtrosActivos.gestion === 'Todos' || lugar.Gestión === filtrosActivos.gestion) &&
-      (filtrosActivos.accesibilidad === 'Todos' || lugar.Accesibilidad === filtrosActivos.accesibilidad) &&
-      (filtrosActivos.estado === 'Todos' || lugar.Estado === filtrosActivos.estado)
-    ));
-  }, [lugares, filtrosActivos]);
+/* ─────────────────────────────
+   GALLERY ITEM (FIX REAL)
+───────────────────────────── */
+
+export const GalleryItem = ({
+  src,
+  alt,
+  children,
+  onClick,
+  onExpand,
+  color,
+  contain
+}) => {
+
+  const esUrlValida =
+    src &&
+    typeof src === 'string' &&
+    src.trim() !== "" &&
+    !src.includes('undefined') &&
+    (src.startsWith('http') || src.startsWith('/'));
+
+  const handleInteraction = () => {
+    if (onExpand) onExpand();
+    if (onClick) onClick();
+  };
 
   return (
-    <main className="min-h-screen bg-bg-main pb-20 font-sans">
-      <DetalleMaestro 
-        isOpen={!!selected}
-        onClose={() => setSelected(null)}
-        data={selected}
-        description={selected?.Descripción}
-        tags={[selected?.Tipo, selected?.Gestión, selected?.Estado]}
-        mostrarMusica={false}
-      />
-
-      <header className="pt-16 pb-10 px-6 max-w-7xl mx-auto">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
-          <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter text-[#6B5E70] uppercase leading-none">
-            Lugares
-          </h1>
-          
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 lg:flex lg:flex-wrap lg:justify-end">
-            {configFiltros.map((filtro) => (
-              <div key={filtro.id} className="relative min-w-[140px]">
-                <select 
-                  className={`
-                    w-full appearance-none rounded-full px-5 py-3 text-[9px] font-black uppercase tracking-widest transition-all outline-none pr-10 cursor-pointer border
-                    ${filtrosActivos[filtro.id] !== 'Todos' 
-                      ? "bg-[#6B5E70] text-white border-[#6B5E70]" 
-                      : "bg-[#6B5E70]/5 text-[#6B5E70]/40 border-[#6B5E70]/10"
-                    }
-                  `}
-                  value={filtrosActivos[filtro.id]}
-                  onChange={(e) => setFiltrosActivos(prev => ({ ...prev, [filtro.id]: e.target.value }))}
-                >
-                  <option value="Todos">{filtro.label}</option>
-                  {filtro.opciones.filter(opt => opt !== 'Todos').map(opt => (
-                    <option key={opt} value={opt} className="bg-white text-[#6B5E70] font-sans">
-                      {opt}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown size={12} className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none opacity-30" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </header>
-
-      {loading ? (
-        <div className="py-40 text-center opacity-40 font-black uppercase text-xs tracking-widest animate-pulse text-[#6B5E70]">
-          "Sincronizando Archivos..."
-        </div>
-      ) : (
-        <GalleryGrid isDetailOpen={!!selected}>
-          {filtrados.map(lugar => (
-            <GalleryItem 
-              key={lugar.id} 
-              src={lugar.Imagen_url} 
-              onClick={() => {
-                setSelected(lugar);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-            >
-              {/* Contenedor de información con texto OSCURO */}
-              <div className="flex flex-col h-full justify-end p-5">
-                <div className="flex gap-2 mb-2">
-                   <span className="text-[7px] font-black bg-[#6B5E70] px-2 py-0.5 text-white uppercase rounded-sm">
-                     {lugar.Estado}
-                   </span>
-                </div>
-                <h3 className="text-xl font-black text-[#6B5E70] uppercase italic leading-none tracking-tighter">
-                  {lugar.Nombre}
-                </h3>
-                <p className="text-[10px] text-[#6B5E70]/70 font-bold uppercase mt-1 tracking-wider">
-                  {lugar.Comuna} • {lugar.Tipo}
-                </p>
-              </div>
-            </GalleryItem>
-          ))}
-        </GalleryGrid>
+    <motion.div
+      layout
+      onClick={handleInteraction}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      className={cn(
+        "relative aspect-[3/4] overflow-hidden rounded-[2.2rem] cursor-pointer transition-all duration-700 hover:-translate-y-2 hover:shadow-xl group will-change-transform",
+        esUrlValida ? "bg-black" : "bg-[#f0edf5]"
       )}
-    </main>
+    >
+      {esUrlValida ? (
+        <>
+          <Image
+            src={src}
+            alt={alt || "Evento"}
+            fill
+            unoptimized={true}
+            sizes="(max-width: 768px) 50vw, 20vw"
+            className={cn(
+              "transition-all duration-700 group-hover:scale-110 will-change-transform",
+              contain
+                ? "object-contain p-8"
+                : "object-cover opacity-80 group-hover:opacity-100"
+            )}
+          />
+
+          <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black via-black/20 to-transparent opacity-90" />
+        </>
+      ) : (
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+          <Sparkles className="w-8 h-8 text-primary/30 mb-2 animate-pulse" />
+          <p className="text-[7px] font-black text-primary/40 uppercase tracking-[0.4em]">
+            Sin Imagen
+          </p>
+        </div>
+      )}
+
+      <div
+        className={cn(
+          "absolute bottom-6 left-6 right-6 z-30 transition-transform duration-500 group-hover:-translate-y-1",
+          esUrlValida ? "text-white" : "text-bg-main"
+        )}
+      >
+        {children}
+      </div>
+
+      {color && (
+        <div
+          className="absolute top-0 w-full h-1.5"
+          style={{ backgroundColor: color }}
+        />
+      )}
+    </motion.div>
   );
-}
+};
