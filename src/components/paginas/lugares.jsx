@@ -73,9 +73,6 @@ export default function LugaresHistoricos() {
       <header className="pt-16 pb-10 px-6 max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
           <div>
-            <span className="text-[#6B5E70]/50 font-black text-[10px] tracking-[0.3em] uppercase mb-2 block">
-              "Patrimonio Regional"
-            </span>
             <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter text-[#6B5E70] uppercase leading-none">
               Lugares<br/>Históricos
             </h1>
