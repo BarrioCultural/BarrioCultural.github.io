@@ -62,7 +62,7 @@ export default function LugaresHistoricos() {
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
         <div>
           <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter text-[#6B5E70] uppercase leading-none">
-            "Lugares"
+            Lugares
           </h1>
         </div>
         
