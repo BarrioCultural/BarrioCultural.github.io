@@ -56,6 +56,52 @@ export default function LugaresHistoricos() {
     ));
   }, [lugares, filtrosActivos]);
 
+  // Renderizado de la cabecera para GalleryGrid
+  const HeaderContent = (
+    <header className="pt-16 pb-10 px-6 max-w-7xl mx-auto">
+      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
+        <div>
+          <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter text-[#6B5E70] uppercase leading-none">
+            "Lugares"
+          </h1>
+        </div>
+        
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 lg:flex lg:flex-wrap lg:justify-end">
+          {configFiltros.map((filtro) => {
+            const isActive = filtrosActivos[filtro.id] !== 'Todos';
+            return (
+              <div key={filtro.id} className="relative group min-w-[140px]">
+                <select 
+                  className={`
+                    w-full appearance-none rounded-full px-5 py-3 text-[9px] font-black uppercase tracking-widest transition-all outline-none pr-10 cursor-pointer
+                    ${isActive 
+                      ? "bg-[#6B5E70] text-white border-[#6B5E70]" 
+                      : "bg-[#6B5E70]/5 text-[#6B5E70]/40 border-[#6B5E70]/10 hover:bg-[#6B5E70]/10"
+                    }
+                    border
+                  `}
+                  value={filtrosActivos[filtro.id]}
+                  onChange={(e) => setFiltrosActivos(prev => ({ ...prev, [filtro.id]: e.target.value }))}
+                >
+                  <option value="Todos">{filtro.label}</option>
+                  {filtro.opciones.filter(opt => opt !== 'Todos').map(opt => (
+                    <option key={opt} value={opt} className="bg-white text-[#6B5E70] font-sans">
+                      {opt}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown 
+                  size={12} 
+                  className={`absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none ${isActive ? "text-white" : "text-[#6B5E70]/30"}`} 
+                />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </header>
+  );
+
   return (
     <main className="min-h-screen bg-bg-main pb-20 font-sans">
       <DetalleMaestro 
@@ -74,50 +120,7 @@ export default function LugaresHistoricos() {
       ) : (
         <GalleryGrid 
           isDetailOpen={!!selected}
-          headerContent={
-            <header className="pt-16 pb-10 px-6 max-w-7xl mx-auto">
-              <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
-                <div>
-                  <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter text-[#6B5E70] uppercase leading-none">
-                    "Lugares"
-                  </h1>
-                </div>
-                
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 lg:flex lg:flex-wrap lg:justify-end">
-                  {configFiltros.map((filtro) => {
-                    const isActive = filtrosActivos[filtro.id] !== 'Todos';
-                    return (
-                      <div key={filtro.id} className="relative group min-w-[140px]">
-                        <select 
-                          className={`
-                            w-full appearance-none rounded-full px-5 py-3 text-[9px] font-black uppercase tracking-widest transition-all outline-none pr-10 cursor-pointer
-                            ${isActive 
-                              ? "bg-[#6B5E70] text-white border-[#6B5E70]" 
-                              : "bg-[#6B5E70]/5 text-[#6B5E70]/40 border-[#6B5E70]/10 hover:bg-[#6B5E70]/10"
-                            }
-                            border
-                          `}
-                          value={filtrosActivos[filtro.id]}
-                          onChange={(e) => setFiltrosActivos(prev => ({ ...prev, [filtro.id]: e.target.value }))}
-                        >
-                          <option value="Todos">{filtro.label}</option>
-                          {filtro.opciones.filter(opt => opt !== 'Todos').map(opt => (
-                            <option key={opt} value={opt} className="bg-white text-[#6B5E70] font-sans">
-                              {opt}
-                            </option>
-                          ))}
-                        </select>
-                        <ChevronDown 
-                          size={12} 
-                          className={`absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none ${isActive ? "text-white" : "text-[#6B5E70]/30"}`} 
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </header>
-          }
+          headerContent={HeaderContent}
         >
           {filtrados.map(lugar => (
             <GalleryItem 
@@ -128,14 +131,17 @@ export default function LugaresHistoricos() {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
             >
+              {/* Contenido limpio: el degradado ya viene en GalleryItem */}
               <div className="flex gap-2 mb-2">
                  <span className="text-[7px] font-black bg-[#6B5E70] px-2 py-0.5 text-white uppercase rounded-sm">
                    {lugar.Estado}
                  </span>
               </div>
+              
               <p className="text-[8px] font-black text-white/50 uppercase tracking-widest mb-1">
                 {lugar.Comuna} • {lugar.Tipo}
               </p>
+              
               <h3 className="text-xl font-black text-white uppercase italic leading-none tracking-tighter">
                 {lugar.Nombre}
               </h3>
