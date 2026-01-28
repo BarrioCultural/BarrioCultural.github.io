@@ -1,154 +1,127 @@
 "use client";
-import React, { useEffect, useState, useMemo } from 'react';
-import { supabase } from '@/lib/supabase';
-import { GalleryGrid, GalleryItem } from "@/components/recursos/display/gallery";
-import DetalleMaestro from "@/components/recursos/boxes/detalles";
-import { ChevronDown } from 'lucide-react';
+import React, { useState } from 'react';
+import Image from 'next/image';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from "@/lib/utils";
+import { Sparkles } from 'lucide-react'; 
 
-export default function LugaresHistoricos() {
-  const [lugares, setLugares] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selected, setSelected] = useState(null);
-  
-  const [filtrosActivos, setFiltrosActivos] = useState({
-    comuna: 'Todos',
-    tipo: 'Todos',
-    gestion: 'Todos',
-    accesibilidad: 'Todos',
-    estado: 'Todos'
+export const GalleryGrid = ({ children, headerContent, className }) => {
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+
+  // Inyectamos la función para ocultar el menú a los GalleryItems
+  const childrenWithProps = React.Children.map(children, child => {
+    if (React.isValidElement(child)) {
+      return React.cloneElement(child, { 
+        onExpand: () => setIsDetailOpen(true) 
+      });
+    }
+    return child;
   });
 
-  useEffect(() => {
-    const fetchLugares = async () => {
-      setLoading(true);
-      const { data } = await supabase
-        .from('lugares') 
-        .select('*')
-        .order('Nombre', { ascending: true });
-      setLugares(data || []);
-      setLoading(false);
-    };
-    fetchLugares();
-  }, []);
+  return (
+    <div className="w-full">
+      <AnimatePresence mode="wait">
+        {!isDetailOpen && (
+          <motion.div 
+            key="header-section"
+            initial={{ opacity: 1, y: 0 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20, height: 0 }}
+            transition={{ duration: 0.4, ease: "circOut" }}
+            className="overflow-hidden"
+          >
+            {headerContent}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-  const configFiltros = useMemo(() => {
-    const obtenerUnicos = (campo) => [
-      'Todos', 
-      ...new Set(lugares.map(l => l[campo]).filter(Boolean))
-    ];
+      <section className={cn(
+        "mx-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 p-4 md:p-8 max-w-[1600px]",
+        className
+      )}>
+        {childrenWithProps}
+      </section>
 
-    return [
-      { id: 'comuna', label: 'Comuna', opciones: obtenerUnicos('Comuna') },
-      { id: 'tipo', label: 'Tipo', opciones: obtenerUnicos('Tipo') },
-      { id: 'gestion', label: 'Gestión', opciones: obtenerUnicos('Gestión') },
-      { id: 'accesibilidad', label: 'Acceso', opciones: obtenerUnicos('Accesibilidad') },
-      { id: 'estado', label: 'Disponibilidad', opciones: obtenerUnicos('Estado') },
-    ];
-  }, [lugares]);
-
-  const filtrados = useMemo(() => {
-    return lugares.filter(lugar => (
-      (filtrosActivos.comuna === 'Todos' || lugar.Comuna === filtrosActivos.comuna) &&
-      (filtrosActivos.tipo === 'Todos' || lugar.Tipo === filtrosActivos.tipo) &&
-      (filtrosActivos.gestion === 'Todos' || lugar.Gestión === filtrosActivos.gestion) &&
-      (filtrosActivos.accesibilidad === 'Todos' || lugar.Accesibilidad === filtrosActivos.accesibilidad) &&
-      (filtrosActivos.estado === 'Todos' || lugar.Estado === filtrosActivos.estado)
-    ));
-  }, [lugares, filtrosActivos]);
-
-  // Renderizado de la cabecera para GalleryGrid
-  const HeaderContent = (
-    <header className="pt-16 pb-10 px-6 max-w-7xl mx-auto">
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
-        <div>
-          <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter text-[#6B5E70] uppercase leading-none">
-            "Lugares"
-          </h1>
-        </div>
-        
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 lg:flex lg:flex-wrap lg:justify-end">
-          {configFiltros.map((filtro) => {
-            const isActive = filtrosActivos[filtro.id] !== 'Todos';
-            return (
-              <div key={filtro.id} className="relative group min-w-[140px]">
-                <select 
-                  className={`
-                    w-full appearance-none rounded-full px-5 py-3 text-[9px] font-black uppercase tracking-widest transition-all outline-none pr-10 cursor-pointer
-                    ${isActive 
-                      ? "bg-[#6B5E70] text-white border-[#6B5E70]" 
-                      : "bg-[#6B5E70]/5 text-[#6B5E70]/40 border-[#6B5E70]/10 hover:bg-[#6B5E70]/10"
-                    }
-                    border
-                  `}
-                  value={filtrosActivos[filtro.id]}
-                  onChange={(e) => setFiltrosActivos(prev => ({ ...prev, [filtro.id]: e.target.value }))}
-                >
-                  <option value="Todos">{filtro.label}</option>
-                  {filtro.opciones.filter(opt => opt !== 'Todos').map(opt => (
-                    <option key={opt} value={opt} className="bg-white text-[#6B5E70] font-sans">
-                      {opt}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown 
-                  size={12} 
-                  className={`absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none ${isActive ? "text-white" : "text-[#6B5E70]/30"}`} 
-                />
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    </header>
+      {isDetailOpen && (
+        <motion.button 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          onClick={() => setIsDetailOpen(false)}
+          className="fixed top-6 right-6 z-[60] bg-[#4a4458] text-[#f4f2f7] px-5 py-2 rounded-full uppercase text-[9px] font-black tracking-widest hover:bg-black transition-all shadow-lg"
+        >
+          "Mostrar Filtros"
+        </motion.button>
+      )}
+    </div>
   );
+};
+
+export const GalleryItem = ({ src, alt, children, onClick, onExpand, color, contain }) => {
+  const tieneImagen = src && src.trim() !== "";
+
+  const handleInteraction = () => {
+    if (onExpand) onExpand(); // Oculta cabecera
+    if (onClick) onClick();   // Abre lightbox/canción
+  };
 
   return (
-    <main className="min-h-screen bg-bg-main pb-20 font-sans">
-      <DetalleMaestro 
-        isOpen={!!selected}
-        onClose={() => setSelected(null)}
-        data={selected}
-        description={selected?.Descripción}
-        tags={[selected?.Tipo, selected?.Gestión, selected?.Estado]}
-        mostrarMusica={false}
-      />
-
-      {loading ? (
-        <div className="py-40 text-center opacity-40 font-black uppercase text-xs tracking-widest animate-pulse text-[#6B5E70]">
-          "Sincronizando Archivos..."
-        </div>
-      ) : (
-        <GalleryGrid 
-          isDetailOpen={!!selected}
-          headerContent={HeaderContent}
-        >
-          {filtrados.map(lugar => (
-            <GalleryItem 
-              key={lugar.id} 
-              src={lugar.Imagen_url} 
-              onClick={() => {
-                setSelected(lugar);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-            >
-              {/* Contenido limpio: el degradado ya viene en GalleryItem */}
-              <div className="flex gap-2 mb-2">
-                 <span className="text-[7px] font-black bg-[#6B5E70] px-2 py-0.5 text-white uppercase rounded-sm">
-                   {lugar.Estado}
-                 </span>
-              </div>
-              
-              <p className="text-[8px] font-black text-white/50 uppercase tracking-widest mb-1">
-                {lugar.Comuna} • {lugar.Tipo}
-              </p>
-              
-              <h3 className="text-xl font-black text-white uppercase italic leading-none tracking-tighter">
-                {lugar.Nombre}
-              </h3>
-            </GalleryItem>
-          ))}
-        </GalleryGrid>
+    <motion.div 
+      layout
+      onClick={handleInteraction}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      className={cn(
+        "relative aspect-[3/4] overflow-hidden rounded-[2.2rem] cursor-pointer transition-all duration-700 hover:-translate-y-2 hover:shadow-xl group",
+        tieneImagen ? "bg-white" : "bg-[#f0edf5]" // Fondo blanco si hay foto, morado ceniza si no
       )}
-    </main>
+    >
+      {tieneImagen ? (
+        <>
+          <Image 
+            src={src} 
+            alt={alt || "Archivo Visual"} 
+            fill 
+            sizes="(max-width: 768px) 50vw, 20vw"
+            className={cn(
+              "transition-all duration-700 group-hover:scale-105",
+              contain ? "object-contain p-8 mix-blend-multiply" : "object-cover grayscale-[0.2] group-hover:grayscale-0"
+            )}
+          />
+          {/* Degradado oscuro para que el texto blanco sea legible sobre la imagen */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-80" />
+        </>
+      ) : (
+        /* ESTADO VACÍO: MORADO CENIZA SUAVE CON ICONO OSCURO */
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-6">
+          <div className="relative mb-4 flex items-center justify-center">
+            <div className="absolute w-16 h-16 rounded-full bg-[#d0cde1] blur-xl opacity-40 group-hover:opacity-100 transition-opacity" />
+            <div className="w-12 h-12 rounded-full bg-white/60 backdrop-blur-sm flex items-center justify-center border border-[#d0cde1] relative z-10">
+              <Sparkles className="w-5 h-5 text-[#6b6681]" />
+            </div>
+          </div>
+          <p className="text-[8px] font-black text-[#6b6681]/60 uppercase tracking-[0.4em]">
+            "Inédito"
+          </p>
+        </div>
+      )}
+
+      {/* TEXTOS (Children) */}
+      <div className={cn(
+        "absolute bottom-7 left-7 right-7 transition-all duration-500 z-30",
+        tieneImagen ? "text-white" : "text-[#4a4458]" // Texto oscuro sobre el morado ceniza
+      )}>
+        <div className="group-hover:translate-y-[-2px] transition-transform duration-500">
+          {children}
+        </div>
+      </div>
+
+      {color && (
+        <div 
+          className="absolute top-0 w-full h-1.5 opacity-30" 
+          style={{ backgroundColor: color }} 
+        />
+      )}
+    </motion.div>
   );
-}
+};
