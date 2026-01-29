@@ -68,8 +68,8 @@ export default function LugaresHistoricos() {
     <header className="pt-16 pb-10 px-6 max-w-7xl mx-auto">
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
         <div>
-          {/* Título cambiado a text-accent (Naranja) */}
-          <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter text-accent uppercase leading-none">
+          {/* Título ahora en VERDE (Primary) */}
+          <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter text-primary uppercase leading-none">
             Lugares
           </h1>
         </div>
@@ -83,8 +83,8 @@ export default function LugaresHistoricos() {
                   className={`
                     w-full appearance-none rounded-full px-5 py-3 text-[9px] font-black uppercase tracking-widest transition-all outline-none pr-10 cursor-pointer border
                     ${isActive 
-                      ? "bg-accent text-white border-accent shadow-lg scale-105" 
-                      : "bg-accent/10 text-accent/60 border-accent/20 hover:bg-accent/20"
+                      ? "bg-primary text-white border-primary shadow-lg scale-105" 
+                      : "bg-primary/10 text-primary/60 border-primary/20 hover:bg-primary/20"
                     }
                   `}
                   value={filtrosActivos[filtro.id]}
@@ -92,14 +92,14 @@ export default function LugaresHistoricos() {
                 >
                   <option value="Todos">{filtro.label}</option>
                   {filtro.opciones.filter(opt => opt !== 'Todos').map(opt => (
-                    <option key={opt} value={opt} className="bg-white text-accent font-sans">
+                    <option key={opt} value={opt} className="bg-white text-primary font-sans">
                       {opt}
                     </option>
                   ))}
                 </select>
                 <ChevronDown 
                   size={12} 
-                  className={`absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none ${isActive ? "text-white" : "text-accent/30"}`} 
+                  className={`absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none ${isActive ? "text-white" : "text-primary/30"}`} 
                 />
               </div>
             );
@@ -121,7 +121,8 @@ export default function LugaresHistoricos() {
       />
 
       {loading ? (
-        <div className="py-40 text-center opacity-40 font-black uppercase text-xs tracking-widest animate-pulse text-accent">
+        /* Texto de carga en VERDE (Primary) */
+        <div className="py-40 text-center opacity-40 font-black uppercase text-xs tracking-widest animate-pulse text-primary">
           "Sincronizando Archivos..."
         </div>
       ) : (
@@ -134,15 +135,15 @@ export default function LugaresHistoricos() {
               key={lugar.id} 
               src={lugar.Imagen_url}
               alt={lugar.Nombre}
-              /* Las cards sin imagen ahora tienen un toque naranja suave para armonizar */
-              color={!lugar.Imagen_url ? "var(--accent)" : null}
+              /* Cards sin imagen ahora usan VERDE */
+              color={!lugar.Imagen_url ? "var(--primary)" : null}
               onClick={() => {
                 setSelected(lugar);
                 window.scrollTo({ top: 1, behavior: 'smooth' });
               }}
             >
               <div className="flex gap-2 mb-2">
-                 {/* Badges de estado siempre en Naranja Accent */}
+                 {/* El badge se queda en NARANJA (Accent) para resaltar el estado */}
                  <span className="text-[7px] font-black bg-accent px-2 py-0.5 text-white uppercase rounded-sm shadow-md">
                    {lugar.Estado}
                  </span>
