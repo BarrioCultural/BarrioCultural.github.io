@@ -33,7 +33,7 @@
   }
 }
 
-d:root {
+:root {
   --primary: #52796f;      /* Verde azulado (Texto y Botones) */
   --accent: #ff8c61;       /* Naranja (Acentos dinámicos) */
   --bg-main: #fef9e7;      /* Amarillo Pastelito Claro (Fondo principal) */
