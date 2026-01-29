@@ -9,7 +9,7 @@ import { useAuth } from '@/components/recursos/control/authContext';
 import { supabase } from '@/lib/supabase';
 import { 
   User, LogOut, Smile, 
-  MapPin, Calendar, CircleUser, Landmark // Cambiado: Landmark en lugar de Flower2
+  MapPin, Calendar, CircleUser, Landmark 
 } from 'lucide-react';
 
 const Navbar = () => {
@@ -51,23 +51,24 @@ const Navbar = () => {
   return (
     <>
       {/* --- PC NAVBAR --- */}
-      <header className="hidden md:block sticky top-0 w-full z-[1000] bg-[#E2D8E6]/80 backdrop-blur-md border-b border-[#6B5E70]/10">
+      {/* Usamos bg-bg-main con transparencia y borde primary/10 */}
+      <header className="hidden md:block sticky top-0 w-full z-[1000] bg-[var(--bg-main)]/80 backdrop-blur-md border-b border-primary/10">
         <div className="max-w-7xl mx-auto h-20 flex items-center justify-between px-8">
           
-          {/* Logo actualizado con Landmark */}
-          <Link href="/" className="text-xl font-black italic tracking-tighter text-[#6B5E70] flex items-center gap-2">
+          {/* Logo con text-primary */}
+          <Link href="/" className="text-xl font-black italic tracking-tighter text-primary flex items-center gap-2">
             <Landmark size={22} strokeWidth={2.5} /> 
             <span>Barrio<span className="opacity-40">Cultural</span></span>
           </Link>
 
-          <nav className="flex items-center gap-2 bg-[#6B5E70]/5 p-1 rounded-2xl border border-[#6B5E70]/10">
+          <nav className="flex items-center gap-2 bg-primary/5 p-1 rounded-2xl border border-primary/10">
             {navLinks.map((link) => (
               <Link 
                 key={link.href}
                 href={link.href} 
                 className={cn(
                   "px-4 py-2 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all rounded-xl",
-                  currentPath === link.href ? "bg-[#6B5E70] text-white" : "text-[#6B5E70]/40 hover:text-[#6B5E70]"
+                  currentPath === link.href ? "bg-primary text-white" : "text-primary/40 hover:text-primary"
                 )}
               >
                 {link.label}
@@ -79,15 +80,15 @@ const Navbar = () => {
             {user ? (
               <div className="relative">
                 <button onClick={() => setUserMenuOpen(!userMenuOpen)} className="flex items-center gap-2">
-                  <CircleUser className={cn("transition-colors", userMenuOpen ? "text-[#6B5E70]" : "text-[#6B5E70]/40")} size={28} />
+                  <CircleUser className={cn("transition-colors", userMenuOpen ? "text-primary" : "text-primary/40")} size={28} />
                 </button>
                 <AnimatePresence>
                   {userMenuOpen && (
                     <motion.div 
                       initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
-                      className="absolute top-full right-0 mt-3 w-48 bg-white border border-[#6B5E70]/10 rounded-2xl shadow-xl p-2 z-[1001]"
+                      className="absolute top-full right-0 mt-3 w-48 bg-white border border-primary/10 rounded-2xl shadow-xl p-2 z-[1001]"
                     >
-                      <button onClick={handleLogout} className="flex items-center gap-3 w-full px-4 py-3 text-[10px] font-black uppercase text-red-400 hover:bg-red-50 rounded-xl transition-all">
+                      <button onClick={handleLogout} className="flex items-center gap-3 w-full px-4 py-3 text-[10px] font-black uppercase text-red-500 hover:bg-red-50 rounded-xl transition-all">
                         <LogOut size={14} /> Salir
                       </button>
                     </motion.div>
@@ -95,7 +96,7 @@ const Navbar = () => {
                 </AnimatePresence>
               </div>
             ) : (
-              <Link href="/login" className="text-[10px] font-black uppercase text-[#6B5E70] bg-white px-4 py-2 rounded-full border border-[#6B5E70]/10 shadow-sm hover:bg-[#6B5E70] hover:text-white transition-all">
+              <Link href="/login" className="text-[10px] font-black uppercase text-primary bg-white px-4 py-2 rounded-full border border-primary/10 shadow-sm hover:bg-primary hover:text-white transition-all">
                 Entrar
               </Link>
             )}
@@ -110,7 +111,7 @@ const Navbar = () => {
         animate={{ y: isVisible ? 0 : 120, opacity: isVisible ? 1 : 0 }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
       >
-        <nav className="bg-[#E2D8E6]/95 backdrop-blur-xl border border-[#6B5E70]/20 shadow-2xl h-[65px] rounded-[35px] flex items-center justify-around px-2 w-full text-[#6B5E70]">
+        <nav className="bg-[var(--bg-main)]/95 backdrop-blur-xl border border-primary/20 shadow-2xl h-[65px] rounded-[35px] flex items-center justify-around px-2 w-full text-primary">
           
           {navLinks.map((link) => (
             <Link 
@@ -138,7 +139,7 @@ const Navbar = () => {
         <AnimatePresence>
           {userMenuOpen && user && (
             <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 15 }}
-              className="absolute bottom-24 left-0 w-full bg-white border border-[#6B5E70]/10 rounded-[2rem] p-3 shadow-2xl z-[1001]">
+              className="absolute bottom-24 left-0 w-full bg-white border border-primary/10 rounded-[2rem] p-3 shadow-2xl z-[1001]">
               <button onClick={handleLogout} className="w-full p-4 bg-red-50 text-red-600 rounded-[1.5rem] font-black uppercase text-[10px] flex items-center justify-center gap-3">
                 Cerrar Sesión <LogOut size={16}/>
               </button>
@@ -148,7 +149,7 @@ const Navbar = () => {
       </motion.div>
 
       {userMenuOpen && (
-        <div className="fixed inset-0 z-[999] bg-[#6B5E70]/10 backdrop-blur-sm" onClick={closeAll} />
+        <div className="fixed inset-0 z-[999] bg-primary/10 backdrop-blur-sm" onClick={closeAll} />
       )}
     </>
   );
