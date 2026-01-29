@@ -3,12 +3,14 @@
 
 @theme inline {
   /* Colores Base */
+
   --color-primary: var(--primary);
   --color-accent: var(--accent);
   --color-bg-main: var(--bg-main);
   --color-bg-menu: var(--bg-menu);
   --color-white-custom: var(--white-custom);
   
+
   /* Animaciones */
   --animate-terminal-flicker: flicker 0.15s infinite;
   --animate-cursor-blink: blink 1s step-end infinite;
@@ -33,12 +35,12 @@
 
 /* TAMAÑO BASE PARA MÓVILES */
 :root {
-  --primary: #67556d;
-  --accent: #be97d1;
-  --bg-main: #e4d7e6;
-  --bg-menu: #67556d;
-  --white-custom: #e4d7e6;
-  --foreground: #ffffff;
+  --primary: #52796f;      /* Verde azulado (Botones/Links) */
+  --accent: #ff8c61;       /* Naranja (Acentos/Alertas) */
+  --bg-main: #f9d678;      /* Amarillo (Fondo principal) */
+  --bg-menu: #52796f;      /* Usamos el verde para el menú */
+  --white-custom: #e4d7e6;  
+  --foreground: #2d3a3a;   /* Verde muy oscuro para máxima legibilidad */ 
   font-size: 14px; 
 }
 
