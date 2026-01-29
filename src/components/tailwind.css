@@ -33,14 +33,13 @@
   }
 }
 
-/* TAMAÑO BASE PARA MÓVILES */
-:root {
-  --primary: #52796f;      /* Verde azulado (Botones/Links) */
-  --accent: #ff8c61;       /* Naranja (Acentos/Alertas) */
-  --bg-main: #f9d678;      /* Amarillo (Fondo principal) */
-  --bg-menu: #52796f;      /* Usamos el verde para el menú */
-  --white-custom: #e4d7e6;  
-  --foreground: #2d3a3a;   /* Verde muy oscuro para máxima legibilidad */ 
+d:root {
+  --primary: #52796f;      /* Verde azulado (Texto y Botones) */
+  --accent: #ff8c61;       /* Naranja (Acentos dinámicos) */
+  --bg-main: #fef9e7;      /* Amarillo Pastelito Claro (Fondo principal) */
+  --bg-menu: #f9d678;      /* Amarillo Vibrante (Para elementos destacados) */
+  --foreground: #2d3a3a;   /* Verde oscuro para el texto */
+  
   font-size: 14px; 
 }
 

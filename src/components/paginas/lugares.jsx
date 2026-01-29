@@ -56,12 +56,11 @@ export default function LugaresHistoricos() {
     ));
   }, [lugares, filtrosActivos]);
 
-  // Renderizado de la cabecera actualizado con la nueva paleta
   const HeaderContent = (
     <header className="pt-16 pb-10 px-6 max-w-7xl mx-auto">
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
         <div>
-          {/* Cambiado a text-primary para usar el verde azulado */}
+          {/* El título en Verde Azulado sobre el fondo lavanda se verá muy nítido */}
           <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter text-primary uppercase leading-none">
             Lugares
           </h1>
@@ -76,8 +75,8 @@ export default function LugaresHistoricos() {
                   className={`
                     w-full appearance-none rounded-full px-5 py-3 text-[9px] font-black uppercase tracking-widest transition-all outline-none pr-10 cursor-pointer
                     ${isActive 
-                      ? "bg-primary text-white border-primary" // Color sólido cuando está activo
-                      : "bg-primary/10 text-primary/60 border-primary/20 hover:bg-primary/20" // Transparencia cuando no
+                      ? "bg-primary text-white border-primary" 
+                      : "bg-primary/5 text-primary/40 border-primary/10 hover:bg-primary/10"
                     }
                     border
                   `}
@@ -93,7 +92,7 @@ export default function LugaresHistoricos() {
                 </select>
                 <ChevronDown 
                   size={12} 
-                  className={`absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none ${isActive ? "text-white" : "text-primary/40"}`} 
+                  className={`absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none ${isActive ? "text-white" : "text-primary/30"}`} 
                 />
               </div>
             );
@@ -104,7 +103,8 @@ export default function LugaresHistoricos() {
   );
 
   return (
-    <main className="min-h-screen bg-bg-main pb-20 font-sans">
+    /* Cambiamos el fondo al blanco lavanda suave */
+    <main className="min-h-screen bg-[var(--white-custom)] pb-20 font-sans">
       <DetalleMaestro 
         isOpen={!!selected}
         onClose={() => setSelected(null)}
@@ -126,14 +126,16 @@ export default function LugaresHistoricos() {
           {filtrados.map(lugar => (
             <GalleryItem 
               key={lugar.id} 
-              src={lugar.Imagen_url} 
+              src={lugar.Imagen_url}
+              /* Si no tiene imagen, la card será AMARILLA para destacar sobre el fondo blanco */
+              color={!lugar.Imagen_url ? "#f9d678" : null}
               onClick={() => {
                 setSelected(lugar);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
             >
               <div className="flex gap-2 mb-2">
-                 {/* El badge usa el color accent (naranja) para resaltar sobre la imagen */}
+                 {/* El badge se mantiene en NARANJA para dar el toque cálido */}
                  <span className="text-[7px] font-black bg-accent px-2 py-0.5 text-white uppercase rounded-sm">
                    {lugar.Estado}
                  </span>
