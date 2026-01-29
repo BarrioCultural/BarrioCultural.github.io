@@ -2,16 +2,12 @@
 @plugin "tailwindcss-animate";
 
 @theme inline {
-  /* Colores Base */
-@theme inline {
   --color-primary: var(--primary);
   --color-accent: var(--accent);
   --color-bg-main: var(--bg-main);
   --color-bg-menu: var(--bg-menu);
   --color-white-custom: var(--white-custom);
-}
 
-  /* Animaciones */
   --animate-terminal-flicker: flicker 0.15s infinite;
   --animate-cursor-blink: blink 1s step-end infinite;
   --animate-shake: shake 0.2s ease-in-out 0s 2;
@@ -34,19 +30,18 @@
 }
 
 :root {
-  --primary: #52796f;      /* Verde azulado (Texto y Botones) */
-  --accent: #ff8c61;       /* Naranja (Acentos dinámicos) */
-  --bg-main: #fef9e7;      /* Amarillo Pastelito Claro (Fondo principal) */
-  --bg-menu: #f9d678;      /* Amarillo Vibrante (Para elementos destacados) */
-  --foreground: #2d3a3a;   /* Verde oscuro para el texto */
-  
-  font-size: 14px; 
+  --primary: #52796f;
+  --accent: #ff8c61;
+  --bg-main: #fef9e7;
+  --bg-menu: #f9d678;
+  --white-custom: #e4d7e6;
+  --foreground: #2d3a3a;
+  font-size: 14px;
 }
 
-/* TAMAÑO BASE PARA ESCRITORIO */
 @media (min-width: 768px) {
   :root {
-    font-size: 15px; 
+    font-size: 15px;
   }
 }
 
@@ -84,6 +79,7 @@
   .scanlines {
     @apply relative overflow-hidden;
   }
+  
   .scanlines::before {
     content: "";
     @apply absolute inset-0 z-20 pointer-events-none;
