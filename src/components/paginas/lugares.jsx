@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { GalleryGrid, GalleryItem } from "@/components/recursos/display/gallery";
@@ -6,6 +7,7 @@ import DetalleMaestro from "@/components/recursos/boxes/detalles";
 import { ChevronDown } from 'lucide-react';
 
 export default function LugaresHistoricos() {
+  // --- ESTADOS ---
   const [lugares, setLugares] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
@@ -18,19 +20,28 @@ export default function LugaresHistoricos() {
     estado: 'Todos'
   });
 
+  // --- CARGA DE DATOS ---
   useEffect(() => {
     const fetchLugares = async () => {
       setLoading(true);
-      const { data } = await supabase
-        .from('lugares') 
-        .select('*')
-        .order('Nombre', { ascending: true });
-      setLugares(data || []);
-      setLoading(false);
+      try {
+        const { data, error } = await supabase
+          .from('lugares') 
+          .select('*')
+          .order('Nombre', { ascending: true });
+        
+        if (error) throw error;
+        setLugares(data || []);
+      } catch (error) {
+        console.error("Error cargando lugares:", error.message);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchLugares();
   }, []);
 
+  // --- LÓGICA DE FILTROS ---
   const configFiltros = useMemo(() => {
     const obtenerUnicos = (campo) => [
       'Todos', 
@@ -56,11 +67,11 @@ export default function LugaresHistoricos() {
     ));
   }, [lugares, filtrosActivos]);
 
+  // --- CONTENIDO DE LA CABECERA (HeaderContent) ---
   const HeaderContent = (
     <header className="pt-16 pb-10 px-6 max-w-7xl mx-auto">
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
         <div>
-          {/* El título en Verde Azulado sobre el fondo lavanda se verá muy nítido */}
           <h1 className="text-5xl md:text-7xl font-black italic tracking-tighter text-primary uppercase leading-none">
             Lugares
           </h1>
@@ -73,12 +84,11 @@ export default function LugaresHistoricos() {
               <div key={filtro.id} className="relative group min-w-[140px]">
                 <select 
                   className={`
-                    w-full appearance-none rounded-full px-5 py-3 text-[9px] font-black uppercase tracking-widest transition-all outline-none pr-10 cursor-pointer
+                    w-full appearance-none rounded-full px-5 py-3 text-[9px] font-black uppercase tracking-widest transition-all outline-none pr-10 cursor-pointer border
                     ${isActive 
-                      ? "bg-primary text-white border-primary" 
-                      : "bg-primary/5 text-primary/40 border-primary/10 hover:bg-primary/10"
+                      ? "bg-primary text-white border-primary shadow-md" 
+                      : "bg-primary/10 text-primary/60 border-primary/20 hover:bg-primary/20"
                     }
-                    border
                   `}
                   value={filtrosActivos[filtro.id]}
                   onChange={(e) => setFiltrosActivos(prev => ({ ...prev, [filtro.id]: e.target.value }))}
@@ -102,9 +112,10 @@ export default function LugaresHistoricos() {
     </header>
   );
 
+  // --- RENDER PRINCIPAL ---
   return (
-    /* Cambiamos el fondo al blanco lavanda suave */
-    <main className="min-h-screen bg-[var(--white-custom)] pb-20 font-sans">
+    <main className="min-h-screen bg-[#fef9e7] pb-20 font-sans transition-colors duration-500">
+      {/* Componente de Detalle que se abre al hacer click */}
       <DetalleMaestro 
         isOpen={!!selected}
         onClose={() => setSelected(null)}
@@ -127,7 +138,8 @@ export default function LugaresHistoricos() {
             <GalleryItem 
               key={lugar.id} 
               src={lugar.Imagen_url}
-              /* Si no tiene imagen, la card será AMARILLA para destacar sobre el fondo blanco */
+              alt={lugar.Nombre}
+              /* Si no hay imagen, usamos el amarillo vibrante de tu captura para que la card resalte */
               color={!lugar.Imagen_url ? "#f9d678" : null}
               onClick={() => {
                 setSelected(lugar);
@@ -135,8 +147,7 @@ export default function LugaresHistoricos() {
               }}
             >
               <div className="flex gap-2 mb-2">
-                 {/* El badge se mantiene en NARANJA para dar el toque cálido */}
-                 <span className="text-[7px] font-black bg-accent px-2 py-0.5 text-white uppercase rounded-sm">
+                 <span className="text-[7px] font-black bg-accent px-2 py-0.5 text-white uppercase rounded-sm shadow-sm">
                    {lugar.Estado}
                  </span>
               </div>
