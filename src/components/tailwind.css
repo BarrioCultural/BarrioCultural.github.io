@@ -3,13 +3,13 @@
 
 @theme inline {
   /* Colores Base */
-
+@theme inline {
   --color-primary: var(--primary);
   --color-accent: var(--accent);
   --color-bg-main: var(--bg-main);
   --color-bg-menu: var(--bg-menu);
   --color-white-custom: var(--white-custom);
-  
+}
 
   /* Animaciones */
   --animate-terminal-flicker: flicker 0.15s infinite;
