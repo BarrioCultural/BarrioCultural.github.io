@@ -138,7 +138,7 @@ export default function LugaresHistoricos() {
               color={!lugar.Imagen_url ? "var(--accent)" : null}
               onClick={() => {
                 setSelected(lugar);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                window.scrollTo({ top: 1, behavior: 'smooth' });
               }}
             >
               <div className="flex gap-2 mb-2">
